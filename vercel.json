@@ -1,11 +1,35 @@
 {
-  "outputDirectory": "public",
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/api/config", "destination": "/api/config.js" },
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/display", "destination": "/display.html" },
-    { "source": "/team", "destination": "/team.html" },
-    { "source": "/admin", "destination": "/admin.html" }
+  "version": 2,
+  "builds": [
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/config.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/config",
+      "dest": "/api/config.js"
+    },
+    {
+      "src": "/display",
+      "dest": "/public/display.html"
+    },
+    {
+      "src": "/team",
+      "dest": "/public/team.html"
+    },
+    {
+      "src": "/admin",
+      "dest": "/public/admin.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
+    }
   ]
 }
