@@ -1,6 +1,6 @@
 // Admin Control Panel JavaScript
 document.addEventListener('DOMContentLoaded', () => {
-  const socket = io();
+  const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
 
   // Elements
   const adminHeaderRound = document.getElementById('adminHeaderRound');

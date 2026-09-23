@@ -1,6 +1,6 @@
 // Display View JavaScript (Projector Screen)
 document.addEventListener('DOMContentLoaded', () => {
-  const socket = io();
+  const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
 
   // DOM Elements
   const timerIconSlot = document.getElementById('timerIconSlot');

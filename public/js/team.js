@@ -1,6 +1,6 @@
 // Team Client JavaScript
 document.addEventListener('DOMContentLoaded', () => {
-  const socket = io();
+  const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
 
   // Elements
   const teamSelectScreen = document.getElementById('teamSelectScreen');
