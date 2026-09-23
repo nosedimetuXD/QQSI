@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>¿Quién quiere ser Ingeniero? - Panel de Equipo</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- KaTeX for Math Formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+
+  <!-- Socket.IO -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- Custom Styles & Icons -->
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="/js/icons.js"></script>
+</head>
+<body class="gingham-pattern text-slate-800 flex flex-col min-h-screen select-none relative">
+
+  <!-- TOP HEADER -->
+  <header class="w-full px-4 py-3 bg-white/80 backdrop-blur-md border-b border-blue-200 shadow-sm flex items-center justify-between sticky top-0 z-30">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-full bg-white border border-blue-400 p-0.5 shadow-sm flex items-center justify-center">
+        <img src="/img/logo-ecs.svg" alt="ECS" class="w-full h-full">
+      </div>
+      <div>
+        <h1 class="text-sm font-black font-display text-slate-900 tracking-tight leading-tight">QQSI</h1>
+        <p class="text-[11px] font-bold text-blue-700 leading-tight" id="teamHeaderName">Seleccionar Equipo</p>
+      </div>
+    </div>
+
+    <!-- Timer Widget on Mobile -->
+    <div id="teamTimerBox" class="flex items-center gap-1.5 bg-slate-900 text-white px-3 py-1 rounded-xl text-xs font-mono font-bold shadow">
+      <div id="teamTimerIconSlot" class="text-blue-400"></div>
+      <span id="teamTimerText">00:00</span>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 p-4 max-w-md mx-auto w-full flex flex-col justify-center relative z-20 pb-12">
+
+    <!-- STEP 1: TEAM SELECTION SCREEN -->
+    <div id="teamSelectScreen" class="denim-card denim-texture p-6 shadow-xl">
+      <div class="text-center mb-5">
+        <div class="ribbon-banner text-base mb-2">Concurso de Ingeniería</div>
+        <h2 class="text-2xl font-black font-display text-white">Identifica a tu Equipo</h2>
+        <p class="text-xs text-blue-100 mt-1">Selecciona la carrera de tu equipo para ingresar</p>
+      </div>
+
+      <div id="teamsListContainer" class="space-y-2.5 mb-4">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- STEP 2: ACTIVE TEAM GAME DASHBOARD -->
+    <div id="teamDashboardScreen" class="hidden flex-col items-center">
+      
+      <!-- Team Profile Card -->
+      <div class="w-full mb-3 flex items-center justify-between bg-white/90 backdrop-blur-md p-3 rounded-2xl border border-blue-200 shadow-sm">
+        <div class="flex items-center gap-2.5">
+          <div id="activeTeamColorDot" class="w-4 h-4 rounded-full shadow"></div>
+          <div>
+            <h3 id="activeTeamName" class="text-sm font-extrabold text-slate-900 leading-tight">Ingeniería</h3>
+            <span id="activeTeamRoundBadge" class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Ronda 1: Fácil</span>
+          </div>
+        </div>
+        <button id="btnChangeTeam" class="text-[11px] font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition">
+          Cambiar
+        </button>
+      </div>
+
+      <!-- Main Action Denim Card -->
+      <div class="w-full denim-card denim-texture p-6 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
+        
+        <!-- Status Banner -->
+        <div id="teamQuestionBanner" class="ribbon-banner text-lg mb-4">
+          Pregunta Activa
+        </div>
+
+        <!-- Question Brief -->
+        <div class="w-full my-2">
+          <h4 id="teamQuestionStatement" class="text-lg font-bold text-white leading-snug mb-3">
+            Esperando que el moderador lance la siguiente pregunta...
+          </h4>
+          <div id="teamQuestionMath" class="hidden text-xl text-cyan-200 font-bold my-2 p-2 bg-slate-900/30 rounded-xl"></div>
+        </div>
+
+        <!-- BIG BUZZER BUTTON -->
+        <div class="w-full my-6 flex flex-col items-center">
+          <button id="btnSubmitAnswer" class="buzzer-btn w-full py-6 px-4 rounded-3xl text-white font-display font-black text-xl tracking-wide uppercase flex flex-col items-center justify-center gap-1 shadow-2xl active:scale-95 transition-all">
+            <div id="buzzerIconSlot" class="mb-1"></div>
+            <span>¡Hemos Terminado!</span>
+            <span class="text-xs font-normal normal-case opacity-90 tracking-normal">Pulsar para entregar respuesta</span>
+          </button>
+        </div>
+
+        <!-- Delivery Status Box -->
+        <div id="deliveryStatusBox" class="hidden w-full p-4 rounded-2xl bg-emerald-950/80 border border-emerald-400 text-white flex flex-col items-center animate-fade-in">
+          <div class="flex items-center gap-2 mb-1">
+            <div id="checkIconSlot" class="text-emerald-400"></div>
+            <span class="font-extrabold text-emerald-300 text-base">¡Respuesta Entregada!</span>
+          </div>
+          <div class="text-xs text-emerald-100 flex items-center gap-3 mt-1 font-mono">
+            <span>Orden de entrega: <strong id="deliveryOrderText" class="text-amber-300 font-black text-sm">#1</strong></span>
+            <span>•</span>
+            <span>Tiempo: <strong id="deliveryTimeText" class="text-cyan-300 font-bold">00:42</strong></span>
+          </div>
+          <p class="text-[11px] text-slate-300 mt-2">Esperando calificación del moderador...</p>
+        </div>
+
+        <!-- Waiting Notice -->
+        <div id="waitingNoticeBox" class="text-xs text-blue-100 font-semibold mt-2">
+          Mira la pantalla del proyector para ver todos los detalles y opciones.
+        </div>
+
+      </div>
+
+      <!-- Eliminated Notice (Shown only if team is eliminated) -->
+      <div id="eliminatedScreen" class="hidden w-full mt-4 p-5 rounded-2xl bg-red-950/90 border border-red-500 text-white text-center shadow-xl">
+        <div class="w-12 h-12 rounded-full bg-red-800 mx-auto flex items-center justify-center text-white mb-2" id="eliminatedIconSlot"></div>
+        <h4 class="text-lg font-black font-display">Equipo Eliminado</h4>
+        <p class="text-xs text-red-200 mt-1">Tu equipo ha quedado fuera de competencia en esta ronda. ¡Excelente esfuerzo!</p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="/js/team.js"></script>
+</body>
+</html>

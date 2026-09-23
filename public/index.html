@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Quién quiere ser Ingeniero? - Hub Principal</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom Styles & Icons -->
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="/js/icons.js"></script>
+</head>
+<body class="gingham-pattern text-slate-800 flex flex-col min-h-screen relative select-none">
+
+  <!-- Origami Stars (Top-Left Decor) -->
+  <div class="absolute top-2 left-4 w-32 h-32 pointer-events-none z-10 opacity-80">
+    <img src="/img/origami-stars.svg" alt="Estrellas Decorativas" class="w-full h-full">
+  </div>
+
+  <!-- Origami Boat (Bottom-Right Decor) -->
+  <div class="absolute bottom-2 right-6 w-44 h-28 pointer-events-none z-20 opacity-90">
+    <img src="/img/origami-boat.svg" alt="Barco Origami" class="w-full h-full">
+  </div>
+
+  <!-- Bottom Waves Trim -->
+  <div class="absolute bottom-0 left-0 right-0 h-10 pointer-events-none z-10">
+    <img src="/img/waves.svg" alt="Olas" class="w-full h-full object-cover">
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 flex flex-col items-center justify-center p-6 max-w-4xl mx-auto w-full z-20">
+    
+    <div class="denim-card denim-texture p-8 md:p-12 w-full text-center shadow-2xl relative">
+      
+      <!-- Top Monogram -->
+      <div class="w-20 h-20 rounded-full bg-white p-1.5 shadow-md border-2 border-blue-300 mx-auto mb-4">
+        <img src="/img/logo-ecs.svg" alt="Logo ECS" class="w-full h-full">
+      </div>
+
+      <!-- Main Title -->
+      <div class="ribbon-banner text-2xl md:text-3xl mb-4">
+        ¿Quién quiere ser Ingeniero?
+      </div>
+      <p class="text-sm md:text-base text-blue-100 max-w-xl mx-auto mb-8 font-medium">
+        Sistema en tiempo real para el concurso intercarreras. Selecciona tu rol para ingresar a la plataforma:
+      </p>
+
+      <!-- Roles Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-left mb-8">
+        
+        <!-- 1. DISPLAY / PROYECCION -->
+        <a href="/display.html" class="p-5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-md transition-all duration-200 hover:-translate-y-1 shadow-lg group flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-blue-600/80 text-white flex items-center justify-center mb-3 shadow" id="hubScreenIcon"></div>
+            <h3 class="text-lg font-bold text-white mb-1 group-hover:text-blue-200 transition">Proyección</h3>
+            <p class="text-xs text-blue-100">Para el auditorio o videobeam. Muestra las preguntas, fórmulas KaTeX, código y cronómetro en vivo.</p>
+          </div>
+          <div class="mt-4 flex items-center gap-1 text-xs font-bold text-cyan-300">
+            <span>Abrir Pantalla</span>
+            <span id="hubArrow1"></span>
+          </div>
+        </a>
+
+        <!-- 2. TEAMS / EQUIPOS -->
+        <a href="/team.html" class="p-5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-md transition-all duration-200 hover:-translate-y-1 shadow-lg group flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-emerald-600/80 text-white flex items-center justify-center mb-3 shadow" id="hubPhoneIcon"></div>
+            <h3 class="text-lg font-bold text-white mb-1 group-hover:text-emerald-200 transition">Equipos</h3>
+            <p class="text-xs text-blue-100">Para los 5 equipos en sus teléfonos o laptops. Botón interactivo para entregar respuestas al instante.</p>
+          </div>
+          <div class="mt-4 flex items-center gap-1 text-xs font-bold text-emerald-300">
+            <span>Entrar como Equipo</span>
+            <span id="hubArrow2"></span>
+          </div>
+        </a>
+
+        <!-- 3. ADMIN / JUEZ -->
+        <a href="/admin.html" class="p-5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-md transition-all duration-200 hover:-translate-y-1 shadow-lg group flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-amber-600/80 text-white flex items-center justify-center mb-3 shadow" id="hubShieldIcon"></div>
+            <h3 class="text-lg font-bold text-white mb-1 group-hover:text-amber-200 transition">Moderador / Juez</h3>
+            <p class="text-xs text-blue-100">Control total del concurso: banco de preguntas, cronómetros, mesa de calificación y eliminaciones.</p>
+          </div>
+          <div class="mt-4 flex items-center gap-1 text-xs font-bold text-amber-300">
+            <span>Panel de Control</span>
+            <span id="hubArrow3"></span>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- Network Notice -->
+      <div class="text-[11px] text-blue-200 bg-black/20 p-3 rounded-xl border border-white/10 max-w-lg mx-auto">
+        <span class="font-bold text-white">Consejo de Red Local:</span> Para que los equipos jueguen desde sus teléfonos móviles, conéctalos a la misma red Wi-Fi y abre la dirección IP local del servidor en sus navegadores.
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.Icons) {
+        document.getElementById('hubScreenIcon').innerHTML = Icons.screen("w-6 h-6");
+        document.getElementById('hubPhoneIcon').innerHTML = Icons.smartphone("w-6 h-6");
+        document.getElementById('hubShieldIcon').innerHTML = Icons.shield("w-6 h-6");
+        document.getElementById('hubArrow1').innerHTML = Icons.chevronRight("w-4 h-4");
+        document.getElementById('hubArrow2').innerHTML = Icons.chevronRight("w-4 h-4");
+        document.getElementById('hubArrow3').innerHTML = Icons.chevronRight("w-4 h-4");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%">
+  <defs>
+    <linearGradient id="circGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0369a1" />
+    </linearGradient>
+  </defs>
+  <!-- Outer Ring -->
+  <circle cx="80" cy="80" r="74" fill="#ffffff" stroke="#0f172a" stroke-width="4" />
+  <circle cx="80" cy="80" r="66" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,4" />
+  
+  <!-- Circuit Nodes -->
+  <g stroke="#0284c7" stroke-width="3" fill="none">
+    <path d="M 40 40 L 60 40 L 70 60" />
+    <path d="M 120 40 L 100 40 L 90 60" />
+    <path d="M 40 120 L 60 120 L 70 100" />
+    <path d="M 120 120 L 100 120 L 90 100" />
+    <circle cx="40" cy="40" r="4" fill="#0284c7" stroke="#0f172a" stroke-width="1.5" />
+    <circle cx="120" cy="40" r="4" fill="#0284c7" stroke="#0f172a" stroke-width="1.5" />
+    <circle cx="40" cy="120" r="4" fill="#0284c7" stroke="#0f172a" stroke-width="1.5" />
+    <circle cx="120" cy="120" r="4" fill="#0284c7" stroke="#0f172a" stroke-width="1.5" />
+  </g>
+
+  <!-- Center Monogram 'ECS' -->
+  <g fill="none" stroke="#0369a1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- E -->
+    <path d="M 50 65 L 70 65 M 50 65 L 50 95 L 70 95 M 50 80 L 66 80" />
+    <!-- C -->
+    <path d="M 105 68 C 95 62, 85 70, 85 80 C 85 90, 95 98, 105 92" />
+    <!-- S Circuit Path -->
+    <path d="M 112 70 C 112 62, 100 62, 100 70 C 100 78, 112 82, 112 90 C 112 98, 98 98, 98 90" stroke="#0284c7" />
+  </g>
+</svg>

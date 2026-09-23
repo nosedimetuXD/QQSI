@@ -1,0 +1,22 @@
+{
+  "name": "quien-quiere-ser-ingeniero",
+  "version": "1.0.0",
+  "description": "Sistema en tiempo real para concurso ¿Quién quiere ser Ingeniero?",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "game-show",
+    "realtime",
+    "socket.io",
+    "ingenieria"
+  ],
+  "author": "FlowSense Team",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.8.3"
+  }
+}
