@@ -1,8 +1,17 @@
-// Team Client JavaScript
+// Team Client JavaScript with Password Authentication
 document.addEventListener('DOMContentLoaded', () => {
   const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
 
-  // Elements
+  // Auth Modal Elements
+  const teamAuthModal = document.getElementById('teamAuthModal');
+  const teamAuthForm = document.getElementById('teamAuthForm');
+  const modalTeamName = document.getElementById('modalTeamName');
+  const inputTeamPassword = document.getElementById('inputTeamPassword');
+  const teamAuthError = document.getElementById('teamAuthError');
+  const btnCancelTeamAuth = document.getElementById('btnCancelTeamAuth');
+  const modalTeamShieldIcon = document.getElementById('modalTeamShieldIcon');
+
+  // Dashboard Elements
   const teamSelectScreen = document.getElementById('teamSelectScreen');
   const teamDashboardScreen = document.getElementById('teamDashboardScreen');
   const teamsListContainer = document.getElementById('teamsListContainer');
@@ -29,22 +38,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const eliminatedScreen = document.getElementById('eliminatedScreen');
 
   // Insert SVGs
+  if (modalTeamShieldIcon && window.Icons) modalTeamShieldIcon.innerHTML = Icons.shield("w-6 h-6");
   if (teamTimerIconSlot && window.Icons) teamTimerIconSlot.innerHTML = Icons.timer("w-3.5 h-3.5");
   if (buzzerIconSlot && window.Icons) buzzerIconSlot.innerHTML = Icons.send("w-7 h-7");
   if (checkIconSlot && window.Icons) checkIconSlot.innerHTML = Icons.check("w-5 h-5");
   if (eliminatedIconSlot && window.Icons) eliminatedIconSlot.innerHTML = Icons.cross("w-6 h-6");
 
   let selectedTeamId = localStorage.getItem('qqsi_selected_team') || null;
+  let savedTeamPassword = localStorage.getItem('qqsi_team_password') || null;
+  let pendingTeamId = null;
   let currentState = null;
 
-  // Audio / Vibration feedback
+  // Haptic feedback
   function hapticAndChime() {
     if (navigator.vibrate) {
       navigator.vibrate([80, 40, 80]);
     }
   }
 
-  // Format seconds to mm:ss
   function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -69,16 +80,55 @@ document.addEventListener('DOMContentLoaded', () => {
     deliveryTimeText.textContent = formatted;
   });
 
-  // Team Selection Handler
-  function selectTeam(teamId) {
-    selectedTeamId = teamId;
-    localStorage.setItem('qqsi_selected_team', teamId);
-    updateView();
+  socket.on('team_auth_error', ({ error }) => {
+    alert(error || 'Error de autenticación de equipo');
+    btnSubmitAnswer.disabled = false;
+  });
+
+  // Open Auth Modal for Team
+  function openTeamAuth(teamId) {
+    pendingTeamId = teamId;
+    const team = currentState ? currentState.teams.find(t => t.id === teamId) : null;
+    modalTeamName.textContent = team ? team.name : 'Equipo';
+    inputTeamPassword.value = '';
+    teamAuthError.classList.add('hidden');
+    teamAuthModal.classList.remove('hidden');
+    inputTeamPassword.focus();
   }
+
+  btnCancelTeamAuth.addEventListener('click', () => {
+    pendingTeamId = null;
+    teamAuthModal.classList.add('hidden');
+  });
+
+  teamAuthForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!pendingTeamId) return;
+
+    const pwd = inputTeamPassword.value;
+    teamAuthError.classList.add('hidden');
+
+    socket.emit('team_login', { teamId: pendingTeamId, password: pwd }, (response) => {
+      if (response && response.success) {
+        selectedTeamId = pendingTeamId;
+        savedTeamPassword = pwd;
+        localStorage.setItem('qqsi_selected_team', selectedTeamId);
+        localStorage.setItem('qqsi_team_password', savedTeamPassword);
+        teamAuthModal.classList.add('hidden');
+        pendingTeamId = null;
+        updateView();
+      } else {
+        teamAuthError.textContent = (response && response.error) || 'Contraseña incorrecta para esta carrera';
+        teamAuthError.classList.remove('hidden');
+      }
+    });
+  });
 
   btnChangeTeam.addEventListener('click', () => {
     selectedTeamId = null;
+    savedTeamPassword = null;
     localStorage.removeItem('qqsi_selected_team');
+    localStorage.removeItem('qqsi_team_password');
     updateView();
   });
 
@@ -89,7 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnSubmitAnswer.disabled = true;
     hapticAndChime();
-    socket.emit('team_submit', { teamId: selectedTeamId });
+    socket.emit('team_submit', { 
+      teamId: selectedTeamId,
+      password: savedTeamPassword
+    });
   });
 
   function updateView() {
@@ -103,29 +156,28 @@ document.addEventListener('DOMContentLoaded', () => {
       const isEliminated = team.eliminated;
       return `
         <button 
-          onclick="window.selectTeamId('${team.id}')"
+          onclick="window.openTeamAuthModal('${team.id}')"
           ${isEliminated ? 'disabled' : ''}
           class="w-full p-3.5 rounded-xl border flex items-center justify-between text-left transition-all ${
             isEliminated 
-              ? 'bg-slate-800/40 border-slate-700 opacity-40 cursor-not-allowed text-slate-400' 
-              : 'bg-white/15 hover:bg-white/30 active:scale-98 border-white/30 text-white shadow-md'
+              ? 'bg-slate-950/60 border-slate-800 opacity-40 cursor-not-allowed text-slate-500' 
+              : 'bg-slate-950/90 hover:bg-slate-900 border-slate-700 text-white shadow-md active:scale-98'
           }">
           <div class="flex items-center gap-3">
             <div class="w-3.5 h-3.5 rounded-full shadow" style="background-color: ${team.color}"></div>
             <span class="font-bold text-sm leading-tight">${team.name}</span>
           </div>
-          ${isEliminated ? '<span class="text-[10px] font-black uppercase text-red-400">Eliminado</span>' : Icons.chevronRight("w-4 h-4 text-blue-200")}
+          ${isEliminated ? '<span class="text-[10px] font-black uppercase text-red-400">Eliminado</span>' : Icons.chevronRight("w-4 h-4 text-cyan-400")}
         </button>
       `;
     }).join('');
 
-    // Global hook for onclick
-    window.selectTeamId = selectTeam;
+    window.openTeamAuthModal = openTeamAuth;
 
-    // Check if team is selected
+    // Check if team is authenticated
     const team = currentState.teams.find(t => t.id === selectedTeamId);
 
-    if (!team) {
+    if (!team || !savedTeamPassword) {
       teamSelectScreen.classList.remove('hidden');
       teamDashboardScreen.classList.add('hidden');
       teamHeaderName.textContent = "Seleccionar Equipo";

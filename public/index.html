@@ -19,12 +19,12 @@
 <body class="gingham-pattern text-slate-800 flex flex-col min-h-screen relative select-none">
 
   <!-- Origami Stars (Top-Left Decor) -->
-  <div class="absolute top-2 left-4 w-32 h-32 pointer-events-none z-10 opacity-80">
+  <div class="absolute top-2 left-4 w-32 h-32 pointer-events-none z-10 opacity-85">
     <img src="/img/origami-stars.svg" alt="Estrellas Decorativas" class="w-full h-full">
   </div>
 
   <!-- Origami Boat (Bottom-Right Decor) -->
-  <div class="absolute bottom-2 right-6 w-44 h-28 pointer-events-none z-20 opacity-90">
+  <div class="absolute bottom-2 right-6 w-44 h-28 pointer-events-none z-20 opacity-95">
     <img src="/img/origami-boat.svg" alt="Barco Origami" class="w-full h-full">
   </div>
 
@@ -39,7 +39,7 @@
     <div class="denim-card denim-texture p-8 md:p-12 w-full text-center shadow-2xl relative">
       
       <!-- Top Monogram -->
-      <div class="w-20 h-20 rounded-full bg-white p-1.5 shadow-md border-2 border-blue-300 mx-auto mb-4">
+      <div class="w-20 h-20 rounded-full bg-white p-1.5 shadow-lg border-2 border-blue-400 mx-auto mb-4">
         <img src="/img/logo-ecs.svg" alt="Logo ECS" class="w-full h-full">
       </div>
 
@@ -47,47 +47,47 @@
       <div class="ribbon-banner text-2xl md:text-3xl mb-4">
         ¿Quién quiere ser Ingeniero?
       </div>
-      <p class="text-sm md:text-base text-blue-100 max-w-xl mx-auto mb-8 font-medium">
-        Sistema en tiempo real para el concurso intercarreras. Selecciona tu rol para ingresar a la plataforma:
+      <p class="text-sm md:text-base text-slate-100 max-w-xl mx-auto mb-8 font-semibold tracking-wide drop-shadow">
+        Sistema interactivo en tiempo real para el concurso intercarreras. Selecciona tu rol para ingresar a la plataforma:
       </p>
 
-      <!-- Roles Grid -->
+      <!-- Roles Grid with High Contrast Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-left mb-8">
         
         <!-- 1. DISPLAY / PROYECCION -->
-        <a href="/display.html" class="p-5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-md transition-all duration-200 hover:-translate-y-1 shadow-lg group flex flex-col justify-between">
+        <a href="/display.html" class="role-card-box p-5 group flex flex-col justify-between shadow-xl">
           <div>
-            <div class="w-12 h-12 rounded-xl bg-blue-600/80 text-white flex items-center justify-center mb-3 shadow" id="hubScreenIcon"></div>
-            <h3 class="text-lg font-bold text-white mb-1 group-hover:text-blue-200 transition">Proyección</h3>
-            <p class="text-xs text-blue-100">Para el auditorio o videobeam. Muestra las preguntas, fórmulas KaTeX, código y cronómetro en vivo.</p>
+            <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center mb-3 shadow-md" id="hubScreenIcon"></div>
+            <h3 class="text-lg font-black text-white mb-1.5 group-hover:text-cyan-300 transition">Proyección</h3>
+            <p class="text-xs text-slate-200 font-medium leading-relaxed">Para el auditorio o videobeam. Muestra preguntas en grande, fórmulas KaTeX, código y cronómetro en vivo.</p>
           </div>
-          <div class="mt-4 flex items-center gap-1 text-xs font-bold text-cyan-300">
+          <div class="mt-5 flex items-center gap-1.5 text-xs font-black text-cyan-300 group-hover:translate-x-1 transition-transform">
             <span>Abrir Pantalla</span>
             <span id="hubArrow1"></span>
           </div>
         </a>
 
         <!-- 2. TEAMS / EQUIPOS -->
-        <a href="/team.html" class="p-5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-md transition-all duration-200 hover:-translate-y-1 shadow-lg group flex flex-col justify-between">
+        <a href="/team.html" class="role-card-box p-5 group flex flex-col justify-between shadow-xl">
           <div>
-            <div class="w-12 h-12 rounded-xl bg-emerald-600/80 text-white flex items-center justify-center mb-3 shadow" id="hubPhoneIcon"></div>
-            <h3 class="text-lg font-bold text-white mb-1 group-hover:text-emerald-200 transition">Equipos</h3>
-            <p class="text-xs text-blue-100">Para los 5 equipos en sus teléfonos o laptops. Botón interactivo para entregar respuestas al instante.</p>
+            <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center mb-3 shadow-md" id="hubPhoneIcon"></div>
+            <h3 class="text-lg font-black text-white mb-1.5 group-hover:text-emerald-300 transition">Equipos</h3>
+            <p class="text-xs text-slate-200 font-medium leading-relaxed">Para los 5 equipos en sus teléfonos o laptops. Requiere la clave de tu carrera para entregar respuestas.</p>
           </div>
-          <div class="mt-4 flex items-center gap-1 text-xs font-bold text-emerald-300">
+          <div class="mt-5 flex items-center gap-1.5 text-xs font-black text-emerald-300 group-hover:translate-x-1 transition-transform">
             <span>Entrar como Equipo</span>
             <span id="hubArrow2"></span>
           </div>
         </a>
 
         <!-- 3. ADMIN / JUEZ -->
-        <a href="/admin.html" class="p-5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-md transition-all duration-200 hover:-translate-y-1 shadow-lg group flex flex-col justify-between">
+        <a href="/admin.html" class="role-card-box p-5 group flex flex-col justify-between shadow-xl">
           <div>
-            <div class="w-12 h-12 rounded-xl bg-amber-600/80 text-white flex items-center justify-center mb-3 shadow" id="hubShieldIcon"></div>
-            <h3 class="text-lg font-bold text-white mb-1 group-hover:text-amber-200 transition">Moderador / Juez</h3>
-            <p class="text-xs text-blue-100">Control total del concurso: banco de preguntas, cronómetros, mesa de calificación y eliminaciones.</p>
+            <div class="w-12 h-12 rounded-xl bg-amber-600 text-white flex items-center justify-center mb-3 shadow-md" id="hubShieldIcon"></div>
+            <h3 class="text-lg font-black text-white mb-1.5 group-hover:text-amber-300 transition">Moderador / Juez</h3>
+            <p class="text-xs text-slate-200 font-medium leading-relaxed">Control total del concurso: banco de preguntas, cronómetros, calificación y eliminaciones. Requiere contraseña.</p>
           </div>
-          <div class="mt-4 flex items-center gap-1 text-xs font-bold text-amber-300">
+          <div class="mt-5 flex items-center gap-1.5 text-xs font-black text-amber-300 group-hover:translate-x-1 transition-transform">
             <span>Panel de Control</span>
             <span id="hubArrow3"></span>
           </div>
@@ -96,8 +96,8 @@
       </div>
 
       <!-- Network Notice -->
-      <div class="text-[11px] text-blue-200 bg-black/20 p-3 rounded-xl border border-white/10 max-w-lg mx-auto">
-        <span class="font-bold text-white">Consejo de Red Local:</span> Para que los equipos jueguen desde sus teléfonos móviles, conéctalos a la misma red Wi-Fi y abre la dirección IP local del servidor en sus navegadores.
+      <div class="text-xs text-slate-200 bg-slate-950/70 p-3.5 rounded-xl border border-white/20 max-w-lg mx-auto font-medium">
+        <span class="font-bold text-cyan-300">Conexión Móvil:</span> Los equipos pueden ingresar directamente a este enlace desde sus teléfonos celulares para competir.
       </div>
 
     </div>

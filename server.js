@@ -20,6 +20,28 @@ app.use(express.json());
 // Load questions bank
 const questionsData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'questions.json'), 'utf8'));
 
+// Passwords Configuration
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'LinoTeto';
+
+const TEAM_PASSWORDS = {
+  sistemas: ['Sistemas2026*'],
+  alimentos: ['Alimentos2026*'],
+  quimica: ['Quimica2026*', 'Química2026*'],
+  civil: ['Civil2026*'],
+  petroquimica: ['Petroquimica2026*', 'Petroquímica2026*', 'ProcesosPetroquimicos2026*']
+};
+
+function isValidAdminPassword(pwd) {
+  return pwd && pwd.trim() === ADMIN_PASSWORD;
+}
+
+function isValidTeamPassword(teamId, pwd) {
+  if (!teamId || !pwd) return false;
+  const validList = TEAM_PASSWORDS[teamId];
+  if (!validList) return false;
+  return validList.some(validPwd => validPwd.toLowerCase() === pwd.trim().toLowerCase());
+}
+
 // Initial default teams
 const DEFAULT_TEAMS = [
   { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0284c7', eliminated: false, score: 0, eliminatedInRound: null },
@@ -173,8 +195,37 @@ io.on('connection', (socket) => {
   socket.emit('state_update', gameState);
   socket.emit('questions_data', questionsData);
 
+  // --- AUTHENTICATION HANDLERS ---
+  socket.on('admin_login', ({ password }, callback) => {
+    if (isValidAdminPassword(password)) {
+      socket.data.isAdmin = true;
+      if (typeof callback === 'function') callback({ success: true });
+      socket.emit('admin_login_success');
+    } else {
+      if (typeof callback === 'function') callback({ success: false, error: 'Contraseña de Administrador incorrecta' });
+      socket.emit('admin_login_error', { error: 'Contraseña de Administrador incorrecta' });
+    }
+  });
+
+  socket.on('team_login', ({ teamId, password }, callback) => {
+    if (isValidTeamPassword(teamId, password)) {
+      socket.data.teamId = teamId;
+      if (typeof callback === 'function') callback({ success: true, teamId });
+      socket.emit('team_login_success', { teamId });
+    } else {
+      if (typeof callback === 'function') callback({ success: false, error: 'Contraseña incorrecta para esta carrera' });
+      socket.emit('team_login_error', { error: 'Contraseña incorrecta para esta carrera' });
+    }
+  });
+
+  // Helper check for admin authorization
+  function checkAdmin(authPassword) {
+    return socket.data.isAdmin || isValidAdminPassword(authPassword);
+  }
+
   // --- ADMIN ACTIONS ---
-  socket.on('admin_select_round', ({ roundIndex }) => {
+  socket.on('admin_select_round', ({ roundIndex, adminPassword }) => {
+    if (!checkAdmin(adminPassword)) return;
     if (roundIndex >= 0 && roundIndex < questionsData.rounds.length) {
       gameState.currentRoundIndex = roundIndex;
       gameState.currentQuestionIndex = 0;
@@ -188,7 +239,8 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('admin_select_question', ({ roundIndex, questionIndex }) => {
+  socket.on('admin_select_question', ({ roundIndex, questionIndex, adminPassword }) => {
+    if (!checkAdmin(adminPassword)) return;
     const round = questionsData.rounds[roundIndex];
     if (round && round.questions[questionIndex]) {
       gameState.currentRoundIndex = roundIndex;
@@ -202,7 +254,8 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('admin_start_question', () => {
+  socket.on('admin_start_question', ({ adminPassword } = {}) => {
+    if (!checkAdmin(adminPassword)) return;
     const round = questionsData.rounds[gameState.currentRoundIndex];
     if (!round) return;
     const question = round.questions[gameState.currentQuestionIndex];
@@ -213,19 +266,23 @@ io.on('connection', (socket) => {
     startTimer(round.timeLimit);
   });
 
-  socket.on('admin_pause_timer', () => {
+  socket.on('admin_pause_timer', ({ adminPassword } = {}) => {
+    if (!checkAdmin(adminPassword)) return;
     pauseTimer();
   });
 
-  socket.on('admin_resume_timer', () => {
+  socket.on('admin_resume_timer', ({ adminPassword } = {}) => {
+    if (!checkAdmin(adminPassword)) return;
     resumeTimer();
   });
 
-  socket.on('admin_stop_question', () => {
+  socket.on('admin_stop_question', ({ adminPassword } = {}) => {
+    if (!checkAdmin(adminPassword)) return;
     stopTimer();
   });
 
-  socket.on('admin_evaluate_submission', ({ teamId, isCorrect }) => {
+  socket.on('admin_evaluate_submission', ({ teamId, isCorrect, adminPassword }) => {
+    if (!checkAdmin(adminPassword)) return;
     const sub = gameState.submissions.find(s => s.teamId === teamId);
     if (sub) {
       sub.correct = isCorrect;
@@ -234,7 +291,8 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('admin_confirm_and_apply_points', () => {
+  socket.on('admin_confirm_and_apply_points', ({ adminPassword } = {}) => {
+    if (!checkAdmin(adminPassword)) return;
     recalculateScores();
     // Add points to current round scores
     for (let sub of gameState.submissions) {
@@ -261,7 +319,8 @@ io.on('connection', (socket) => {
     broadcastState();
   });
 
-  socket.on('admin_eliminate_team', ({ teamId }) => {
+  socket.on('admin_eliminate_team', ({ teamId, adminPassword }) => {
+    if (!checkAdmin(adminPassword)) return;
     const team = gameState.teams.find(t => t.id === teamId);
     if (team) {
       team.eliminated = true;
@@ -275,7 +334,8 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('admin_next_round', () => {
+  socket.on('admin_next_round', ({ adminPassword } = {}) => {
+    if (!checkAdmin(adminPassword)) return;
     if (gameState.currentRoundIndex < questionsData.rounds.length - 1) {
       gameState.currentRoundIndex++;
       gameState.currentQuestionIndex = 0;
@@ -290,7 +350,8 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('admin_reset_game', () => {
+  socket.on('admin_reset_game', ({ adminPassword } = {}) => {
+    if (!checkAdmin(adminPassword)) return;
     gameState.teams = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
     gameState.currentRoundIndex = 0;
     gameState.currentQuestionIndex = 0;
@@ -305,11 +366,17 @@ io.on('connection', (socket) => {
   });
 
   // --- TEAM ACTIONS ---
-  socket.on('team_submit', ({ teamId }) => {
+  socket.on('team_submit', ({ teamId, password }) => {
     if (gameState.questionState !== 'running') return;
     
     const team = gameState.teams.find(t => t.id === teamId);
     if (!team || team.eliminated) return;
+
+    // Validate Team Password
+    if (!isValidTeamPassword(teamId, password) && socket.data.teamId !== teamId) {
+      socket.emit('team_auth_error', { error: 'Contraseña inválida para este equipo' });
+      return;
+    }
 
     // Check if team already submitted
     const alreadySubmitted = gameState.submissions.some(s => s.teamId === teamId);

@@ -1,8 +1,16 @@
-// Admin Control Panel JavaScript
+// Admin Control Panel JavaScript with Password Authentication
 document.addEventListener('DOMContentLoaded', () => {
   const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
 
-  // Elements
+  // Authentication DOM Elements
+  const adminLoginModal = document.getElementById('adminLoginModal');
+  const adminLoginForm = document.getElementById('adminLoginForm');
+  const inputAdminPassword = document.getElementById('inputAdminPassword');
+  const adminLoginError = document.getElementById('adminLoginError');
+  const btnLogoutAdmin = document.getElementById('btnLogoutAdmin');
+  const modalShieldIcon = document.getElementById('modalShieldIcon');
+
+  // Main Admin Elements
   const adminHeaderRound = document.getElementById('adminHeaderRound');
   const roundTabsContainer = document.getElementById('roundTabsContainer');
   const selectQuestion = document.getElementById('selectQuestion');
@@ -43,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const alertIconSlot = document.getElementById('alertIconSlot');
 
   if (window.Icons) {
+    if (modalShieldIcon) modalShieldIcon.innerHTML = Icons.shield("w-8 h-8");
     if (screenIconSlot) screenIconSlot.innerHTML = Icons.screen("w-4 h-4");
     if (phoneIconSlot) phoneIconSlot.innerHTML = Icons.smartphone("w-4 h-4");
     if (resetIconSlot) resetIconSlot.innerHTML = Icons.rotateCcw("w-3.5 h-3.5");
@@ -56,6 +65,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let questionsData = null;
   let currentState = null;
+  let currentAdminPassword = sessionStorage.getItem('qqsi_admin_password') || '';
+
+  // Auth Handling
+  function checkAuthOnConnect() {
+    if (currentAdminPassword) {
+      socket.emit('admin_login', { password: currentAdminPassword }, (response) => {
+        if (response && response.success) {
+          adminLoginModal.classList.add('hidden');
+        } else {
+          sessionStorage.removeItem('qqsi_admin_password');
+          currentAdminPassword = '';
+          adminLoginModal.classList.remove('hidden');
+        }
+      });
+    } else {
+      adminLoginModal.classList.remove('hidden');
+    }
+  }
+
+  adminLoginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pwd = inputAdminPassword.value;
+    adminLoginError.classList.add('hidden');
+
+    socket.emit('admin_login', { password: pwd }, (response) => {
+      if (response && response.success) {
+        currentAdminPassword = pwd;
+        sessionStorage.setItem('qqsi_admin_password', pwd);
+        adminLoginModal.classList.add('hidden');
+        inputAdminPassword.value = '';
+      } else {
+        adminLoginError.textContent = (response && response.error) || 'Contraseña incorrecta';
+        adminLoginError.classList.remove('hidden');
+      }
+    });
+  });
+
+  btnLogoutAdmin.addEventListener('click', () => {
+    sessionStorage.removeItem('qqsi_admin_password');
+    currentAdminPassword = '';
+    window.location.reload();
+  });
+
+  socket.on('connect', () => {
+    checkAuthOnConnect();
+  });
 
   function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
@@ -99,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         class="p-2.5 rounded-xl border text-xs font-bold text-left transition flex items-center justify-between ${
           idx === currentRoundIdx
             ? 'bg-blue-600 border-blue-400 text-white shadow-md'
-            : 'bg-slate-900/60 border-slate-700 text-slate-300 hover:bg-slate-700/60'
+            : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'
         }">
         <span>${round.name}</span>
         <span class="text-[10px] opacity-75 font-mono">${round.timeLimit}s</span>
@@ -108,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.selectAdminRound = (roundIdx) => {
-    socket.emit('admin_select_round', { roundIndex: roundIdx });
+    socket.emit('admin_select_round', { roundIndex: roundIdx, adminPassword: currentAdminPassword });
   };
 
   // Render Questions in Dropdown
@@ -128,7 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const questionIndex = parseInt(e.target.value, 10);
     socket.emit('admin_select_question', {
       roundIndex: currentState.currentRoundIndex,
-      questionIndex
+      questionIndex,
+      adminPassword: currentAdminPassword
     });
   });
 
@@ -155,24 +211,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Button Handlers
   btnLaunchQuestion.addEventListener('click', () => {
-    socket.emit('admin_start_question');
+    socket.emit('admin_start_question', { adminPassword: currentAdminPassword });
   });
 
   btnPauseResume.addEventListener('click', () => {
     if (!currentState) return;
     if (currentState.questionState === 'running') {
-      socket.emit('admin_pause_timer');
+      socket.emit('admin_pause_timer', { adminPassword: currentAdminPassword });
     } else if (currentState.questionState === 'paused') {
-      socket.emit('admin_resume_timer');
+      socket.emit('admin_resume_timer', { adminPassword: currentAdminPassword });
     }
   });
 
   btnStopQuestion.addEventListener('click', () => {
-    socket.emit('admin_stop_question');
+    socket.emit('admin_stop_question', { adminPassword: currentAdminPassword });
   });
 
   btnApplyPoints.addEventListener('click', () => {
-    socket.emit('admin_confirm_and_apply_points');
+    socket.emit('admin_confirm_and_apply_points', { adminPassword: currentAdminPassword });
   });
 
   btnConfirmElimination.addEventListener('click', () => {
@@ -180,24 +236,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!teamId) return;
     const team = currentState.teams.find(t => t.id === teamId);
     if (confirm(`¿Confirmas la eliminación de "${team.name}" de la competencia?`)) {
-      socket.emit('admin_eliminate_team', { teamId });
+      socket.emit('admin_eliminate_team', { teamId, adminPassword: currentAdminPassword });
     }
   });
 
   btnNextRound.addEventListener('click', () => {
     if (confirm('¿Deseas avanzar a la siguiente ronda? Esto reiniciará los puntajes acumulados para la nueva ronda con los equipos no eliminados.')) {
-      socket.emit('admin_next_round');
+      socket.emit('admin_next_round', { adminPassword: currentAdminPassword });
     }
   });
 
   btnResetGame.addEventListener('click', () => {
     if (confirm('¿ADVERTENCIA: Deseas reiniciar todo el concurso desde cero? Se restablecerán todos los equipos, rondas y puntajes.')) {
-      socket.emit('admin_reset_game');
+      socket.emit('admin_reset_game', { adminPassword: currentAdminPassword });
     }
   });
 
   window.evaluateTeam = (teamId, isCorrect) => {
-    socket.emit('admin_evaluate_submission', { teamId, isCorrect });
+    socket.emit('admin_evaluate_submission', { teamId, isCorrect, adminPassword: currentAdminPassword });
   };
 
   function renderAdminView(state) {
@@ -247,25 +303,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeFormatted = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
         
         let bonusBadge = '';
-        if (sub.bonusPoints === 5) bonusBadge = `<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 text-[10px]">+5 Bono (1º)</span>`;
-        else if (sub.bonusPoints === 3) bonusBadge = `<span class="px-1.5 py-0.5 rounded bg-slate-400/20 text-slate-300 font-bold border border-slate-400/40 text-[10px]">+3 Bono (2º)</span>`;
-        else if (sub.bonusPoints === 1) bonusBadge = `<span class="px-1.5 py-0.5 rounded bg-amber-700/20 text-amber-400 font-bold border border-amber-700/40 text-[10px]">+1 Bono (3º)</span>`;
+        if (sub.bonusPoints === 5) bonusBadge = `<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/50 text-[11px]">+5 Bono (1º)</span>`;
+        else if (sub.bonusPoints === 3) bonusBadge = `<span class="px-2 py-0.5 rounded bg-slate-400/20 text-slate-200 font-bold border border-slate-400/50 text-[11px]">+3 Bono (2º)</span>`;
+        else if (sub.bonusPoints === 1) bonusBadge = `<span class="px-2 py-0.5 rounded bg-amber-700/20 text-amber-400 font-bold border border-amber-700/50 text-[11px]">+1 Bono (3º)</span>`;
 
         return `
-          <tr class="hover:bg-slate-800/40 transition">
-            <td class="p-3 font-mono font-bold text-amber-400">#${sub.order}</td>
+          <tr class="hover:bg-slate-800/60 transition">
+            <td class="p-3 font-mono font-bold text-amber-400 text-sm">#${sub.order}</td>
             <td class="p-3 font-bold text-white flex items-center gap-2">
               <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${sub.color}"></span>
-              <span>${sub.teamName}</span>
+              <span class="text-sm">${sub.teamName}</span>
             </td>
-            <td class="p-3 font-mono text-slate-300">${timeFormatted}</td>
+            <td class="p-3 font-mono text-cyan-300 font-bold">${timeFormatted}</td>
             <td class="p-3 text-center">
-              <div class="inline-flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-700">
+              <div class="inline-flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
                 <button 
                   onclick="window.evaluateTeam('${sub.teamId}', true)"
-                  class="px-2.5 py-1 rounded-lg font-bold text-xs transition flex items-center gap-1 ${
+                  class="px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5 ${
                     sub.correct === true 
-                      ? 'bg-emerald-600 text-white shadow' 
+                      ? 'bg-emerald-600 text-white shadow-md' 
                       : 'text-slate-400 hover:text-emerald-300'
                   }">
                   ${Icons.check("w-3.5 h-3.5")}
@@ -273,9 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
                 <button 
                   onclick="window.evaluateTeam('${sub.teamId}', false)"
-                  class="px-2.5 py-1 rounded-lg font-bold text-xs transition flex items-center gap-1 ${
+                  class="px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5 ${
                     sub.correct === false 
-                      ? 'bg-red-600 text-white shadow' 
+                      ? 'bg-red-600 text-white shadow-md' 
                       : 'text-slate-400 hover:text-red-300'
                   }">
                   ${Icons.cross("w-3.5 h-3.5")}
@@ -306,19 +362,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const score = state.roundScores[team.id] || 0;
 
       return `
-        <div class="flex items-center justify-between p-3 rounded-xl border ${
+        <div class="flex items-center justify-between p-3.5 rounded-xl border ${
           isEliminated 
-            ? 'bg-slate-900/40 border-slate-800 opacity-40 text-slate-500' 
-            : 'bg-slate-900/80 border-slate-700 text-white'
+            ? 'bg-slate-950/60 border-slate-800 opacity-40 text-slate-500' 
+            : 'bg-slate-950 border-slate-800 text-white'
         }">
-          <div class="flex items-center gap-2.5">
+          <div class="flex items-center gap-3">
             <span class="font-mono font-bold text-xs text-slate-400 w-5 text-center">${idx + 1}º</span>
-            <div class="w-3 h-3 rounded-full" style="background-color: ${team.color}"></div>
+            <div class="w-3.5 h-3.5 rounded-full" style="background-color: ${team.color}"></div>
             <span class="font-bold text-sm">${team.name}</span>
-            ${isEliminated ? `<span class="text-[10px] font-bold text-red-400 bg-red-950 px-1.5 py-0.5 rounded border border-red-900">Eliminado en R${team.eliminatedInRound}</span>` : ''}
+            ${isEliminated ? `<span class="text-[10px] font-bold text-red-400 bg-red-950 px-2 py-0.5 rounded border border-red-900">Eliminado R${team.eliminatedInRound}</span>` : ''}
           </div>
           <div class="flex items-center gap-2">
-            <span class="font-mono font-black text-cyan-300 text-base">${score}</span>
+            <span class="font-mono font-black text-cyan-300 text-lg">${score}</span>
             <span class="text-[10px] text-slate-400 font-bold uppercase">pts</span>
           </div>
         </div>

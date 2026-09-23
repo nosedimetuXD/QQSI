@@ -2,12 +2,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Playfair+Display:ital,wght@1,600;1,700&display=swap');
 
 :root {
-  --denim-bg: #4b78a4;
-  --denim-dark: #375f87;
-  --denim-border: rgba(255, 255, 255, 0.85);
+  --denim-bg: #1e3e62;
+  --denim-dark: #122944;
+  --denim-border: rgba(255, 255, 255, 0.95);
   --gingham-blue: #93c5fd;
-  --ribbon-blue: #3b82f6;
-  --navy-dark: #0f2744;
+  --ribbon-blue: #2563eb;
+  --navy-dark: #091728;
 }
 
 body {
@@ -18,32 +18,24 @@ body {
   min-height: 100vh;
 }
 
-/* --- Gingham / Vichy Background Pattern from PDF --- */
+/* --- Gingham / Vichy Background Pattern --- */
 .gingham-pattern {
-  background-color: #ffffff;
+  background-color: #f0f6fc;
   background-image: 
     linear-gradient(90deg, rgba(147, 197, 253, 0.45) 50%, transparent 50%),
     linear-gradient(rgba(147, 197, 253, 0.45) 50%, transparent 50%);
   background-size: 32px 32px;
 }
 
-.gingham-pattern-fine {
-  background-color: #ffffff;
-  background-image: 
-    linear-gradient(90deg, rgba(147, 197, 253, 0.35) 50%, transparent 50%),
-    linear-gradient(rgba(147, 197, 253, 0.35) 50%, transparent 50%);
-  background-size: 20px 20px;
-}
-
-/* --- Denim Stitched Card from PDF --- */
+/* --- Denim Stitched Card (High Contrast Deep Denim) --- */
 .denim-card {
-  background: linear-gradient(145deg, #5181b0 0%, #3d6896 100%);
+  background: linear-gradient(145deg, #1f4268 0%, #122944 100%) !important;
   position: relative;
   border-radius: 28px;
   box-shadow: 
-    0 25px 50px -12px rgba(15, 39, 68, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
-  color: #ffffff;
+    0 25px 60px -15px rgba(5, 18, 36, 0.75),
+    0 0 0 1px rgba(255, 255, 255, 0.25) inset;
+  color: #ffffff !important;
 }
 
 /* Stitched White Dashed Line Inner Border */
@@ -57,32 +49,32 @@ body {
   border: 2.5px dashed var(--denim-border);
   border-radius: 20px;
   pointer-events: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 /* Denim Texture Subtle Overlay */
 .denim-texture {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
-  background-size: 6px 6px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 0);
+  background-size: 5px 5px;
 }
 
 /* --- Ribbon Banner for Question Header --- */
 .ribbon-banner {
   position: relative;
-  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
   color: #ffffff;
   font-family: 'Playfair Display', serif;
   font-style: italic;
   font-weight: 700;
-  text-shadow: 0 2px 4px rgba(15, 23, 42, 0.4);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.35);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 10px 48px;
   border-radius: 6px;
-  border-top: 2px dashed rgba(255, 255, 255, 0.6);
-  border-bottom: 2px dashed rgba(255, 255, 255, 0.6);
+  border-top: 2px dashed rgba(255, 255, 255, 0.85);
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.85);
 }
 
 .ribbon-banner::before,
@@ -92,7 +84,7 @@ body {
   top: 10px;
   bottom: -10px;
   width: 28px;
-  background: #2563eb;
+  background: #1e40af;
   z-index: -1;
 }
 
@@ -106,7 +98,23 @@ body {
   clip-path: polygon(0 0, 100% 0, 50% 50%, 100% 100%, 0 100%);
 }
 
-/* Title Font */
+/* High-Contrast Role Card on Index */
+.role-card-box {
+  background: rgba(8, 23, 44, 0.65) !important;
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.role-card-box:hover {
+  background: rgba(8, 23, 44, 0.85) !important;
+  border-color: rgba(56, 189, 248, 0.6);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.5);
+}
+
+/* Text Hierarchy & Crisp Contrast */
 .font-display {
   font-family: 'Cabinet Grotesk', sans-serif;
   letter-spacing: -0.02em;
@@ -125,18 +133,18 @@ body {
 .math-display {
   font-size: 2.25rem;
   line-height: 1.4;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: #67e8f9 !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
 .katex {
   font-size: 1.15em;
-  color: inherit !important;
+  color: #67e8f9 !important;
 }
 
 /* Option Cards (Multiple Choice) */
 .option-card {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(10, 25, 47, 0.7);
   backdrop-filter: blur(8px);
   border: 1.5px solid rgba(255, 255, 255, 0.3);
   border-radius: 16px;
@@ -145,18 +153,36 @@ body {
 }
 
 .option-card:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(15, 36, 68, 0.85);
+  border-color: #38bdf8;
   transform: translateY(-2px);
 }
 
-/* Team Submission Badge in Display */
-.team-sub-badge {
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* Big Buzzer Button on Team Mobile */
+.buzzer-btn {
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  border: 4px solid #ffffff;
+  box-shadow: 
+    0 12px 24px rgba(5, 150, 105, 0.6),
+    0 4px 0 #047857;
+  transition: all 0.1s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.team-sub-badge.submitted {
-  transform: scale(1.03);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+.buzzer-btn:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 
+    0 4px 10px rgba(5, 150, 105, 0.4),
+    0 0 0 #047857;
+}
+
+.buzzer-btn:disabled {
+  background: #475569;
+  border-color: #64748b;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.8;
 }
 
 /* Pulse Animation for Timer Alert */
@@ -175,45 +201,8 @@ body {
   animation: urgentPulse 1s infinite ease-in-out;
 }
 
-/* Big Buzzer Button on Team Mobile */
-.buzzer-btn {
-  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
-  border: 4px solid #ffffff;
-  box-shadow: 
-    0 12px 24px rgba(5, 150, 105, 0.5),
-    0 4px 0 #047857;
-  transition: all 0.1s ease;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.buzzer-btn:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: 
-    0 4px 10px rgba(5, 150, 105, 0.4),
-    0 0 0 #047857;
-}
-
-.buzzer-btn:disabled {
-  background: #64748b;
-  border-color: #94a3b8;
-  box-shadow: none;
-  cursor: not-allowed;
-  opacity: 0.8;
-}
-
-/* Custom Scrollbars */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.4);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.7);
+/* Auth Modal Styles */
+.auth-modal-backdrop {
+  background: rgba(4, 13, 24, 0.85);
+  backdrop-filter: blur(10px);
 }
