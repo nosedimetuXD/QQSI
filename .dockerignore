@@ -1,0 +1,6 @@
+node_modules
+.git
+.gitignore
+*.log
+scratch_slides
+test_system.js
