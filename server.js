@@ -351,6 +351,16 @@ app.get('/api/questions', (req, res) => {
   res.json(questionsData);
 });
 
+// API endpoint for environment config
+app.get('/api/config', (req, res) => {
+  const backendUrl = 
+    process.env.BACKEND_URL || 
+    process.env.SERVER_URL || 
+    process.env.COOLIFY_URL || 
+    '';
+  res.json({ backendUrl: backendUrl.trim().replace(/\/$/, '') });
+});
+
 // Helper function to get local IPv4
 function getLocalIp() {
   const interfaces = os.networkInterfaces();

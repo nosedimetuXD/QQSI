@@ -2,6 +2,7 @@
   "outputDirectory": "public",
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/api/config", "destination": "/api/config.js" },
     { "source": "/", "destination": "/index.html" },
     { "source": "/display", "destination": "/display.html" },
     { "source": "/team", "destination": "/team.html" },
