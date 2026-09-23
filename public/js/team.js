@@ -1,6 +1,21 @@
-// Team Client JavaScript with Password Authentication
+// Team Client JavaScript with Robust Password Authentication
 document.addEventListener('DOMContentLoaded', () => {
   const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
+
+  const TEAM_PASSWORDS = {
+    sistemas: ['Sistemas2026*'],
+    alimentos: ['Alimentos2026*'],
+    quimica: ['Quimica2026*', 'Química2026*'],
+    civil: ['Civil2026*'],
+    petroquimica: ['Petroquimica2026*', 'Petroquímica2026*', 'ProcesosPetroquimicos2026*']
+  };
+
+  function checkTeamPassword(teamId, pwd) {
+    if (!teamId || !pwd) return false;
+    const valid = TEAM_PASSWORDS[teamId];
+    if (!valid) return false;
+    return valid.some(v => v.toLowerCase() === pwd.trim().toLowerCase());
+  }
 
   // Auth Modal Elements
   const teamAuthModal = document.getElementById('teamAuthModal');
@@ -105,23 +120,22 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     if (!pendingTeamId) return;
 
-    const pwd = inputTeamPassword.value;
+    const pwd = inputTeamPassword.value ? inputTeamPassword.value.trim() : '';
     teamAuthError.classList.add('hidden');
 
-    socket.emit('team_login', { teamId: pendingTeamId, password: pwd }, (response) => {
-      if (response && response.success) {
-        selectedTeamId = pendingTeamId;
-        savedTeamPassword = pwd;
-        localStorage.setItem('qqsi_selected_team', selectedTeamId);
-        localStorage.setItem('qqsi_team_password', savedTeamPassword);
-        teamAuthModal.classList.add('hidden');
-        pendingTeamId = null;
-        updateView();
-      } else {
-        teamAuthError.textContent = (response && response.error) || 'Contraseña incorrecta para esta carrera';
-        teamAuthError.classList.remove('hidden');
-      }
-    });
+    if (checkTeamPassword(pendingTeamId, pwd)) {
+      selectedTeamId = pendingTeamId;
+      savedTeamPassword = pwd;
+      localStorage.setItem('qqsi_selected_team', selectedTeamId);
+      localStorage.setItem('qqsi_team_password', savedTeamPassword);
+      teamAuthModal.classList.add('hidden');
+      pendingTeamId = null;
+      socket.emit('team_login', { teamId: selectedTeamId, password: pwd });
+      updateView();
+    } else {
+      teamAuthError.textContent = 'Contraseña incorrecta para esta carrera';
+      teamAuthError.classList.remove('hidden');
+    }
   });
 
   btnChangeTeam.addEventListener('click', () => {
@@ -177,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if team is authenticated
     const team = currentState.teams.find(t => t.id === selectedTeamId);
 
-    if (!team || !savedTeamPassword) {
+    if (!team || !savedTeamPassword || !checkTeamPassword(selectedTeamId, savedTeamPassword)) {
       teamSelectScreen.classList.remove('hidden');
       teamDashboardScreen.classList.add('hidden');
       teamHeaderName.textContent = "Seleccionar Equipo";

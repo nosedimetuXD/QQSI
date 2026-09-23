@@ -1,6 +1,8 @@
-// Admin Control Panel JavaScript with Password Authentication
+// Admin Control Panel JavaScript with Robust Authentication
 document.addEventListener('DOMContentLoaded', () => {
   const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
+
+  const VALID_ADMIN_PASSWORD = "LinoTeto";
 
   // Authentication DOM Elements
   const adminLoginModal = document.getElementById('adminLoginModal');
@@ -67,39 +69,30 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentState = null;
   let currentAdminPassword = sessionStorage.getItem('qqsi_admin_password') || '';
 
-  // Auth Handling
-  function checkAuthOnConnect() {
-    if (currentAdminPassword) {
-      socket.emit('admin_login', { password: currentAdminPassword }, (response) => {
-        if (response && response.success) {
-          adminLoginModal.classList.add('hidden');
-        } else {
-          sessionStorage.removeItem('qqsi_admin_password');
-          currentAdminPassword = '';
-          adminLoginModal.classList.remove('hidden');
-        }
-      });
-    } else {
-      adminLoginModal.classList.remove('hidden');
-    }
+  // Check saved session on load
+  if (currentAdminPassword && currentAdminPassword === VALID_ADMIN_PASSWORD) {
+    adminLoginModal.classList.add('hidden');
+    socket.emit('admin_login', { password: currentAdminPassword });
+  } else {
+    adminLoginModal.classList.remove('hidden');
   }
 
+  // Handle Form Submit
   adminLoginForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const pwd = inputAdminPassword.value;
+    const pwd = inputAdminPassword.value ? inputAdminPassword.value.trim() : '';
     adminLoginError.classList.add('hidden');
 
-    socket.emit('admin_login', { password: pwd }, (response) => {
-      if (response && response.success) {
-        currentAdminPassword = pwd;
-        sessionStorage.setItem('qqsi_admin_password', pwd);
-        adminLoginModal.classList.add('hidden');
-        inputAdminPassword.value = '';
-      } else {
-        adminLoginError.textContent = (response && response.error) || 'Contraseña incorrecta';
-        adminLoginError.classList.remove('hidden');
-      }
-    });
+    if (pwd === VALID_ADMIN_PASSWORD) {
+      currentAdminPassword = pwd;
+      sessionStorage.setItem('qqsi_admin_password', pwd);
+      adminLoginModal.classList.add('hidden');
+      inputAdminPassword.value = '';
+      socket.emit('admin_login', { password: pwd });
+    } else {
+      adminLoginError.textContent = 'Contraseña de Administrador incorrecta';
+      adminLoginError.classList.remove('hidden');
+    }
   });
 
   btnLogoutAdmin.addEventListener('click', () => {
@@ -108,8 +101,16 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.reload();
   });
 
-  socket.on('connect', () => {
-    checkAuthOnConnect();
+  socket.on('admin_login_success', () => {
+    adminLoginModal.classList.add('hidden');
+  });
+
+  socket.on('admin_login_error', (data) => {
+    sessionStorage.removeItem('qqsi_admin_password');
+    currentAdminPassword = '';
+    adminLoginModal.classList.remove('hidden');
+    adminLoginError.textContent = (data && data.error) || 'Contraseña incorrecta';
+    adminLoginError.classList.remove('hidden');
   });
 
   function formatTime(seconds) {
