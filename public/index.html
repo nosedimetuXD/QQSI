@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>¿Quién quiere ser Ingeniero? - Hub Principal</title>
   
-  <!-- Tailwind CSS CDN (Fallback) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
   <!-- Socket.IO CDN & Configuration -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="/js/config.js"></script>
@@ -51,7 +48,7 @@
         </div>
         
         <p class="hub-subtitle">
-          Sistema interactivo en tiempo real para el concurso intercarreras. Selecciona tu rol para ingresar a la plataforma:
+          Selecciona tu acceso para ingresar al concurso:
         </p>
       </div>
 
@@ -62,10 +59,10 @@
         <a href="/display.html" class="role-card-box group shadow-xl">
           <div>
             <div class="role-icon-box role-icon-blue" id="hubScreenIcon"></div>
-            <h3 class="text-lg font-black text-white mb-1.5 group-hover:text-cyan-300 transition font-display">Proyección</h3>
-            <p class="text-xs text-slate-200 font-medium leading-relaxed">Para el auditorio o videobeam. Muestra preguntas en grande, fórmulas KaTeX, código y cronómetro en vivo.</p>
+            <h3 class="text-lg font-black text-white mb-1 group-hover:text-cyan-300 transition font-display">Proyección</h3>
+            <p class="text-xs text-slate-300 font-medium">Pantalla para el auditorio y transmisión en vivo.</p>
           </div>
-          <div class="mt-5 flex items-center gap-1.5 text-xs font-black text-cyan-300 group-hover:translate-x-1 transition-transform">
+          <div class="mt-4 flex items-center gap-1 text-xs font-bold text-cyan-300 group-hover:translate-x-1 transition-transform">
             <span>Abrir Pantalla</span>
             <span id="hubArrow1"></span>
           </div>
@@ -75,11 +72,11 @@
         <a href="/team.html" class="role-card-box group shadow-xl">
           <div>
             <div class="role-icon-box role-icon-green" id="hubPhoneIcon"></div>
-            <h3 class="text-lg font-black text-white mb-1.5 group-hover:text-emerald-300 transition font-display">Equipos</h3>
-            <p class="text-xs text-slate-200 font-medium leading-relaxed">Para los 5 equipos en sus teléfonos o laptops. Requiere la clave de tu carrera para entregar respuestas.</p>
+            <h3 class="text-lg font-black text-white mb-1 group-hover:text-emerald-300 transition font-display">Equipos</h3>
+            <p class="text-xs text-slate-300 font-medium">Pulsador y envío de respuestas por carrera.</p>
           </div>
-          <div class="mt-5 flex items-center gap-1.5 text-xs font-black text-emerald-300 group-hover:translate-x-1 transition-transform">
-            <span>Entrar como Equipo</span>
+          <div class="mt-4 flex items-center gap-1 text-xs font-bold text-emerald-300 group-hover:translate-x-1 transition-transform">
+            <span>Ingresar</span>
             <span id="hubArrow2"></span>
           </div>
         </a>
@@ -88,20 +85,15 @@
         <a href="/admin.html" class="role-card-box group shadow-xl">
           <div>
             <div class="role-icon-box role-icon-amber" id="hubShieldIcon"></div>
-            <h3 class="text-lg font-black text-white mb-1.5 group-hover:text-amber-300 transition font-display">Moderador / Juez</h3>
-            <p class="text-xs text-slate-200 font-medium leading-relaxed">Control total del concurso: banco de preguntas, cronómetros, calificación y eliminaciones. Requiere contraseña.</p>
+            <h3 class="text-lg font-black text-white mb-1 group-hover:text-amber-300 transition font-display">Moderador</h3>
+            <p class="text-xs text-slate-300 font-medium">Control de preguntas, cronómetro y puntajes.</p>
           </div>
-          <div class="mt-5 flex items-center gap-1.5 text-xs font-black text-amber-300 group-hover:translate-x-1 transition-transform">
+          <div class="mt-4 flex items-center gap-1 text-xs font-bold text-amber-300 group-hover:translate-x-1 transition-transform">
             <span>Panel de Control</span>
             <span id="hubArrow3"></span>
           </div>
         </a>
 
-      </div>
-
-      <!-- Network Notice -->
-      <div class="hub-notice">
-        <span class="font-bold text-cyan-300">Conexión Móvil:</span> Los equipos pueden ingresar directamente a este enlace desde sus teléfonos celulares para competir.
       </div>
 
     </div>
