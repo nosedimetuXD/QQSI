@@ -8,10 +8,16 @@
     "build": "echo 'Static assets ready'",
     "vercel-build": "echo 'Vercel static build complete'"
   },
-  "keywords": ["game-show", "realtime", "socket.io", "ingenieria"],
+  "keywords": [
+    "game-show",
+    "realtime",
+    "socket.io",
+    "ingenieria"
+  ],
   "author": "FlowSense Team",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^18.0.3",
     "express": "^4.19.2",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.8.1"

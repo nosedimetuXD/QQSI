@@ -1,8 +1,6 @@
-// Admin Control Panel JavaScript with Robust Authentication
+// Admin Control Panel JavaScript — Secure Server Auth & 3-Column Judge Controls
 document.addEventListener('DOMContentLoaded', () => {
   const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
-
-  const VALID_ADMIN_PASSWORD = "LinoTeto";
 
   // Authentication DOM Elements
   const adminLoginModal = document.getElementById('adminLoginModal');
@@ -10,12 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputAdminPassword = document.getElementById('inputAdminPassword');
   const adminLoginError = document.getElementById('adminLoginError');
   const btnLogoutAdmin = document.getElementById('btnLogoutAdmin');
-  const modalShieldIcon = document.getElementById('modalShieldIcon');
 
   // Main Admin Elements
   const adminHeaderRound = document.getElementById('adminHeaderRound');
   const roundTabsContainer = document.getElementById('roundTabsContainer');
-  const selectQuestion = document.getElementById('selectQuestion');
+  const questionsListContainer = document.getElementById('questionsListContainer');
   
   const previewQNumber = document.getElementById('previewQNumber');
   const previewQTime = document.getElementById('previewQTime');
@@ -32,8 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const adminTimerClock = document.getElementById('adminTimerClock');
   
   const submissionsCounter = document.getElementById('submissionsCounter');
-  const submissionsTableBody = document.getElementById('submissionsTableBody');
-  const btnApplyPoints = document.getElementById('btnApplyPoints');
+  const submissionsQueueContainer = document.getElementById('submissionsQueueContainer');
   
   const adminStandingsList = document.getElementById('adminStandingsList');
   const selectTeamToEliminate = document.getElementById('selectTeamToEliminate');
@@ -48,21 +44,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const playIconSlot = document.getElementById('playIconSlot');
   const pauseIconSlot = document.getElementById('pauseIconSlot');
   const stopIconSlot = document.getElementById('stopIconSlot');
-  const checkIconSlot2 = document.getElementById('checkIconSlot2');
   const chevronIconSlot = document.getElementById('chevronIconSlot');
-  const alertIconSlot = document.getElementById('alertIconSlot');
 
   if (window.Icons) {
-    if (modalShieldIcon) modalShieldIcon.innerHTML = Icons.shield("w-8 h-8");
     if (screenIconSlot) screenIconSlot.innerHTML = Icons.screen("w-4 h-4");
     if (phoneIconSlot) phoneIconSlot.innerHTML = Icons.smartphone("w-4 h-4");
     if (resetIconSlot) resetIconSlot.innerHTML = Icons.rotateCcw("w-3.5 h-3.5");
     if (playIconSlot) playIconSlot.innerHTML = Icons.play("w-5 h-5");
     if (pauseIconSlot) pauseIconSlot.innerHTML = Icons.pause("w-4 h-4");
     if (stopIconSlot) stopIconSlot.innerHTML = Icons.stop("w-4 h-4");
-    if (checkIconSlot2) checkIconSlot2.innerHTML = Icons.check("w-4 h-4");
     if (chevronIconSlot) chevronIconSlot.innerHTML = Icons.chevronRight("w-4 h-4");
-    if (alertIconSlot) alertIconSlot.innerHTML = Icons.alertTriangle("w-4 h-4 text-red-400");
   }
 
   let questionsData = window.QUESTIONS_DATA || null;
@@ -82,38 +73,30 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   let currentAdminPassword = sessionStorage.getItem('qqsi_admin_password') || '';
 
-  // Initial immediate render so questions and rounds show up without waiting
+  // Initial immediate render
   if (questionsData) {
     renderRoundTabs();
-    renderQuestionsDropdown();
+    renderQuestionsList();
     updatePreview();
   }
   renderAdminView(currentState);
 
   // Check saved session on load
-  if (currentAdminPassword && currentAdminPassword === VALID_ADMIN_PASSWORD) {
-    adminLoginModal.classList.add('hidden');
+  if (currentAdminPassword) {
     socket.emit('admin_login', { password: currentAdminPassword });
   } else {
-    adminLoginModal.classList.remove('hidden');
+    adminLoginModal.style.display = 'flex';
   }
 
   // Handle Form Submit
   adminLoginForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const pwd = inputAdminPassword.value ? inputAdminPassword.value.trim() : '';
-    adminLoginError.classList.add('hidden');
+    const pwd = inputAdminPassword.value.trim();
+    if (!pwd) return;
 
-    if (pwd === VALID_ADMIN_PASSWORD) {
-      currentAdminPassword = pwd;
-      sessionStorage.setItem('qqsi_admin_password', pwd);
-      adminLoginModal.classList.add('hidden');
-      inputAdminPassword.value = '';
-      socket.emit('admin_login', { password: pwd });
-    } else {
-      adminLoginError.textContent = 'Contraseña de Administrador incorrecta';
-      adminLoginError.classList.remove('hidden');
-    }
+    adminLoginError.style.display = 'none';
+    currentAdminPassword = pwd;
+    socket.emit('admin_login', { password: pwd });
   });
 
   btnLogoutAdmin.addEventListener('click', () => {
@@ -123,15 +106,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   socket.on('admin_login_success', () => {
-    adminLoginModal.classList.add('hidden');
+    sessionStorage.setItem('qqsi_admin_password', currentAdminPassword);
+    adminLoginModal.style.display = 'none';
+    inputAdminPassword.value = '';
   });
 
   socket.on('admin_login_error', (data) => {
     sessionStorage.removeItem('qqsi_admin_password');
     currentAdminPassword = '';
-    adminLoginModal.classList.remove('hidden');
-    adminLoginError.textContent = (data && data.error) || 'Contraseña incorrecta';
-    adminLoginError.classList.remove('hidden');
+    adminLoginModal.style.display = 'flex';
+    adminLoginError.textContent = (data && data.error) || 'Contraseña incorrecta.';
+    adminLoginError.style.display = 'block';
   });
 
   function formatTime(seconds) {
@@ -144,10 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('questions_data', (data) => {
     questionsData = data;
     renderRoundTabs();
-    if (currentState) {
-      renderQuestionsDropdown();
-      updatePreview();
-    }
+    renderQuestionsList();
+    updatePreview();
   });
 
   socket.on('state_update', (state) => {
@@ -162,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('question_time_up', () => {
     adminTimerClock.textContent = "00:00";
     adminTimerStatus.textContent = "Tiempo Agotado";
-    adminTimerStatus.className = "text-sm font-extrabold text-red-400";
+    adminTimerStatus.style.color = "#ef4444";
   });
 
   // Render Round Tabs
@@ -172,14 +155,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     roundTabsContainer.innerHTML = questionsData.rounds.map((round, idx) => `
       <button 
+        type="button"
         onclick="window.selectAdminRound(${idx})"
-        class="p-2.5 rounded-xl border text-xs font-bold text-left transition flex items-center justify-between ${
+        style="padding: 10px; border-radius: 12px; font-size: 11px; font-weight: 800; text-align: left; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; cursor: pointer; ${
           idx === currentRoundIdx
-            ? 'bg-blue-600 border-blue-400 text-white shadow-md'
-            : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'
+            ? 'background: #2563eb; border: 1.5px solid #60a5fa; color: #ffffff; box-shadow: 0 0 10px rgba(37,99,235,0.4);'
+            : 'background: rgba(4, 12, 24, 0.7); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8;'
         }">
         <span>${round.name}</span>
-        <span class="text-[10px] opacity-75 font-mono">${round.timeLimit}s</span>
+        <span style="font-size: 10px; opacity: 0.8; font-family: monospace;">${round.timeLimit}s</span>
       </button>
     `).join('');
   }
@@ -188,224 +172,245 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.emit('admin_select_round', { roundIndex: roundIdx, adminPassword: currentAdminPassword });
   };
 
-  // Render Questions in Dropdown
-  function renderQuestionsDropdown() {
+  // Render Questions List in Left Column
+  function renderQuestionsList() {
     if (!questionsData || !currentState) return;
     const currentRound = questionsData.rounds[currentState.currentRoundIndex];
     if (!currentRound) return;
 
-    selectQuestion.innerHTML = currentRound.questions.map((q, idx) => `
-      <option value="${idx}" ${idx === currentState.currentQuestionIndex ? 'selected' : ''}>
-        ${q.title}: ${q.statement.substring(0, 50)}...
-      </option>
-    `).join('');
+    questionsListContainer.innerHTML = currentRound.questions.map((q, idx) => {
+      const isSelected = idx === currentState.currentQuestionIndex;
+      return `
+        <button 
+          type="button"
+          onclick="window.selectAdminQuestion(${idx})"
+          style="width: 100%; text-align: left; padding: 10px 14px; border-radius: 12px; transition: all 0.2s; cursor: pointer; display: flex; align-items: center; gap: 10px; ${
+            isSelected
+              ? 'background: rgba(56, 189, 248, 0.2); border: 1.5px solid #38bdf8; color: #ffffff;'
+              : 'background: rgba(4, 12, 24, 0.6); border: 1px solid rgba(255,255,255,0.08); color: #94a3b8;'
+          }">
+          <span style="width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; background: ${isSelected ? '#38bdf8' : '#1e293b'}; color: ${isSelected ? '#031428' : '#cbd5e1'}; font-family: monospace; flex-shrink: 0;">
+            ${idx + 1}
+          </span>
+          <span style="font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">
+            ${q.statement}
+          </span>
+        </button>
+      `;
+    }).join('');
   }
 
-  selectQuestion.addEventListener('change', (e) => {
-    const questionIndex = parseInt(e.target.value, 10);
-    socket.emit('admin_select_question', {
-      roundIndex: currentState.currentRoundIndex,
-      questionIndex,
-      adminPassword: currentAdminPassword
-    });
-  });
+  window.selectAdminQuestion = (qIdx) => {
+    socket.emit('admin_select_question', { questionIndex: qIdx, adminPassword: currentAdminPassword });
+  };
 
+  // Update Question Preview
   function updatePreview() {
     if (!questionsData || !currentState) return;
     const currentRound = questionsData.rounds[currentState.currentRoundIndex];
     if (!currentRound) return;
-    const q = currentRound.questions[currentState.currentQuestionIndex];
+    const q = currentRound.questions[currentState.currentQuestionIndex] || currentRound.questions[0];
     if (!q) return;
 
-    previewQNumber.textContent = q.title;
-    previewQTime.textContent = `${currentRound.timeLimit}s (${formatTime(currentRound.timeLimit)})`;
-    previewQStatement.textContent = q.statement;
+    previewQNumber.textContent = q.title || `Pregunta ${(currentState.currentQuestionIndex || 0) + 1}`;
+    previewQTime.textContent = `${currentRound.timeLimit} segundos`;
+    previewQStatement.textContent = q.statement || '';
 
     if (q.math) {
-      previewQMath.classList.remove('hidden');
-      previewQMath.textContent = q.math;
+      previewQMath.style.display = 'block';
+      try {
+        if (window.katex) {
+          katex.render(q.math, previewQMath, { displayMode: true, throwOnError: false });
+        } else {
+          previewQMath.textContent = q.math;
+        }
+      } catch (e) {
+        previewQMath.textContent = q.math;
+      }
     } else {
-      previewQMath.classList.add('hidden');
+      previewQMath.style.display = 'none';
     }
 
-    previewQAnswer.textContent = q.answerGuide || 'Sin guía específica';
+    previewQAnswer.textContent = q.answerGuide || 'No especificada.';
   }
 
-  // Button Handlers
-  btnLaunchQuestion.addEventListener('click', () => {
-    socket.emit('admin_start_question', { adminPassword: currentAdminPassword });
-  });
-
-  btnPauseResume.addEventListener('click', () => {
-    if (!currentState) return;
-    if (currentState.questionState === 'running') {
-      socket.emit('admin_pause_timer', { adminPassword: currentAdminPassword });
-    } else if (currentState.questionState === 'paused') {
-      socket.emit('admin_resume_timer', { adminPassword: currentAdminPassword });
-    }
-  });
-
-  btnStopQuestion.addEventListener('click', () => {
-    socket.emit('admin_stop_question', { adminPassword: currentAdminPassword });
-  });
-
-  btnApplyPoints.addEventListener('click', () => {
-    socket.emit('admin_confirm_and_apply_points', { adminPassword: currentAdminPassword });
-  });
-
-  btnConfirmElimination.addEventListener('click', () => {
-    const teamId = selectTeamToEliminate.value;
-    if (!teamId) return;
-    const team = currentState.teams.find(t => t.id === teamId);
-    if (confirm(`¿Confirmas la eliminación de "${team.name}" de la competencia?`)) {
-      socket.emit('admin_eliminate_team', { teamId, adminPassword: currentAdminPassword });
-    }
-  });
-
-  btnNextRound.addEventListener('click', () => {
-    if (confirm('¿Deseas avanzar a la siguiente ronda? Esto reiniciará los puntajes acumulados para la nueva ronda con los equipos no eliminados.')) {
-      socket.emit('admin_next_round', { adminPassword: currentAdminPassword });
-    }
-  });
-
-  btnResetGame.addEventListener('click', () => {
-    if (confirm('¿ADVERTENCIA: Deseas reiniciar todo el concurso desde cero? Se restablecerán todos los equipos, rondas y puntajes.')) {
-      socket.emit('admin_reset_game', { adminPassword: currentAdminPassword });
-    }
-  });
-
-  window.evaluateTeam = (teamId, isCorrect) => {
-    socket.emit('admin_evaluate_submission', { teamId, isCorrect, adminPassword: currentAdminPassword });
-  };
-
   function renderAdminView(state) {
-    const activeTeams = state.teams.filter(t => !t.eliminated);
-    const roundNames = ["Ronda 1: Nivel Fácil", "Ronda 2: Nivel Normal", "Ronda 3: Nivel Difícil", "Ronda 4: Nivel Experto"];
-    adminHeaderRound.textContent = `${roundNames[state.currentRoundIndex] || 'Ronda'} (${activeTeams.length} Equipos Activos)`;
+    const roundNames = ['Ronda 1: Nivel Fácil', 'Ronda 2: Nivel Normal', 'Ronda 3: Nivel Difícil', 'Ronda 4: Nivel Experto'];
+    const activeTeams = (state.teams || []).filter(t => !t.eliminated);
+    adminHeaderRound.textContent = `${roundNames[state.currentRoundIndex]} (${activeTeams.length} Equipos Activos)`;
 
     renderRoundTabs();
-    renderQuestionsDropdown();
+    renderQuestionsList();
     updatePreview();
 
-    // Timer status in Admin
+    // Timer status & buttons
+    if (state.timer) {
+      adminTimerClock.textContent = formatTime(state.timer.remaining);
+    }
+
     if (state.questionState === 'running') {
-      adminTimerStatus.textContent = "Tiempo Corriendo";
-      adminTimerStatus.className = "text-sm font-extrabold text-emerald-400";
-      pauseResumeText.textContent = "Pausar";
+      adminTimerStatus.textContent = "Pregunta en Curso";
+      adminTimerStatus.style.color = "#34d399";
       btnLaunchQuestion.disabled = true;
-      btnLaunchQuestion.classList.add('opacity-50');
+      btnPauseResume.disabled = false;
+      pauseResumeText.textContent = "Pausar";
+      btnStopQuestion.disabled = false;
     } else if (state.questionState === 'paused') {
-      adminTimerStatus.textContent = "Tiempo en Pausa";
-      adminTimerStatus.className = "text-sm font-extrabold text-amber-400";
-      pauseResumeText.textContent = "Reanudar";
+      adminTimerStatus.textContent = "Pausado";
+      adminTimerStatus.style.color = "#fbbf24";
       btnLaunchQuestion.disabled = true;
-      btnLaunchQuestion.classList.add('opacity-50');
-    } else {
-      adminTimerStatus.textContent = state.questionState === 'ended' ? "Tiempo Concluido" : "En Espera";
-      adminTimerStatus.className = "text-sm font-extrabold text-slate-400";
-      pauseResumeText.textContent = "Pausar";
+      btnPauseResume.disabled = false;
+      pauseResumeText.textContent = "Reanudar";
+      btnStopQuestion.disabled = false;
+    } else if (state.questionState === 'ended') {
+      adminTimerStatus.textContent = "Pregunta Finalizada";
+      adminTimerStatus.style.color = "#ef4444";
       btnLaunchQuestion.disabled = false;
-      btnLaunchQuestion.classList.remove('opacity-50');
-    }
-
-    // Render Submissions Table
-    submissionsCounter.textContent = `${state.submissions.length} entregas de ${activeTeams.length}`;
-
-    if (state.submissions.length === 0) {
-      submissionsTableBody.innerHTML = `
-        <tr>
-          <td colspan="5" class="p-6 text-center text-slate-500 font-medium">
-            No hay entregas para la pregunta actual.
-          </td>
-        </tr>
-      `;
+      btnPauseResume.disabled = true;
+      btnStopQuestion.disabled = true;
     } else {
-      submissionsTableBody.innerHTML = state.submissions.map(sub => {
-        const sec = Math.floor(sub.elapsedMs / 1000);
-        const timeFormatted = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
-        
-        let bonusBadge = '';
-        if (sub.bonusPoints === 5) bonusBadge = `<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/50 text-[11px]">+5 Bono (1º)</span>`;
-        else if (sub.bonusPoints === 3) bonusBadge = `<span class="px-2 py-0.5 rounded bg-slate-400/20 text-slate-200 font-bold border border-slate-400/50 text-[11px]">+3 Bono (2º)</span>`;
-        else if (sub.bonusPoints === 1) bonusBadge = `<span class="px-2 py-0.5 rounded bg-amber-700/20 text-amber-400 font-bold border border-amber-700/50 text-[11px]">+1 Bono (3º)</span>`;
-
-        return `
-          <tr class="hover:bg-slate-800/60 transition">
-            <td class="p-3 font-mono font-bold text-amber-400 text-sm">#${sub.order}</td>
-            <td class="p-3 font-bold text-white flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${sub.color}"></span>
-              <span class="text-sm">${sub.teamName}</span>
-            </td>
-            <td class="p-3 font-mono text-cyan-300 font-bold">${timeFormatted}</td>
-            <td class="p-3 text-center">
-              <div class="inline-flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                <button 
-                  onclick="window.evaluateTeam('${sub.teamId}', true)"
-                  class="px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5 ${
-                    sub.correct === true 
-                      ? 'bg-emerald-600 text-white shadow-md' 
-                      : 'text-slate-400 hover:text-emerald-300'
-                  }">
-                  ${Icons.check("w-3.5 h-3.5")}
-                  <span>Correcto</span>
-                </button>
-                <button 
-                  onclick="window.evaluateTeam('${sub.teamId}', false)"
-                  class="px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5 ${
-                    sub.correct === false 
-                      ? 'bg-red-600 text-white shadow-md' 
-                      : 'text-slate-400 hover:text-red-300'
-                  }">
-                  ${Icons.cross("w-3.5 h-3.5")}
-                  <span>Incorrecto</span>
-                </button>
-              </div>
-            </td>
-            <td class="p-3 text-right">
-              <div class="flex flex-col items-end">
-                <span class="font-mono font-black text-sm text-cyan-300">${sub.totalPoints} pts</span>
-                ${bonusBadge}
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
+      adminTimerStatus.textContent = "En Espera";
+      adminTimerStatus.style.color = "#38bdf8";
+      btnLaunchQuestion.disabled = false;
+      btnPauseResume.disabled = true;
+      btnStopQuestion.disabled = true;
     }
 
-    // Render Round Standings in Admin
-    const sortedTeams = [...state.teams].sort((a, b) => {
-      if (a.eliminated && !b.eliminated) return 1;
-      if (!a.eliminated && b.eliminated) return -1;
-      return (state.roundScores[b.id] || 0) - (state.roundScores[a.id] || 0);
-    });
+    // Submissions
+    renderSubmissionsQueue(state);
 
-    adminStandingsList.innerHTML = sortedTeams.map((team, idx) => {
-      const isEliminated = team.eliminated;
-      const score = state.roundScores[team.id] || 0;
+    // Standings & Elimination
+    renderStandings(state);
+  }
+
+  function renderSubmissionsQueue(state) {
+    const submissions = state.submissions || [];
+    const activeTeams = (state.teams || []).filter(t => !t.eliminated);
+    submissionsCounter.textContent = `${submissions.length} / ${activeTeams.length}`;
+
+    if (submissions.length === 0) {
+      submissionsQueueContainer.innerHTML = `
+        <span style="font-size: 12px; color: #64748b; font-style: italic; text-align: center; padding: 24px 0; display: block;">
+          Esperando pulsaciones de los equipos...
+        </span>
+      `;
+      return;
+    }
+
+    submissionsQueueContainer.innerHTML = submissions.map((sub, idx) => {
+      const order = idx + 1;
+      const seconds = (sub.elapsedMs / 1000).toFixed(1);
+      const isEvaluated = sub.correct !== null;
+      const isCorrect = sub.correct === true;
+      const isWrong = sub.correct === false;
 
       return `
-        <div class="flex items-center justify-between p-3.5 rounded-xl border ${
-          isEliminated 
-            ? 'bg-slate-950/60 border-slate-800 opacity-40 text-slate-500' 
-            : 'bg-slate-950 border-slate-800 text-white'
-        }">
-          <div class="flex items-center gap-3">
-            <span class="font-mono font-bold text-xs text-slate-400 w-5 text-center">${idx + 1}º</span>
-            <div class="w-3.5 h-3.5 rounded-full" style="background-color: ${team.color}"></div>
-            <span class="font-bold text-sm">${team.name}</span>
-            ${isEliminated ? `<span class="text-[10px] font-bold text-red-400 bg-red-950 px-2 py-0.5 rounded border border-red-900">Eliminado R${team.eliminatedInRound}</span>` : ''}
+        <div style="background: rgba(8, 20, 36, 0.95); border: 1.5px solid ${isCorrect ? '#10b981' : isWrong ? '#ef4444' : 'rgba(255,255,255,0.15)'}; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 12px; font-weight: 900; color: #38bdf8; font-family: monospace;">#${order}</span>
+              <span style="font-size: 13px; font-weight: 800; color: #ffffff;">${sub.teamName}</span>
+              <span style="font-size: 11px; color: #94a3b8; font-family: monospace;">(${seconds}s)</span>
+            </div>
+            ${isCorrect ? `<span style="font-size: 11px; font-weight: 800; color: #34d399;">+${sub.totalPoints} pts (Base 10 + Bono ${sub.bonusPoints})</span>` : ''}
           </div>
-          <div class="flex items-center gap-2">
-            <span class="font-mono font-black text-cyan-300 text-lg">${score}</span>
-            <span class="text-[10px] text-slate-400 font-bold uppercase">pts</span>
+
+          <div style="display: flex; gap: 6px;">
+            <button 
+              type="button" 
+              onclick="window.gradeAnswer(${idx}, true)"
+              style="padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; ${
+                isCorrect 
+                  ? 'background: #10b981; color: #ffffff;' 
+                  : 'background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;'
+              }">
+              ✓ Correcto
+            </button>
+            <button 
+              type="button" 
+              onclick="window.gradeAnswer(${idx}, false)"
+              style="padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; ${
+                isWrong 
+                  ? 'background: #ef4444; color: #ffffff;' 
+                  : 'background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;'
+              }">
+              ✗ Incorrecto
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.gradeAnswer = (submissionIdx, isCorrect) => {
+    socket.emit('admin_evaluate_answer', {
+      submissionIndex: submissionIdx,
+      correct: isCorrect,
+      adminPassword: currentAdminPassword
+    });
+  };
+
+  function renderStandings(state) {
+    const teams = [...(state.teams || [])];
+    teams.sort((a, b) => (b.score || 0) - (a.score || 0));
+    const maxScore = Math.max(...teams.map(t => t.score || 0), 30);
+
+    adminStandingsList.innerHTML = teams.map(team => {
+      const pct = Math.round(((team.score || 0) / maxScore) * 100);
+      const isEliminated = team.eliminated;
+
+      return `
+        <div style="opacity: ${isEliminated ? '0.4' : '1'};">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: #ffffff; margin-bottom: 2px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 10px; height: 10px; border-radius: 9999px; background-color: ${team.color};"></div>
+              <span>${team.shortName}</span>
+              ${isEliminated ? '<span style="color: #ef4444; font-size: 10px;">(Eliminado)</span>' : ''}
+            </div>
+            <span style="font-family: monospace; color: #34d399;">${team.score || 0} pts</span>
+          </div>
+          <div class="team-progress-bar">
+            <div class="team-progress-fill" style="width: ${pct}%; background-color: ${team.color};"></div>
           </div>
         </div>
       `;
     }).join('');
 
-    // Populate Elimination Dropdown with active teams
-    selectTeamToEliminate.innerHTML = activeTeams.map(t => `
-      <option value="${t.id}">${t.name} (${state.roundScores[t.id] || 0} pts)</option>
-    `).join('');
+    // Update elimination dropdown
+    selectTeamToEliminate.innerHTML = '<option value="">Seleccionar equipo a eliminar...</option>' + 
+      teams.filter(t => !t.eliminated).map(t => `<option value="${t.id}">${t.name}</option>`).join('');
   }
+
+  // Button Handlers
+  btnLaunchQuestion.addEventListener('click', () => {
+    socket.emit('admin_start_timer', { adminPassword: currentAdminPassword });
+  });
+
+  btnPauseResume.addEventListener('click', () => {
+    socket.emit('admin_pause_timer', { adminPassword: currentAdminPassword });
+  });
+
+  btnStopQuestion.addEventListener('click', () => {
+    socket.emit('admin_stop_timer', { adminPassword: currentAdminPassword });
+  });
+
+  btnConfirmElimination.addEventListener('click', () => {
+    const teamId = selectTeamToEliminate.value;
+    if (!teamId) return;
+    if (confirm(`¿Estás seguro de eliminar a este equipo?`)) {
+      socket.emit('admin_eliminate_team', { teamId, adminPassword: currentAdminPassword });
+    }
+  });
+
+  btnNextRound.addEventListener('click', () => {
+    if (confirm('¿Deseas avanzar a la siguiente ronda del concurso?')) {
+      socket.emit('admin_next_round', { adminPassword: currentAdminPassword });
+    }
+  });
+
+  btnResetGame.addEventListener('click', () => {
+    if (confirm('¿ATENCIÓN: Deseas reiniciar todo el concurso y restablecer los 5 equipos?')) {
+      socket.emit('admin_reset_game', { adminPassword: currentAdminPassword });
+    }
+  });
 });

@@ -1,4 +1,4 @@
-// Display View JavaScript (Projector Screen) with Immediate Initial Rendering
+// Display View JavaScript (Projector Screen) - 100% Native DOM & Real-Time Sync
 document.addEventListener('DOMContentLoaded', () => {
   const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
 
@@ -32,17 +32,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const codeTarget = document.getElementById('codeTarget');
   const questionOptionsGrid = document.getElementById('questionOptionsGrid');
   const questionStatusIndicator = document.getElementById('questionStatusIndicator');
-  
   const liveSubmissionsList = document.getElementById('liveSubmissionsList');
-  const footerSubmittedCount = document.getElementById('footerSubmittedCount');
   
   const resultsRoundTitle = document.getElementById('resultsRoundTitle');
   const leaderboardList = document.getElementById('leaderboardList');
   const eliminationCallout = document.getElementById('eliminationCallout');
 
   // Insert SVGs
-  if (timerIconSlot && window.Icons) timerIconSlot.innerHTML = Icons.timer("w-6 h-6 text-blue-400");
-  if (footerUsersIconSlot && window.Icons) footerUsersIconSlot.innerHTML = Icons.users("w-4 h-4 text-blue-400");
+  if (timerIconSlot && window.Icons) timerIconSlot.innerHTML = Icons.timer("w-6 h-6");
+  if (footerUsersIconSlot && window.Icons) footerUsersIconSlot.innerHTML = Icons.users("w-4 h-4");
 
   let currentState = {
     teams: DEFAULT_TEAMS,
@@ -53,9 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
     submissions: [],
     roundScores: {}
   };
-  let questionsData = null;
+  let questionsData = window.QUESTIONS_DATA || null;
 
-  // Sound Effects using Web Audio API
+  // Sound FX via Web Audio API
   const SoundFX = {
     ctx: null,
     init() {
@@ -78,18 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
         gain.connect(this.ctx.destination);
         osc.start();
         osc.stop(this.ctx.currentTime + duration);
-      } catch (e) {
-        console.warn('Audio play failed:', e);
-      }
+      } catch (e) {}
     },
-    tick() { this.playTone(800, 'sine', 0.05, 0.05); },
-    urgentTick() { this.playTone(1100, 'triangle', 0.1, 0.15); },
     buzzer() {
       this.playTone(523.25, 'triangle', 0.15, 0.2);
       setTimeout(() => this.playTone(659.25, 'triangle', 0.25, 0.2), 100);
     },
-    timeUp() {
-      this.playTone(220, 'sawtooth', 0.5, 0.3);
+    urgentTick() {
+      this.playTone(1100, 'triangle', 0.08, 0.12);
     }
   };
 
@@ -102,60 +96,61 @@ document.addEventListener('DOMContentLoaded', () => {
   // Socket Events
   socket.on('questions_data', (data) => {
     questionsData = data;
-    if (currentState) renderView(currentState);
+    updateDisplay();
   });
 
   socket.on('state_update', (state) => {
-    const prevSubmissionsCount = currentState ? (currentState.submissions || []).length : 0;
     currentState = state;
-    renderView(state);
-
-    if (state.submissions && state.submissions.length > prevSubmissionsCount) {
-      SoundFX.buzzer();
-    }
+    updateDisplay();
   });
 
-  socket.on('timer_tick', ({ remaining, duration }) => {
+  socket.on('timer_tick', ({ remaining }) => {
     timerText.textContent = formatTime(remaining);
-    
-    if (remaining <= 30 && remaining > 0) {
-      timerContainer.classList.add('timer-urgent', 'border-red-500', 'bg-red-950');
+    if (remaining <= 10 && remaining > 0) {
+      timerContainer.classList.add('urgent');
       SoundFX.urgentTick();
     } else {
-      timerContainer.classList.remove('timer-urgent', 'border-red-500', 'bg-red-950');
+      timerContainer.classList.remove('urgent');
     }
   });
 
-  socket.on('question_time_up', () => {
-    SoundFX.timeUp();
-    timerText.textContent = "00:00";
+  socket.on('new_submission', (data) => {
+    SoundFX.buzzer();
   });
 
-  function renderView(state) {
+  // Initial immediate render
+  updateDisplay();
+
+  function updateDisplay() {
+    const state = currentState;
     const teams = state.teams || DEFAULT_TEAMS;
     const activeTeams = teams.filter(t => !t.eliminated);
-    const roundNames = ["Nivel Fácil", "Nivel Normal", "Nivel Difícil", "Nivel Experto"];
-    const roundName = roundNames[state.currentRoundIndex || 0] || `Ronda ${(state.currentRoundIndex || 0) + 1}`;
+    
+    // Header
+    const roundNames = ['Ronda 1: Nivel Fácil', 'Ronda 2: Nivel Normal', 'Ronda 3: Nivel Difícil', 'Ronda 4: Nivel Experto'];
+    if (headerRoundName) headerRoundName.textContent = roundNames[state.currentRoundIndex] || `Ronda ${state.currentRoundIndex + 1}`;
+    if (headerRoundTeamsCount) headerRoundTeamsCount.textContent = `${activeTeams.length} Equipos Activos`;
 
-    headerRoundName.textContent = `Ronda ${(state.currentRoundIndex || 0) + 1}: ${roundName}`;
-    headerRoundTeamsCount.textContent = `${activeTeams.length} Equipos Activos`;
+    if (state.timer) {
+      timerText.textContent = formatTime(state.timer.remaining);
+    }
 
+    renderLobbyTeams(teams);
     renderFooterSubmissions(state);
 
     if (state.questionState === 'idle' && !state.currentQuestion) {
-      lobbyScreen.classList.remove('hidden');
-      questionScreen.classList.add('hidden');
-      resultsScreen.classList.add('hidden');
-      renderLobbyTeams(teams);
+      lobbyScreen.style.display = 'block';
+      questionScreen.style.display = 'none';
+      resultsScreen.style.display = 'none';
     } else if (state.questionState === 'evaluated') {
-      lobbyScreen.classList.add('hidden');
-      questionScreen.classList.add('hidden');
-      resultsScreen.classList.remove('hidden');
+      lobbyScreen.style.display = 'none';
+      questionScreen.style.display = 'none';
+      resultsScreen.style.display = 'block';
       renderLeaderboard(state);
     } else {
-      lobbyScreen.classList.add('hidden');
-      questionScreen.classList.remove('hidden');
-      resultsScreen.classList.add('hidden');
+      lobbyScreen.style.display = 'none';
+      questionScreen.style.display = 'flex';
+      resultsScreen.style.display = 'none';
       renderQuestion(state);
     }
   }
@@ -164,36 +159,36 @@ document.addEventListener('DOMContentLoaded', () => {
     lobbyTeamsGrid.innerHTML = teams.map(team => {
       const isEliminated = team.eliminated;
       return `
-        <div class="p-3 rounded-xl flex flex-col items-center justify-center text-center transition-all ${
+        <div style="padding: 12px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; ${
           isEliminated 
-            ? 'bg-slate-900/40 opacity-40 border border-slate-800' 
-            : 'bg-slate-900/80 border border-slate-700 shadow-md backdrop-blur-sm'
+            ? 'background: rgba(4, 12, 24, 0.4); opacity: 0.4; border: 1px solid rgba(255,255,255,0.08);' 
+            : 'background: rgba(8, 20, 36, 0.9); border: 1.5px solid rgba(56, 189, 248, 0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.4);'
         }">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center text-white mb-2 shadow" style="background-color: ${team.color}">
-            ${isEliminated ? Icons.cross("w-5 h-5") : Icons.users("w-5 h-5")}
+          <div style="width: 40px; height: 40px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: #fff; margin-bottom: 8px; background-color: ${team.color}; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">
+            ${isEliminated && window.Icons ? Icons.cross("w-5 h-5") : (window.Icons ? Icons.users("w-5 h-5") : '')}
           </div>
-          <span class="text-xs font-bold text-white leading-tight">${team.shortName}</span>
-          ${isEliminated ? '<span class="text-[10px] text-red-400 font-bold uppercase mt-1">Eliminado</span>' : ''}
+          <span style="font-size: 13px; font-weight: 800; color: #ffffff; line-height: 1.2;">${team.shortName}</span>
+          ${isEliminated ? '<span style="font-size: 10px; color: #ef4444; font-weight: 800; text-transform: uppercase; margin-top: 4px;">Eliminado</span>' : ''}
         </div>
       `;
     }).join('');
   }
 
   function renderQuestion(state) {
-    const q = state.currentQuestion;
+    let q = state.currentQuestion;
+    if (!q && questionsData && questionsData.rounds && questionsData.rounds[state.currentRoundIndex]) {
+      q = questionsData.rounds[state.currentRoundIndex].questions[state.currentQuestionIndex || 0];
+    }
     if (!q) return;
 
     questionRibbon.textContent = q.title || `Pregunta ${(state.currentQuestionIndex || 0) + 1}`;
     questionStatement.textContent = q.statement || '';
 
     if (q.math) {
-      questionMathArea.classList.remove('hidden');
+      questionMathArea.style.display = 'block';
       try {
         if (window.katex) {
-          katex.render(q.math, mathTarget, {
-            displayMode: true,
-            throwOnError: false
-          });
+          katex.render(q.math, mathTarget, { displayMode: true, throwOnError: false });
         } else {
           mathTarget.textContent = q.math;
         }
@@ -201,112 +196,88 @@ document.addEventListener('DOMContentLoaded', () => {
         mathTarget.textContent = q.math;
       }
     } else {
-      questionMathArea.classList.add('hidden');
+      questionMathArea.style.display = 'none';
     }
 
     if (q.code) {
-      questionCodeArea.classList.remove('hidden');
+      questionCodeArea.style.display = 'block';
       codeTarget.textContent = q.code;
-      if (window.Prism) {
-        Prism.highlightElement(codeTarget);
-      }
+      if (window.Prism) Prism.highlightElement(codeTarget);
     } else {
-      questionCodeArea.classList.add('hidden');
+      questionCodeArea.style.display = 'none';
     }
 
     if (q.options && q.options.length > 0) {
-      questionOptionsGrid.classList.remove('hidden');
-      questionOptionsGrid.innerHTML = q.options.map((opt) => `
-        <div class="option-card flex items-center gap-3">
-          <span class="text-lg font-bold text-white">${opt}</span>
+      questionOptionsGrid.style.display = 'grid';
+      const letters = ['A', 'B', 'C', 'D'];
+      questionOptionsGrid.innerHTML = q.options.map((opt, idx) => `
+        <div class="option-card">
+          <div class="option-letter">${letters[idx] || (idx + 1)}</div>
+          <span>${opt.replace(/^[A-D]\)\s*/, '')}</span>
         </div>
       `).join('');
     } else {
-      questionOptionsGrid.classList.add('hidden');
+      questionOptionsGrid.style.display = 'none';
     }
 
     if (state.questionState === 'running') {
-      questionStatusIndicator.textContent = "Pregunta en curso - Equipos respondiendo...";
-      questionStatusIndicator.className = "text-emerald-300 font-semibold";
+      questionStatusIndicator.textContent = "Pregunta en curso — Equipos respondiendo con el pulsador";
+      questionStatusIndicator.style.color = "#34d399";
     } else if (state.questionState === 'paused') {
       questionStatusIndicator.textContent = "Tiempo en pausa";
-      questionStatusIndicator.className = "text-amber-300 font-semibold";
+      questionStatusIndicator.style.color = "#fbbf24";
     } else if (state.questionState === 'ended') {
-      questionStatusIndicator.textContent = "Tiempo finalizado - Calificando respuestas";
-      questionStatusIndicator.className = "text-cyan-300 font-semibold";
+      questionStatusIndicator.textContent = "Tiempo agotado — Calificando respuestas";
+      questionStatusIndicator.style.color = "#38bdf8";
     }
   }
 
   function renderFooterSubmissions(state) {
-    const teams = state.teams || DEFAULT_TEAMS;
-    const activeTeams = teams.filter(t => !t.eliminated);
     const submissions = state.submissions || [];
-    const submittedMap = new Map(submissions.map(s => [s.teamId, s]));
+    if (submissions.length === 0) {
+      liveSubmissionsList.innerHTML = '<span style="font-size: 12px; color: #64748b; font-style: italic;">Esperando pulsaciones...</span>';
+      return;
+    }
 
-    footerSubmittedCount.textContent = `${submissions.length} / ${activeTeams.length} respondieron`;
-
-    liveSubmissionsList.innerHTML = activeTeams.map(team => {
-      const sub = submittedMap.get(team.id);
-      if (sub) {
-        let bonusBadge = '';
-        if (sub.order === 1) bonusBadge = Icons.medal1("w-4 h-4");
-        else if (sub.order === 2) bonusBadge = Icons.medal2("w-4 h-4");
-        else if (sub.order === 3) bonusBadge = Icons.medal3("w-4 h-4");
-
-        const seconds = Math.floor(sub.elapsedMs / 1000);
-        const timeFormatted = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
-
-        return `
-          <div class="team-sub-badge submitted flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950 border border-emerald-500 text-white shadow-md">
-            <span class="text-xs font-black text-emerald-400">#${sub.order}</span>
-            <span class="text-xs font-bold">${team.shortName}</span>
-            <span class="text-[11px] font-mono text-emerald-300 bg-emerald-900/60 px-1.5 py-0.5 rounded">${timeFormatted}</span>
-            ${bonusBadge}
-          </div>
-        `;
-      } else {
-        return `
-          <div class="team-sub-badge flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-400">
-            <span class="w-2 h-2 rounded-full bg-slate-600"></span>
-            <span class="text-xs font-semibold">${team.shortName}</span>
-            <span class="text-[10px] uppercase tracking-wider text-slate-500">Pendiente</span>
-          </div>
-        `;
+    liveSubmissionsList.innerHTML = submissions.map((sub, idx) => {
+      const order = idx + 1;
+      const seconds = (sub.elapsedMs / 1000).toFixed(1);
+      const isCorrect = sub.correct === true;
+      const isWrong = sub.correct === false;
+      
+      let badgeStyle = 'background: rgba(14, 32, 54, 0.9); border: 1.5px solid #38bdf8; color: #ffffff;';
+      let iconHtml = order <= 3 ? `👑 ${order}º` : `${order}º`;
+      if (isCorrect) {
+        badgeStyle = 'background: rgba(5, 150, 105, 0.4); border: 1.5px solid #10b981; color: #6ee7b7;';
+        iconHtml = `✓ ${order}º (+${sub.totalPoints || 10})`;
+      } else if (isWrong) {
+        badgeStyle = 'background: rgba(239, 68, 68, 0.3); border: 1.5px solid #ef4444; color: #fca5a5;';
+        iconHtml = `✗ ${order}º (0)`;
       }
-    }).join('');
-  }
-
-  function renderLeaderboard(state) {
-    const roundNames = ["Nivel Fácil", "Nivel Normal", "Nivel Difícil", "Nivel Experto"];
-    resultsRoundTitle.textContent = `Resumen de la ${roundNames[state.currentRoundIndex || 0] || 'Ronda'}`;
-
-    const teams = state.teams || DEFAULT_TEAMS;
-    const sortedTeams = [...teams.filter(t => !t.eliminated)].sort((a, b) => ((state.roundScores && state.roundScores[b.id]) || 0) - ((state.roundScores && state.roundScores[a.id]) || 0));
-
-    leaderboardList.innerHTML = sortedTeams.map((team, idx) => {
-      const score = (state.roundScores && state.roundScores[team.id]) || 0;
-      let medal = '';
-      if (idx === 0) medal = Icons.medal1("w-6 h-6");
-      else if (idx === 1) medal = Icons.medal2("w-6 h-6");
-      else if (idx === 2) medal = Icons.medal3("w-6 h-6");
-      else medal = `<span class="w-6 text-center font-bold text-slate-400">${idx + 1}º</span>`;
 
       return `
-        <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-900 border border-slate-700">
-          <div class="flex items-center gap-3">
-            <div class="flex items-center justify-center">${medal}</div>
-            <div class="w-3 h-3 rounded-full" style="background-color: ${team.color}"></div>
-            <span class="font-bold text-white text-base">${team.name}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-xl font-black font-mono text-cyan-300">${score}</span>
-            <span class="text-xs font-bold uppercase text-slate-400">pts</span>
-          </div>
+        <div class="submission-pill" style="${badgeStyle}">
+          <span>${iconHtml}</span>
+          <span style="font-weight: 800;">${sub.teamName}</span>
+          <span style="font-size: 11px; opacity: 0.8; font-family: monospace;">${seconds}s</span>
         </div>
       `;
     }).join('');
   }
 
-  // Initial render immediately!
-  renderView(currentState);
+  function renderLeaderboard(state) {
+    const teams = [...(state.teams || DEFAULT_TEAMS)];
+    teams.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+    leaderboardList.innerHTML = teams.map((team, idx) => `
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-radius: 14px; background: rgba(8, 20, 36, 0.9); border: 1.5px solid rgba(255, 255, 255, 0.15);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 18px; font-weight: 900; color: #38bdf8; font-family: monospace;">#${idx + 1}</span>
+          <div style="width: 14px; height: 14px; border-radius: 9999px; background-color: ${team.color};"></div>
+          <span style="font-size: 16px; font-weight: 800; color: #ffffff;">${team.name}</span>
+        </div>
+        <span style="font-size: 20px; font-weight: 900; color: #34d399; font-family: monospace;">${team.score || 0} pts</span>
+      </div>
+    `).join('');
+  }
 });

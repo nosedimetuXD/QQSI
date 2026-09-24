@@ -1,4 +1,4 @@
-// Team Client JavaScript with Immediate Local Fallback & Robust Password Authentication
+// Team Client JavaScript — Secure Server-Side Auth & Arcade Buzzer
 document.addEventListener('DOMContentLoaded', () => {
   const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
 
@@ -10,21 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'petroquimica', name: 'Téc. Procesos Petroquímicos', shortName: 'Petroquímica', color: '#0d9488', eliminated: false }
   ];
 
-  const TEAM_PASSWORDS = {
-    sistemas: ['Sistemas2026*'],
-    alimentos: ['Alimentos2026*'],
-    quimica: ['Quimica2026*', 'Química2026*'],
-    civil: ['Civil2026*'],
-    petroquimica: ['Petroquimica2026*', 'Petroquímica2026*', 'ProcesosPetroquimicos2026*']
-  };
-
-  function checkTeamPassword(teamId, pwd) {
-    if (!teamId || !pwd) return false;
-    const valid = TEAM_PASSWORDS[teamId];
-    if (!valid) return false;
-    return valid.some(v => v.toLowerCase() === pwd.trim().toLowerCase());
-  }
-
   // Auth Modal Elements
   const teamAuthModal = document.getElementById('teamAuthModal');
   const teamAuthForm = document.getElementById('teamAuthForm');
@@ -32,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputTeamPassword = document.getElementById('inputTeamPassword');
   const teamAuthError = document.getElementById('teamAuthError');
   const btnCancelTeamAuth = document.getElementById('btnCancelTeamAuth');
-  const modalTeamShieldIcon = document.getElementById('modalTeamShieldIcon');
 
   // Dashboard Elements
   const teamSelectScreen = document.getElementById('teamSelectScreen');
@@ -61,9 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const eliminatedScreen = document.getElementById('eliminatedScreen');
 
   // Insert SVGs
-  if (modalTeamShieldIcon && window.Icons) modalTeamShieldIcon.innerHTML = Icons.shield("w-6 h-6");
-  if (teamTimerIconSlot && window.Icons) teamTimerIconSlot.innerHTML = Icons.timer("w-3.5 h-3.5");
-  if (buzzerIconSlot && window.Icons) buzzerIconSlot.innerHTML = Icons.send("w-7 h-7");
+  if (teamTimerIconSlot && window.Icons) teamTimerIconSlot.innerHTML = Icons.timer("w-4 h-4");
+  if (buzzerIconSlot && window.Icons) buzzerIconSlot.innerHTML = Icons.send("w-8 h-8");
   if (checkIconSlot && window.Icons) checkIconSlot.innerHTML = Icons.check("w-5 h-5");
   if (eliminatedIconSlot && window.Icons) eliminatedIconSlot.innerHTML = Icons.cross("w-6 h-6");
 
@@ -71,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let savedTeamPassword = localStorage.getItem('qqsi_team_password') || null;
   let pendingTeamId = null;
   
-  // Initial default state so screen is NEVER blank
   let currentState = {
     teams: DEFAULT_TEAMS,
     currentRoundIndex: 0,
@@ -81,10 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
     submissions: []
   };
 
-  // Haptic feedback
-  function hapticAndChime() {
+  function hapticFeedback() {
     if (navigator.vibrate) {
-      navigator.vibrate([80, 40, 80]);
+      try { navigator.vibrate([100, 50, 100]); } catch (e) {}
     }
   }
 
@@ -101,186 +82,182 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   socket.on('timer_tick', ({ remaining }) => {
-    teamTimerText.textContent = formatTime(remaining);
+    if (teamTimerText) teamTimerText.textContent = formatTime(remaining);
   });
 
-  socket.on('submission_confirmed', ({ order, elapsedMs }) => {
-    hapticAndChime();
-    const sec = Math.floor(elapsedMs / 1000);
-    const formatted = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
-    deliveryOrderText.textContent = `#${order}`;
-    deliveryTimeText.textContent = formatted;
-  });
-
-  socket.on('team_auth_error', ({ error }) => {
-    alert(error || 'Error de autenticación de equipo');
-    btnSubmitAnswer.disabled = false;
-  });
-
-  // Open Auth Modal for Team
-  function openTeamAuth(teamId) {
-    pendingTeamId = teamId;
-    const team = (currentState.teams || DEFAULT_TEAMS).find(t => t.id === teamId);
-    modalTeamName.textContent = team ? team.name : 'Equipo';
-    inputTeamPassword.value = '';
-    teamAuthError.classList.add('hidden');
-    teamAuthModal.classList.remove('hidden');
-    inputTeamPassword.focus();
-  }
-
-  btnCancelTeamAuth.addEventListener('click', () => {
-    pendingTeamId = null;
-    teamAuthModal.classList.add('hidden');
-  });
-
-  teamAuthForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!pendingTeamId) return;
-
-    const pwd = inputTeamPassword.value ? inputTeamPassword.value.trim() : '';
-    teamAuthError.classList.add('hidden');
-
-    if (checkTeamPassword(pendingTeamId, pwd)) {
-      selectedTeamId = pendingTeamId;
-      savedTeamPassword = pwd;
-      localStorage.setItem('qqsi_selected_team', selectedTeamId);
-      localStorage.setItem('qqsi_team_password', savedTeamPassword);
-      teamAuthModal.classList.add('hidden');
-      pendingTeamId = null;
-      socket.emit('team_login', { teamId: selectedTeamId, password: pwd });
-      updateView();
-    } else {
-      teamAuthError.textContent = 'Contraseña incorrecta para esta carrera';
-      teamAuthError.classList.remove('hidden');
+  socket.on('team_login_success', ({ teamId }) => {
+    selectedTeamId = teamId;
+    localStorage.setItem('qqsi_selected_team', teamId);
+    if (pendingTeamId) {
+      localStorage.setItem('qqsi_team_password', inputTeamPassword.value.trim());
     }
-  });
-
-  btnChangeTeam.addEventListener('click', () => {
-    selectedTeamId = null;
-    savedTeamPassword = null;
-    localStorage.removeItem('qqsi_selected_team');
-    localStorage.removeItem('qqsi_team_password');
+    teamAuthModal.style.display = 'none';
+    pendingTeamId = null;
+    inputTeamPassword.value = '';
     updateView();
   });
 
-  // Submit Answer Button Handler
-  btnSubmitAnswer.addEventListener('click', () => {
-    if (!selectedTeamId) return;
-    if (currentState.questionState !== 'running') return;
-
-    btnSubmitAnswer.disabled = true;
-    hapticAndChime();
-    socket.emit('team_submit', { 
-      teamId: selectedTeamId,
-      password: savedTeamPassword
-    });
+  socket.on('team_login_error', (data) => {
+    teamAuthError.textContent = (data && data.error) || 'Contraseña incorrecta.';
+    teamAuthError.style.display = 'block';
   });
 
+  socket.on('submission_confirmed', ({ order, elapsedMs }) => {
+    hapticFeedback();
+    btnSubmitAnswer.disabled = true;
+    btnSubmitAnswer.classList.remove('pulsing');
+    deliveryStatusBox.style.display = 'block';
+    deliveryOrderText.textContent = `¡Entregado en posición ${order}º!`;
+    deliveryTimeText.textContent = `Tiempo registrado: ${(elapsedMs / 1000).toFixed(1)} segundos`;
+  });
+
+  // Check saved session on load
+  if (selectedTeamId && savedTeamPassword) {
+    socket.emit('team_login', { teamId: selectedTeamId, password: savedTeamPassword });
+  }
+
+  // Initial View Update
+  updateView();
+
   function updateView() {
-    const roundNames = ["Ronda 1: Nivel Fácil", "Ronda 2: Nivel Normal", "Ronda 3: Nivel Difícil", "Ronda 4: Nivel Experto"];
-    const roundName = roundNames[currentState.currentRoundIndex || 0] || `Ronda ${(currentState.currentRoundIndex || 0) + 1}`;
-
     const teams = currentState.teams || DEFAULT_TEAMS;
+    const currentTeam = teams.find(t => t.id === selectedTeamId);
 
-    // Render team list on selection screen
+    if (currentState.timer && teamTimerText) {
+      teamTimerText.textContent = formatTime(currentState.timer.remaining);
+    }
+
+    if (!selectedTeamId || !currentTeam) {
+      teamSelectScreen.style.display = 'block';
+      teamDashboardScreen.style.display = 'none';
+      eliminatedScreen.style.display = 'none';
+      teamHeaderName.textContent = "Seleccionar Carrera";
+      renderTeamsList(teams);
+      return;
+    }
+
+    if (currentTeam.eliminated) {
+      teamSelectScreen.style.display = 'none';
+      teamDashboardScreen.style.display = 'none';
+      eliminatedScreen.style.display = 'block';
+      teamHeaderName.textContent = `${currentTeam.shortName} (Eliminado)`;
+      return;
+    }
+
+    teamSelectScreen.style.display = 'none';
+    teamDashboardScreen.style.display = 'flex';
+    eliminatedScreen.style.display = 'none';
+    teamHeaderName.textContent = currentTeam.shortName;
+
+    activeTeamName.textContent = currentTeam.name;
+    activeTeamColorDot.style.backgroundColor = currentTeam.color;
+
+    const roundNames = ['Ronda 1: Nivel Fácil', 'Ronda 2: Nivel Normal', 'Ronda 3: Nivel Difícil', 'Ronda 4: Nivel Experto'];
+    activeTeamRoundBadge.textContent = roundNames[currentState.currentRoundIndex] || `Ronda ${currentState.currentRoundIndex + 1}`;
+
+    const q = currentState.currentQuestion;
+    if (q) {
+      teamQuestionBanner.textContent = q.title || `Pregunta ${(currentState.currentQuestionIndex || 0) + 1}`;
+      teamQuestionStatement.textContent = q.statement || 'Pregunta en curso';
+
+      if (q.math) {
+        teamQuestionMath.style.display = 'block';
+        try {
+          if (window.katex) {
+            katex.render(q.math, teamQuestionMath, { displayMode: true, throwOnError: false });
+          } else {
+            teamQuestionMath.textContent = q.math;
+          }
+        } catch (e) {
+          teamQuestionMath.textContent = q.math;
+        }
+      } else {
+        teamQuestionMath.style.display = 'none';
+      }
+    } else {
+      teamQuestionBanner.textContent = "Sin Pregunta Activa";
+      teamQuestionStatement.textContent = "Esperando que el moderador inicie la pregunta...";
+      teamQuestionMath.style.display = 'none';
+    }
+
+    const alreadySubmitted = (currentState.submissions || []).find(s => s.teamId === selectedTeamId);
+    if (alreadySubmitted) {
+      btnSubmitAnswer.disabled = true;
+      btnSubmitAnswer.classList.remove('pulsing');
+      deliveryStatusBox.style.display = 'block';
+      deliveryOrderText.textContent = `¡Entregado en posición ${alreadySubmitted.order || 1}º!`;
+      deliveryTimeText.textContent = `Tiempo registrado: ${(alreadySubmitted.elapsedMs / 1000).toFixed(1)} segundos`;
+    } else if (currentState.questionState === 'running') {
+      btnSubmitAnswer.disabled = false;
+      btnSubmitAnswer.classList.add('pulsing');
+      deliveryStatusBox.style.display = 'none';
+    } else {
+      btnSubmitAnswer.disabled = true;
+      btnSubmitAnswer.classList.remove('pulsing');
+      deliveryStatusBox.style.display = 'none';
+    }
+  }
+
+  function renderTeamsList(teams) {
     teamsListContainer.innerHTML = teams.map(team => {
       const isEliminated = team.eliminated;
       return `
         <button 
-          onclick="window.openTeamAuthModal('${team.id}')"
+          type="button"
+          onclick="window.selectTeamAuth('${team.id}')"
           ${isEliminated ? 'disabled' : ''}
-          class="w-full p-3.5 rounded-xl border flex items-center justify-between text-left transition-all ${
+          style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 16px; transition: all 0.2s ease; cursor: ${isEliminated ? 'not-allowed' : 'pointer'}; ${
             isEliminated 
-              ? 'bg-slate-950/60 border-slate-800 opacity-40 cursor-not-allowed text-slate-500' 
-              : 'bg-slate-950/90 hover:bg-slate-900 border-slate-700 text-white shadow-md active:scale-98'
+              ? 'background: rgba(4, 12, 24, 0.4); opacity: 0.4; border: 1px solid rgba(255,255,255,0.08);' 
+              : 'background: rgba(8, 20, 36, 0.9); border: 1.5px solid rgba(255, 255, 255, 0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.3);'
           }">
-          <div class="flex items-center gap-3">
-            <div class="w-3.5 h-3.5 rounded-full shadow" style="background-color: ${team.color}"></div>
-            <span class="font-bold text-sm leading-tight">${team.name}</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 16px; height: 16px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0;"></div>
+            <span style="font-size: 15px; font-weight: 800; color: #ffffff; text-align: left;">${team.name}</span>
           </div>
-          ${isEliminated ? '<span class="text-[10px] font-black uppercase text-red-400">Eliminado</span>' : Icons.chevronRight("w-4 h-4 text-cyan-400")}
+          <span style="font-size: 12px; font-weight: 800; color: #38bdf8;">${isEliminated ? 'Eliminado' : 'Ingresar →'}</span>
         </button>
       `;
     }).join('');
-
-    window.openTeamAuthModal = openTeamAuth;
-
-    // Check if team is authenticated
-    const team = teams.find(t => t.id === selectedTeamId);
-
-    if (!team || !savedTeamPassword || !checkTeamPassword(selectedTeamId, savedTeamPassword)) {
-      teamSelectScreen.classList.remove('hidden');
-      teamDashboardScreen.classList.add('hidden');
-      teamHeaderName.textContent = "Seleccionar Equipo";
-      return;
-    }
-
-    // Show Dashboard
-    teamSelectScreen.classList.add('hidden');
-    teamDashboardScreen.classList.remove('hidden');
-    teamHeaderName.textContent = team.shortName;
-    activeTeamName.textContent = team.name;
-    activeTeamColorDot.style.backgroundColor = team.color;
-    activeTeamRoundBadge.textContent = roundName;
-
-    // Check if team is eliminated
-    if (team.eliminated) {
-      eliminatedScreen.classList.remove('hidden');
-      btnSubmitAnswer.disabled = true;
-      btnSubmitAnswer.classList.add('hidden');
-      deliveryStatusBox.classList.add('hidden');
-      teamQuestionStatement.textContent = "Has sido eliminado de esta ronda.";
-      return;
-    } else {
-      eliminatedScreen.classList.add('hidden');
-      btnSubmitAnswer.classList.remove('hidden');
-    }
-
-    // Check submission status for current question
-    const submissions = currentState.submissions || [];
-    const submission = submissions.find(s => s.teamId === team.id);
-
-    if (currentState.questionState === 'running') {
-      const q = currentState.currentQuestion;
-      teamQuestionBanner.textContent = q ? (q.title || "Pregunta en Curso") : "Pregunta en Curso";
-      teamQuestionStatement.textContent = q ? q.statement : "Pregunta activa";
-
-      if (submission) {
-        // Already submitted
-        btnSubmitAnswer.disabled = true;
-        btnSubmitAnswer.classList.add('hidden');
-        deliveryStatusBox.classList.remove('hidden');
-        deliveryOrderText.textContent = `#${submission.order}`;
-        const sec = Math.floor(submission.elapsedMs / 1000);
-        deliveryTimeText.textContent = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
-      } else {
-        // Can submit
-        btnSubmitAnswer.disabled = false;
-        btnSubmitAnswer.classList.remove('hidden');
-        deliveryStatusBox.classList.add('hidden');
-      }
-    } else if (currentState.questionState === 'ended' || currentState.questionState === 'evaluated') {
-      teamQuestionBanner.textContent = "Pregunta Finalizada";
-      btnSubmitAnswer.disabled = true;
-      if (submission) {
-        btnSubmitAnswer.classList.add('hidden');
-        deliveryStatusBox.classList.remove('hidden');
-        deliveryOrderText.textContent = `#${submission.order}`;
-      } else {
-        btnSubmitAnswer.classList.remove('hidden');
-        deliveryStatusBox.classList.add('hidden');
-        teamQuestionStatement.textContent = "El tiempo para responder esta pregunta ha concluido.";
-      }
-    } else {
-      // Idle / Paused
-      teamQuestionBanner.textContent = "En Espera";
-      teamQuestionStatement.textContent = "Esperando que el moderador lance la siguiente pregunta...";
-      btnSubmitAnswer.disabled = true;
-      deliveryStatusBox.classList.add('hidden');
-      btnSubmitAnswer.classList.remove('hidden');
-    }
   }
 
-  // Initial render so the team list is displayed IMMEDIATELY on load!
-  updateView();
+  window.selectTeamAuth = (teamId) => {
+    const teams = currentState.teams || DEFAULT_TEAMS;
+    const team = teams.find(t => t.id === teamId);
+    if (!team || team.eliminated) return;
+
+    pendingTeamId = teamId;
+    modalTeamName.textContent = team.name;
+    teamAuthError.style.display = 'none';
+    inputTeamPassword.value = '';
+    teamAuthModal.style.display = 'flex';
+    setTimeout(() => inputTeamPassword.focus(), 100);
+  };
+
+  teamAuthForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pwd = inputTeamPassword.value.trim();
+    if (!pendingTeamId || !pwd) return;
+
+    socket.emit('team_login', { teamId: pendingTeamId, password: pwd });
+  });
+
+  btnCancelTeamAuth.addEventListener('click', () => {
+    teamAuthModal.style.display = 'none';
+    pendingTeamId = null;
+    inputTeamPassword.value = '';
+  });
+
+  btnChangeTeam.addEventListener('click', () => {
+    localStorage.removeItem('qqsi_selected_team');
+    localStorage.removeItem('qqsi_team_password');
+    selectedTeamId = null;
+    updateView();
+  });
+
+  btnSubmitAnswer.addEventListener('click', () => {
+    if (!selectedTeamId || currentState.questionState !== 'running') return;
+    hapticFeedback();
+    socket.emit('submit_answer', { teamId: selectedTeamId });
+  });
 });

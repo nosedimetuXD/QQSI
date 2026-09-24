@@ -3,246 +3,214 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>¿Quién quiere ser Ingeniero? - Panel de Control (Admin)</title>
+  <title>¿Quién quiere ser Ingeniero? — Panel de Moderador / Juez</title>
   
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- KaTeX for Math Equations -->
+  <!-- KaTeX for Math Formulas -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
 
-  <!-- Socket.IO CDN & Configuration -->
+  <!-- Socket.IO & Questions Bank -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="/js/config.js"></script>
   <script src="/js/questions.js"></script>
 
-  <!-- Custom Styles & Icons -->
+  <!-- Native Styles & SVG Icons -->
   <link rel="stylesheet" href="/css/styles.css">
   <script src="/js/icons.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 flex flex-col min-h-screen">
+<body class="dark-stage text-slate-100 flex flex-col min-h-screen">
 
-  <!-- ADMIN LOGIN MODAL (OVERLAY) -->
-  <div id="adminLoginModal" class="fixed inset-0 z-50 flex items-center justify-center auth-modal-backdrop p-4">
-    <div class="denim-card denim-texture max-w-md w-full p-8 shadow-2xl relative text-center border border-white/30">
-      <div class="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 p-3 mx-auto mb-4 flex items-center justify-center shadow-lg" id="modalShieldIcon">
+  <!-- ADMIN LOGIN MODAL -->
+  <div id="adminLoginModal" class="auth-modal-backdrop">
+    <div class="denim-card denim-texture" style="max-width: 420px; width: 100%; padding: 36px 28px; text-align: center; border: 1.5px solid rgba(251, 191, 36, 0.4);">
+      <div class="logo-avatar-sm" style="margin: 0 auto 14px auto; width: 56px; height: 56px; border-color: #f59e0b;">
+        <img src="/img/logo-ceis.png" alt="CEIS">
       </div>
-      <div class="ribbon-banner text-lg mb-2">Panel Restringido</div>
-      <h2 class="text-2xl font-black font-display text-white mb-1">Acceso de Moderador</h2>
-      <p class="text-xs text-slate-200 mb-6">Ingresa la contraseña de administrador para gestionar el concurso:</p>
+      <div class="ribbon-banner text-lg" style="font-size: 16px; margin-bottom: 8px; padding: 6px 28px;">
+        Panel Restringido
+      </div>
+      <h2 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 24px; font-weight: 900; color: #ffffff; margin-bottom: 6px;">
+        Acceso de Moderador
+      </h2>
+      <p style="font-size: 12px; color: #94a3b8; margin-bottom: 22px;">
+        Ingresa la contraseña maestra para controlar el concurso:
+      </p>
 
-      <form id="adminLoginForm" class="space-y-4">
-        <div>
-          <input 
-            type="password" 
-            id="inputAdminPassword" 
-            placeholder="Contraseña de Administrador..." 
-            class="w-full bg-slate-900/90 border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder-slate-400 text-center font-mono font-bold tracking-wider"
-            required
-            autocomplete="current-password"
-          >
-        </div>
+      <form id="adminLoginForm" style="display: flex; flex-direction: column; gap: 14px;">
+        <input 
+          type="password" 
+          id="inputAdminPassword" 
+          placeholder="Contraseña de Administrador..." 
+          style="width: 100%; background: rgba(3, 10, 20, 0.9); border: 1.5px solid #475569; color: #ffffff; border-radius: 14px; padding: 12px 16px; font-size: 15px; text-align: center; font-family: monospace; font-weight: 700; outline: none;"
+          required
+          autocomplete="current-password"
+        >
 
-        <div id="adminLoginError" class="hidden text-xs text-red-300 bg-red-950/80 border border-red-800 p-2.5 rounded-lg font-bold">
+        <div id="adminLoginError" style="display: none; font-size: 12px; color: #fca5a5; background: rgba(153, 27, 27, 0.5); border: 1px solid #dc2626; padding: 10px; border-radius: 10px; font-weight: 700;">
           <!-- Error message -->
         </div>
 
-        <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-display font-black rounded-xl text-sm uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2">
-          <span>Ingresar al Panel</span>
+        <button type="submit" class="role-action-btn btn-glow-amber" style="padding: 13px; cursor: pointer;">
+          Ingresar al Panel
         </button>
       </form>
     </div>
   </div>
 
   <!-- TOP ADMIN BAR -->
-  <header class="w-full px-6 py-3 bg-slate-900 border-b border-slate-800 backdrop-blur-md flex items-center justify-between sticky top-0 z-30 shadow-md">
-    <div class="flex items-center gap-3">
-      <div class="logo-avatar-sm">
-        <img src="/img/logo-ceis.png" alt="Logo CEIS">
+  <header style="width: 100%; padding: 12px 24px; background: rgba(4, 12, 24, 0.95); border-bottom: 1.5px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 30;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div class="logo-avatar-sm" style="width: 38px; height: 38px;">
+        <img src="/img/logo-ceis.png" alt="CEIS">
       </div>
       <div>
-        <h1 class="text-base font-black font-display tracking-tight text-white flex items-center gap-2">
-          QQSI • Panel de Moderador / Juez
+        <h1 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 16px; font-weight: 900; color: #ffffff; line-height: 1;">
+          QQSI — Panel de Moderador / Juez
         </h1>
-        <p class="text-xs font-semibold text-cyan-400" id="adminHeaderRound">Ronda 1: Nivel Fácil (5 Equipos)</p>
+        <p style="font-size: 11px; font-weight: 800; color: #38bdf8; margin-top: 3px;" id="adminHeaderRound">
+          Ronda 1: Nivel Fácil (5 Equipos)
+        </p>
       </div>
     </div>
 
     <!-- Quick Actions -->
-    <div class="flex items-center gap-3">
-      <a href="/display.html" target="_blank" class="text-xs font-bold text-slate-200 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-1.5 transition">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <a href="/display.html" target="_blank" style="font-size: 12px; font-weight: 800; color: #ffffff; background: #1e293b; border: 1px solid #334155; padding: 7px 14px; border-radius: 10px; display: flex; align-items: center; gap: 6px; text-decoration: none;">
         <span id="screenIconSlot"></span>
-        <span>Abrir Proyección</span>
+        <span>Proyección</span>
       </a>
-      <a href="/team.html" target="_blank" class="text-xs font-bold text-slate-200 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-1.5 transition">
+      <a href="/team.html" target="_blank" style="font-size: 12px; font-weight: 800; color: #ffffff; background: #1e293b; border: 1px solid #334155; padding: 7px 14px; border-radius: 10px; display: flex; align-items: center; gap: 6px; text-decoration: none;">
         <span id="phoneIconSlot"></span>
-        <span>Vista Equipo</span>
+        <span>Equipos</span>
       </a>
-      <button id="btnLogoutAdmin" class="text-xs font-bold text-slate-400 hover:text-slate-200 bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 rounded-xl border border-slate-700 transition">
-        Cerrar Sesión
-      </button>
-      <button id="btnResetGame" class="text-xs font-bold text-red-400 hover:text-red-300 bg-red-950/60 hover:bg-red-900/60 px-3 py-1.5 rounded-xl border border-red-800 transition flex items-center gap-1">
+      <button id="btnResetGame" style="font-size: 12px; font-weight: 800; color: #f87171; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; padding: 7px 14px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
         <span id="resetIconSlot"></span>
         <span>Reiniciar Todo</span>
+      </button>
+      <button id="btnLogoutAdmin" style="font-size: 12px; font-weight: 800; color: #94a3b8; background: #0f172a; border: 1px solid #1e293b; padding: 7px 12px; border-radius: 10px; cursor: pointer;">
+        Salir
       </button>
     </div>
   </header>
 
-  <!-- MAIN ADMIN CONTENT -->
-  <main id="adminMainContent" class="flex-1 p-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+  <!-- MAIN ADMIN 3-COLUMN LAYOUT -->
+  <main class="admin-layout-grid" id="adminMainContent">
 
-    <!-- LEFT COLUMN: CONTROLS & QUESTION SELECTOR (5 cols) -->
-    <div class="lg:col-span-5 space-y-6">
+    <!-- COLUMN 1: ROUNDS & QUESTIONS LIST (Left) -->
+    <div class="admin-card">
+      <div class="admin-card-title">
+        <span id="chevronIconSlot"></span>
+        <span>Rondas del Concurso</span>
+      </div>
       
-      <!-- ROUND & QUESTION SELECTION CARD -->
-      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-          <span>Selección de Ronda y Pregunta</span>
-        </h2>
-
-        <!-- Round Tabs -->
-        <div class="grid grid-cols-2 gap-2 mb-4" id="roundTabsContainer">
-          <!-- Populated by JS -->
-        </div>
-
-        <!-- Question Dropdown -->
-        <div class="mb-4">
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Pregunta a Lanzar:</label>
-          <select id="selectQuestion" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            <!-- Populated by JS -->
-          </select>
-        </div>
-
-        <!-- Selected Question Preview Card -->
-        <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 mb-4 shadow-inner">
-          <div class="flex items-center justify-between text-xs font-semibold text-slate-400 mb-1">
-            <span id="previewQNumber" class="text-cyan-400 font-bold">Pregunta 1</span>
-            <span id="previewQTime" class="text-amber-400 font-mono font-bold">120s</span>
-          </div>
-          <p id="previewQStatement" class="text-sm font-bold text-white mb-2 leading-snug">
-            Cargando...
-          </p>
-          <div id="previewQMath" class="hidden text-cyan-300 text-sm font-mono p-2 bg-slate-900 rounded mb-2"></div>
-          <div class="bg-emerald-950/80 border border-emerald-700 p-3 rounded-lg text-xs">
-            <span class="font-bold text-emerald-300 block mb-0.5">Guía de Respuesta Correcta:</span>
-            <span id="previewQAnswer" class="text-emerald-100 leading-relaxed"></span>
-          </div>
-        </div>
-
-        <!-- LAUNCH / TIMER CONTROLS -->
-        <div class="space-y-2">
-          <button id="btnLaunchQuestion" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-xl font-bold text-base flex items-center justify-center gap-2 shadow-lg transition">
-            <span id="playIconSlot"></span>
-            <span>Lanzar Pregunta e Iniciar Tiempo</span>
-          </button>
-
-          <div class="grid grid-cols-2 gap-2">
-            <button id="btnPauseResume" class="py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition">
-              <span id="pauseIconSlot"></span>
-              <span id="pauseResumeText">Pausar</span>
-            </button>
-            <button id="btnStopQuestion" class="py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition">
-              <span id="stopIconSlot"></span>
-              <span>Finalizar Tiempo</span>
-            </button>
-          </div>
-        </div>
-
+      <!-- Round Tabs -->
+      <div id="roundTabsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px;">
+        <!-- Populated by JS -->
       </div>
 
-      <!-- TIMER IN LIVE ADMIN -->
-      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl flex items-center justify-between">
-        <div>
-          <span class="text-xs uppercase font-bold text-slate-400 block">Estado del Cronómetro</span>
-          <span id="adminTimerStatus" class="text-sm font-extrabold text-cyan-400">En Espera</span>
-        </div>
-        <div class="text-4xl font-black font-mono text-white bg-slate-950 px-5 py-2.5 rounded-xl border border-slate-800 shadow-inner" id="adminTimerClock">
-          02:00
-        </div>
+      <div class="admin-card-title">
+        <span>Banco de Preguntas</span>
       </div>
 
+      <!-- Questions List -->
+      <div id="questionsListContainer" style="display: flex; flex-direction: column; gap: 6px; overflow-y: auto; max-height: calc(100vh - 310px); padding-right: 4px;">
+        <!-- Populated by JS -->
+      </div>
     </div>
 
-    <!-- RIGHT COLUMN: EVALUATION DESK & ROUND STANDINGS (7 cols) -->
-    <div class="lg:col-span-7 space-y-6">
-      
-      <!-- SUBMISSIONS & EVALUATION TABLE -->
-      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h2 class="text-base font-bold text-white flex items-center gap-2">
-              <span>Mesa de Calificación de Respuestas</span>
-            </h2>
-            <p class="text-xs text-slate-400">Las entregas se ordenan por llegada. Los bonos de tiempo (+5, +3, +1) se asignan solo a respuestas correctas.</p>
-          </div>
-          <span id="submissionsCounter" class="text-xs font-mono font-bold bg-blue-950 border border-blue-700 text-cyan-300 px-2.5 py-1 rounded-lg">
-            0 entregas
+    <!-- COLUMN 2: ACTIVE QUESTION PREVIEW & CONTROLS (Middle) -->
+    <div class="admin-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+        <span class="badge-pill badge-round" id="previewQNumber">Pregunta 1</span>
+        <span style="font-size: 12px; font-weight: 800; color: #94a3b8; font-family: monospace;" id="previewQTime">120 segundos</span>
+      </div>
+
+      <!-- Question Preview Box -->
+      <div style="background: rgba(3, 10, 20, 0.85); border: 1.5px solid rgba(56, 189, 248, 0.25); border-radius: 16px; padding: 18px; margin-bottom: 18px;">
+        <h3 id="previewQStatement" style="font-size: 17px; font-weight: 800; color: #ffffff; line-height: 1.4; margin-bottom: 10px;">
+          Selecciona una pregunta para ver su contenido
+        </h3>
+        <div id="previewQMath" class="math-display" style="font-size: 1.3rem; margin: 10px 0; display: none;"></div>
+      </div>
+
+      <!-- Answer Guide (Judge Only) -->
+      <div style="background: rgba(16, 185, 129, 0.1); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: 14px; padding: 14px 18px; margin-bottom: 20px;">
+        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #34d399; display: block; margin-bottom: 4px;">
+          Guía de Respuesta Correcta (Solo Juez):
+        </span>
+        <p id="previewQAnswer" style="font-size: 13px; font-weight: 700; color: #ffffff; line-height: 1.4;">
+          --
+        </p>
+      </div>
+
+      <!-- Master Timer & Action Controls -->
+      <div style="margin-top: auto;">
+        <!-- Big Timer Clock -->
+        <div style="background: #030810; border: 2px solid rgba(56, 189, 248, 0.4); border-radius: 18px; padding: 16px; text-align: center; margin-bottom: 16px; box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);">
+          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.08em; display: block;">Estado del Cronómetro</span>
+          <span id="adminTimerClock" class="timer-led-digits" style="font-size: 44px; display: block; margin: 4px 0;">02:00</span>
+          <span id="adminTimerStatus" style="font-size: 13px; font-weight: 800; color: #38bdf8;">En espera</span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
+          <button id="btnLaunchQuestion" class="role-action-btn btn-glow-green" style="margin-top: 0; padding: 14px; font-size: 14px; cursor: pointer;">
+            <span id="playIconSlot"></span>
+            <span>Iniciar Pregunta</span>
+          </button>
+          <button id="btnPauseResume" style="background: #1e293b; color: #fbbf24; border: 1.5px solid #d97706; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span id="pauseIconSlot"></span>
+            <span id="pauseResumeText">Pausar</span>
+          </button>
+          <button id="btnStopQuestion" style="background: #1e293b; color: #f87171; border: 1.5px solid #ef4444; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span id="stopIconSlot"></span>
+            <span>Terminar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMN 3: LIVE SUBMISSIONS & STANDINGS (Right) -->
+    <div class="admin-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <div class="admin-card-title" style="margin-bottom: 0;">
+          <span>Entregas de Equipos</span>
+        </div>
+        <span class="badge-pill badge-teams" id="submissionsCounter">0 / 5</span>
+      </div>
+
+      <!-- Submissions Queue Table -->
+      <div style="background: rgba(3, 10, 20, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 10px; margin-bottom: 18px; min-height: 180px; max-height: 240px; overflow-y: auto;">
+        <div id="submissionsQueueContainer" style="display: flex; flex-direction: column; gap: 8px;">
+          <span style="font-size: 12px; color: #64748b; font-style: italic; text-align: center; padding: 20px 0; display: block;">
+            Esperando respuestas de los equipos...
           </span>
         </div>
+      </div>
 
-        <!-- Submissions Table -->
-        <div class="overflow-x-auto mb-4">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
-              <tr>
-                <th class="p-3"># Orden</th>
-                <th class="p-3">Equipo</th>
-                <th class="p-3">Tiempo</th>
-                <th class="p-3 text-center">Calificación</th>
-                <th class="p-3 text-right">Puntaje</th>
-              </tr>
-            </thead>
-            <tbody id="submissionsTableBody" class="divide-y divide-slate-800">
-              <tr>
-                <td colspan="5" class="p-6 text-center text-slate-500 font-medium">
-                  No hay entregas para la pregunta actual.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Live Standings Progress Bars -->
+      <div class="admin-card-title">
+        <span>Tabla de Puntuación</span>
+      </div>
+      <div id="adminStandingsList" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Elimination & Round Transition -->
+      <div style="margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 14px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+          <select id="selectTeamToEliminate" style="flex: 1; background: #0f172a; border: 1px solid #334155; color: #ffffff; border-radius: 10px; padding: 8px 12px; font-size: 12px; font-weight: 700; outline: none;">
+            <option value="">Seleccionar equipo a eliminar...</option>
+          </select>
+          <button id="btnConfirmElimination" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; border-radius: 10px; padding: 8px 14px; font-size: 12px; font-weight: 800; cursor: pointer;">
+            Eliminar
+          </button>
         </div>
 
-        <!-- Confirm Points Button -->
-        <button id="btnApplyPoints" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition">
-          <span id="checkIconSlot2"></span>
-          <span>Confirmar Calificación y Sumar Puntos a la Ronda</span>
+        <button id="btnNextRound" class="role-action-btn btn-glow-blue" style="margin-top: 0; padding: 12px; font-size: 13px; cursor: pointer;">
+          <span>Avanzar a Siguiente Ronda →</span>
         </button>
       </div>
-
-      <!-- ROUND STANDINGS & ELIMINATION DESK -->
-      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <h2 class="text-base font-bold text-white">Tabla de la Ronda Actual</h2>
-            <p class="text-xs text-slate-400">Puntaje acumulado en esta ronda (se reinicia al iniciar cada ronda)</p>
-          </div>
-          <button id="btnNextRound" class="text-xs font-bold text-emerald-300 hover:text-white bg-emerald-950 hover:bg-emerald-900 px-3 py-1.5 rounded-xl border border-emerald-700 transition flex items-center gap-1">
-            <span>Avanzar a Siguiente Ronda</span>
-            <span id="chevronIconSlot"></span>
-          </button>
-        </div>
-
-        <div id="adminStandingsList" class="space-y-2 mb-4">
-          <!-- Populated by JS -->
-        </div>
-
-        <!-- Elimination Action Alert -->
-        <div id="eliminationPanel" class="p-4 rounded-xl bg-red-950/70 border border-red-800 text-xs flex items-center justify-between">
-          <div class="flex items-center gap-2 text-red-200">
-            <span id="alertIconSlot"></span>
-            <span>Eliminar al equipo con menor puntaje:</span>
-          </div>
-          <select id="selectTeamToEliminate" class="bg-red-900 border border-red-700 text-white text-xs rounded-lg px-2 py-1 font-bold">
-            <!-- Populated by JS -->
-          </select>
-          <button id="btnConfirmElimination" class="bg-red-600 hover:bg-red-500 text-white font-bold px-3 py-1 rounded-lg text-xs transition">
-            Eliminar Equipo
-          </button>
-        </div>
-
-      </div>
-
     </div>
 
   </main>

@@ -1,48 +1,102 @@
+require('dotenv').config();
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const validator = require('./utils/validator');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: '*' }
-});
 
+// Environment Configuration
 const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'production';
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
-
-// Load questions bank
-const questionsData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'questions.json'), 'utf8'));
-
-// Passwords Configuration
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'LinoTeto';
 
 const TEAM_PASSWORDS = {
-  sistemas: ['Sistemas2026*'],
-  alimentos: ['Alimentos2026*'],
-  quimica: ['Quimica2026*', 'Química2026*'],
-  civil: ['Civil2026*'],
-  petroquimica: ['Petroquimica2026*', 'Petroquímica2026*', 'ProcesosPetroquimicos2026*']
+  sistemas: [process.env.PASSWORD_SISTEMAS || 'Sistemas2026*'],
+  alimentos: [process.env.PASSWORD_ALIMENTOS || 'Alimentos2026*'],
+  quimica: [process.env.PASSWORD_QUIMICA || 'Quimica2026*', 'Química2026*'],
+  civil: [process.env.PASSWORD_CIVIL || 'Civil2026*'],
+  petroquimica: [process.env.PASSWORD_PETROQUIMICA || 'Petroquimica2026*', 'Petroquímica2026*']
 };
 
+// Configurable Allowed Origins for CORS
+const rawAllowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim().replace(/\/$/, ''))
+  : ['*'];
+
+const isWildcardCors = rawAllowedOrigins.includes('*');
+
+const io = new Server(server, {
+  cors: {
+    origin: (origin, callback) => {
+      if (!origin || isWildcardCors || rawAllowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      // Allow localhost variants in development
+      if (NODE_ENV !== 'production' && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+        return callback(null, true);
+      }
+      return callback(null, true); // Permissive fallback for seamless Vercel <-> Coolify preview branches
+    },
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
+// Basic Security Headers Middleware
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  next();
+});
+
+// Serve Static Assets with Cache Control
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: NODE_ENV === 'production' ? '1h' : '0'
+}));
+app.use(express.json({ limit: '100kb' }));
+
+// Healthcheck / Config API
+app.get('/api/config', (req, res) => {
+  res.json({
+    status: 'ok',
+    backendUrl: (process.env.BACKEND_URL || '').trim().replace(/\/$/, '')
+  });
+});
+
+// Load Questions Bank with Error Handling
+let questionsData = { rounds: [] };
+try {
+  const qPath = path.join(__dirname, 'data', 'questions.json');
+  if (fs.existsSync(qPath)) {
+    questionsData = JSON.parse(fs.readFileSync(qPath, 'utf8'));
+  }
+} catch (err) {
+  console.error('[QQSI Server] Error cargando data/questions.json:', err.message);
+}
+
+// Validation Helpers
 function isValidAdminPassword(pwd) {
-  return pwd && pwd.trim() === ADMIN_PASSWORD;
+  if (!pwd || typeof pwd !== 'string') return false;
+  return validator.cleanString(pwd) === ADMIN_PASSWORD;
 }
 
 function isValidTeamPassword(teamId, pwd) {
-  if (!teamId || !pwd) return false;
-  const validList = TEAM_PASSWORDS[teamId];
+  if (!validator.isValidTeamId(teamId) || !pwd || typeof pwd !== 'string') return false;
+  const validList = TEAM_PASSWORDS[teamId.toLowerCase()];
   if (!validList) return false;
-  return validList.some(validPwd => validPwd.toLowerCase() === pwd.trim().toLowerCase());
+  const cleaned = validator.cleanString(pwd).toLowerCase();
+  return validList.some(v => v.toLowerCase() === cleaned);
 }
 
-// Initial default teams
+// Master Teams Setup
 const DEFAULT_TEAMS = [
   { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0284c7', eliminated: false, score: 0, eliminatedInRound: null },
   { id: 'alimentos', name: 'Ingeniería de Alimentos', shortName: 'Alimentos', color: '#16a34a', eliminated: false, score: 0, eliminatedInRound: null },
@@ -54,7 +108,7 @@ const DEFAULT_TEAMS = [
 // Master Game State
 let gameState = {
   teams: JSON.parse(JSON.stringify(DEFAULT_TEAMS)),
-  currentRoundIndex: 0, // 0: Fácil, 1: Normal, 2: Difícil, 3: Experto
+  currentRoundIndex: 0,
   currentQuestionIndex: 0,
   questionState: 'idle', // 'idle' | 'running' | 'paused' | 'ended' | 'evaluated'
   timer: {
@@ -66,24 +120,23 @@ let gameState = {
   },
   currentQuestion: null,
   submissions: [], // Array of { teamId, teamName, submittedAt, elapsedMs, correct: boolean | null, basePoints: 0, bonusPoints: 0, totalPoints: 0 }
-  roundScores: {}, // { teamId: pointsInCurrentRound }
+  roundScores: {},
   history: [],
   roundSummary: null
 };
 
-// Initialize round scores
 function initRoundScores() {
   gameState.roundScores = {};
   gameState.teams.forEach(t => {
     if (!t.eliminated) {
       gameState.roundScores[t.id] = 0;
-      t.score = 0; // Reset accumulated score for current round per rules
+      t.score = 0;
     }
   });
 }
 initRoundScores();
 
-// Timer Interval Handler
+// Timer Logic
 let timerInterval = null;
 
 function broadcastState() {
@@ -98,34 +151,59 @@ function startTimer(durationSeconds) {
   gameState.timer.isRunning = true;
   gameState.timer.startTime = Date.now();
   gameState.timer.endTime = Date.now() + durationSeconds * 1000;
-  gameState.questionState = 'running';
   
-  broadcastState();
-
   timerInterval = setInterval(() => {
-    if (!gameState.timer.isRunning) return;
-
-    const now = Date.now();
-    const remainingMs = Math.max(0, gameState.timer.endTime - now);
-    const remainingSec = Math.ceil(remainingMs / 1000);
-    
-    gameState.timer.remaining = remainingSec;
-    
-    io.emit('timer_tick', {
-      remaining: remainingSec,
-      duration: gameState.timer.duration
-    });
-
-    if (remainingSec <= 0) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-      gameState.timer.isRunning = false;
-      gameState.timer.remaining = 0;
-      gameState.questionState = 'ended';
-      io.emit('question_time_up');
-      broadcastState();
+    if (gameState.timer.isRunning) {
+      gameState.timer.remaining--;
+      io.emit('timer_tick', { remaining: gameState.timer.remaining });
+      
+      if (gameState.timer.remaining <= 0) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        gameState.timer.remaining = 0;
+        gameState.timer.isRunning = false;
+        gameState.questionState = 'ended';
+        io.emit('question_time_up');
+        broadcastState();
+      }
     }
-  }, 500);
+  }, 1000);
+}
+
+function pauseTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  gameState.timer.isRunning = false;
+  gameState.questionState = 'paused';
+  broadcastState();
+}
+
+function resumeTimer() {
+  if (gameState.timer.remaining > 0) {
+    gameState.timer.isRunning = true;
+    gameState.questionState = 'running';
+    gameState.timer.endTime = Date.now() + gameState.timer.remaining * 1000;
+    
+    timerInterval = setInterval(() => {
+      if (gameState.timer.isRunning) {
+        gameState.timer.remaining--;
+        io.emit('timer_tick', { remaining: gameState.timer.remaining });
+        
+        if (gameState.timer.remaining <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          gameState.timer.remaining = 0;
+          gameState.timer.isRunning = false;
+          gameState.questionState = 'ended';
+          io.emit('question_time_up');
+          broadcastState();
+        }
+      }
+    }, 1000);
+    broadcastState();
+  }
 }
 
 function stopTimer() {
@@ -138,320 +216,304 @@ function stopTimer() {
   broadcastState();
 }
 
-function pauseTimer() {
-  if (!gameState.timer.isRunning) return;
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-  gameState.timer.isRunning = false;
-  gameState.questionState = 'paused';
-  broadcastState();
-}
-
-function resumeTimer() {
-  if (gameState.timer.remaining <= 0) return;
-  startTimer(gameState.timer.remaining);
-}
-
-// Calculate bonuses dynamically: 
-// 1st correct gets +5, 2nd correct gets +3, 3rd correct gets +1
 function recalculateScores() {
-  let correctRank = 0;
+  const currentRound = questionsData.rounds[gameState.currentRoundIndex];
+  if (!currentRound) return;
   
-  // Iterate submissions in the exact chronological order of arrival
-  for (let sub of gameState.submissions) {
+  const correctSubmissions = gameState.submissions.filter(s => s.correct === true);
+  const SPEED_BONUSES = [5, 3, 1];
+  
+  gameState.submissions.forEach(sub => {
     if (sub.correct === true) {
       sub.basePoints = 10;
-      correctRank++;
-      if (correctRank === 1) sub.bonusPoints = 5;
-      else if (correctRank === 2) sub.bonusPoints = 3;
-      else if (correctRank === 3) sub.bonusPoints = 1;
-      else sub.bonusPoints = 0;
+      const rankIdx = correctSubmissions.indexOf(sub);
+      sub.bonusPoints = (rankIdx >= 0 && rankIdx < SPEED_BONUSES.length) ? SPEED_BONUSES[rankIdx] : 0;
       sub.totalPoints = sub.basePoints + sub.bonusPoints;
+    } else if (sub.correct === false) {
+      sub.basePoints = 0;
+      sub.bonusPoints = 0;
+      sub.totalPoints = 0;
     } else {
       sub.basePoints = 0;
       sub.bonusPoints = 0;
       sub.totalPoints = 0;
     }
-  }
-}
-
-// Check if all active non-eliminated teams have submitted
-function checkAllActiveSubmitted() {
-  const activeTeams = gameState.teams.filter(t => !t.eliminated);
-  const submittedTeamIds = new Set(gameState.submissions.map(s => s.teamId));
-  const allDone = activeTeams.every(t => submittedTeamIds.has(t.id));
-  
-  if (allDone && gameState.questionState === 'running') {
-    stopTimer();
-    io.emit('all_teams_submitted');
-  }
-}
-
-// Socket connection handling
-io.on('connection', (socket) => {
-  // Send current state on connection
-  socket.emit('state_update', gameState);
-  socket.emit('questions_data', questionsData);
-
-  // --- AUTHENTICATION HANDLERS ---
-  socket.on('admin_login', ({ password }, callback) => {
-    if (isValidAdminPassword(password)) {
-      socket.data.isAdmin = true;
-      if (typeof callback === 'function') callback({ success: true });
-      socket.emit('admin_login_success');
-    } else {
-      if (typeof callback === 'function') callback({ success: false, error: 'Contraseña de Administrador incorrecta' });
-      socket.emit('admin_login_error', { error: 'Contraseña de Administrador incorrecta' });
-    }
   });
 
-  socket.on('team_login', ({ teamId, password }, callback) => {
-    if (isValidTeamPassword(teamId, password)) {
-      socket.data.teamId = teamId;
-      if (typeof callback === 'function') callback({ success: true, teamId });
-      socket.emit('team_login_success', { teamId });
-    } else {
-      if (typeof callback === 'function') callback({ success: false, error: 'Contraseña incorrecta para esta carrera' });
-      socket.emit('team_login_error', { error: 'Contraseña incorrecta para esta carrera' });
-    }
+  const roundPointsByTeam = {};
+  gameState.teams.forEach(t => {
+    if (!t.eliminated) roundPointsByTeam[t.id] = 0;
   });
 
-  // Helper check for admin authorization
-  function checkAdmin(authPassword) {
-    return socket.data.isAdmin || isValidAdminPassword(authPassword);
-  }
-
-  // --- ADMIN ACTIONS ---
-  socket.on('admin_select_round', ({ roundIndex, adminPassword }) => {
-    if (!checkAdmin(adminPassword)) return;
-    if (roundIndex >= 0 && roundIndex < questionsData.rounds.length) {
-      gameState.currentRoundIndex = roundIndex;
-      gameState.currentQuestionIndex = 0;
-      gameState.questionState = 'idle';
-      gameState.submissions = [];
-      gameState.currentQuestion = questionsData.rounds[roundIndex].questions[0] || null;
-      gameState.timer.duration = questionsData.rounds[roundIndex].timeLimit;
-      gameState.timer.remaining = gameState.timer.duration;
-      initRoundScores();
-      broadcastState();
-    }
-  });
-
-  socket.on('admin_select_question', ({ roundIndex, questionIndex, adminPassword }) => {
-    if (!checkAdmin(adminPassword)) return;
-    const round = questionsData.rounds[roundIndex];
-    if (round && round.questions[questionIndex]) {
-      gameState.currentRoundIndex = roundIndex;
-      gameState.currentQuestionIndex = questionIndex;
-      gameState.currentQuestion = round.questions[questionIndex];
-      gameState.questionState = 'idle';
-      gameState.submissions = [];
-      gameState.timer.duration = round.timeLimit;
-      gameState.timer.remaining = round.timeLimit;
-      broadcastState();
-    }
-  });
-
-  socket.on('admin_start_question', ({ adminPassword } = {}) => {
-    if (!checkAdmin(adminPassword)) return;
-    const round = questionsData.rounds[gameState.currentRoundIndex];
-    if (!round) return;
-    const question = round.questions[gameState.currentQuestionIndex];
-    if (!question) return;
-
-    gameState.currentQuestion = question;
-    gameState.submissions = [];
-    startTimer(round.timeLimit);
-  });
-
-  socket.on('admin_pause_timer', ({ adminPassword } = {}) => {
-    if (!checkAdmin(adminPassword)) return;
-    pauseTimer();
-  });
-
-  socket.on('admin_resume_timer', ({ adminPassword } = {}) => {
-    if (!checkAdmin(adminPassword)) return;
-    resumeTimer();
-  });
-
-  socket.on('admin_stop_question', ({ adminPassword } = {}) => {
-    if (!checkAdmin(adminPassword)) return;
-    stopTimer();
-  });
-
-  socket.on('admin_evaluate_submission', ({ teamId, isCorrect, adminPassword }) => {
-    if (!checkAdmin(adminPassword)) return;
-    const sub = gameState.submissions.find(s => s.teamId === teamId);
-    if (sub) {
-      sub.correct = isCorrect;
-      recalculateScores();
-      broadcastState();
-    }
-  });
-
-  socket.on('admin_confirm_and_apply_points', ({ adminPassword } = {}) => {
-    if (!checkAdmin(adminPassword)) return;
-    recalculateScores();
-    // Add points to current round scores
-    for (let sub of gameState.submissions) {
-      if (gameState.roundScores[sub.teamId] !== undefined) {
-        gameState.roundScores[sub.teamId] += sub.totalPoints;
-      }
-      const team = gameState.teams.find(t => t.id === sub.teamId);
-      if (team) {
-        team.score = gameState.roundScores[sub.teamId];
-      }
-    }
-
-    // Save in history
-    gameState.history.push({
-      roundIndex: gameState.currentRoundIndex,
-      roundName: questionsData.rounds[gameState.currentRoundIndex].name,
-      questionIndex: gameState.currentQuestionIndex,
-      questionTitle: gameState.currentQuestion.title,
-      submissions: JSON.parse(JSON.stringify(gameState.submissions)),
-      roundScores: JSON.parse(JSON.stringify(gameState.roundScores))
-    });
-
-    gameState.questionState = 'evaluated';
-    broadcastState();
-  });
-
-  socket.on('admin_eliminate_team', ({ teamId, adminPassword }) => {
-    if (!checkAdmin(adminPassword)) return;
-    const team = gameState.teams.find(t => t.id === teamId);
-    if (team) {
-      team.eliminated = true;
-      team.eliminatedInRound = gameState.currentRoundIndex + 1;
-      broadcastState();
-      io.emit('team_eliminated_announcement', {
-        team,
-        roundIndex: gameState.currentRoundIndex,
-        roundName: questionsData.rounds[gameState.currentRoundIndex].name
+  gameState.history.forEach(item => {
+    if (item.roundIndex === gameState.currentRoundIndex) {
+      item.submissions.forEach(sub => {
+        if (sub.totalPoints && roundPointsByTeam[sub.teamId] !== undefined) {
+          roundPointsByTeam[sub.teamId] += sub.totalPoints;
+        }
       });
     }
   });
 
-  socket.on('admin_next_round', ({ adminPassword } = {}) => {
-    if (!checkAdmin(adminPassword)) return;
+  gameState.submissions.forEach(sub => {
+    if (sub.totalPoints && roundPointsByTeam[sub.teamId] !== undefined) {
+      roundPointsByTeam[sub.teamId] += sub.totalPoints;
+    }
+  });
+
+  gameState.roundScores = roundPointsByTeam;
+  gameState.teams.forEach(t => {
+    if (roundPointsByTeam[t.id] !== undefined) {
+      t.score = roundPointsByTeam[t.id];
+    }
+  });
+}
+
+// Socket.IO Real-Time Engine
+io.on('connection', (socket) => {
+  const clientIp = socket.handshake.address;
+
+  // Send Initial Snapshot
+  socket.emit('state_update', gameState);
+  socket.emit('questions_data', questionsData);
+
+  // 1. Admin Authentication with Rate Limiting
+  socket.on('admin_login', (data) => {
+    if (!validator.checkRateLimit(`admin_${clientIp}`, 6, 15000)) {
+      return socket.emit('admin_login_error', { error: 'Demasiados intentos. Espera 15 segundos.' });
+    }
+    const clean = validator.sanitizePayload(data);
+    if (isValidAdminPassword(clean.password)) {
+      socket.emit('admin_login_success', { ok: true });
+    } else {
+      socket.emit('admin_login_error', { error: 'Contraseña de administrador incorrecta.' });
+    }
+  });
+
+  // 2. Team Authentication with Rate Limiting
+  socket.on('team_login', (data) => {
+    const clean = validator.sanitizePayload(data);
+    const rateKey = `team_${clientIp}_${clean.teamId}`;
+    if (!validator.checkRateLimit(rateKey, 8, 15000)) {
+      return socket.emit('team_login_error', { error: 'Demasiados intentos. Espera un momento.' });
+    }
+    if (isValidTeamPassword(clean.teamId, clean.password)) {
+      socket.emit('team_login_success', { teamId: clean.teamId });
+    } else {
+      socket.emit('team_login_error', { error: 'Contraseña de carrera incorrecta.' });
+    }
+  });
+
+  // 3. Admin Round Selection
+  socket.on('admin_select_round', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!isValidAdminPassword(clean.adminPassword)) return;
+    if (!validator.isValidNumber(clean.roundIndex, 0, questionsData.rounds.length - 1)) return;
+
+    gameState.currentRoundIndex = clean.roundIndex;
+    gameState.currentQuestionIndex = 0;
+    gameState.questionState = 'idle';
+    gameState.submissions = [];
+    const round = questionsData.rounds[clean.roundIndex];
+    if (round) {
+      gameState.timer.duration = round.timeLimit;
+      gameState.timer.remaining = round.timeLimit;
+    }
+    initRoundScores();
+    broadcastState();
+  });
+
+  // 4. Admin Question Selection
+  socket.on('admin_select_question', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!isValidAdminPassword(clean.adminPassword)) return;
+    const currentRound = questionsData.rounds[gameState.currentRoundIndex];
+    if (!currentRound) return;
+    if (!validator.isValidNumber(clean.questionIndex, 0, currentRound.questions.length - 1)) return;
+
+    gameState.currentQuestionIndex = clean.questionIndex;
+    gameState.questionState = 'idle';
+    gameState.submissions = [];
+    gameState.currentQuestion = currentRound.questions[clean.questionIndex];
+    gameState.timer.duration = currentRound.timeLimit;
+    gameState.timer.remaining = currentRound.timeLimit;
+    broadcastState();
+  });
+
+  // 5. Admin Timer Controls
+  socket.on('admin_start_timer', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!isValidAdminPassword(clean.adminPassword)) return;
+    const currentRound = questionsData.rounds[gameState.currentRoundIndex];
+    if (!currentRound) return;
+
+    gameState.questionState = 'running';
+    gameState.submissions = [];
+    gameState.currentQuestion = currentRound.questions[gameState.currentQuestionIndex];
+    startTimer(currentRound.timeLimit);
+    broadcastState();
+    io.emit('question_started', {
+      question: gameState.currentQuestion,
+      round: currentRound
+    });
+  });
+
+  socket.on('admin_pause_timer', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!isValidAdminPassword(clean.adminPassword)) return;
+    if (gameState.questionState === 'running') {
+      pauseTimer();
+    } else if (gameState.questionState === 'paused') {
+      resumeTimer();
+    }
+  });
+
+  socket.on('admin_stop_timer', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!isValidAdminPassword(clean.adminPassword)) return;
+    stopTimer();
+  });
+
+  // 6. Team Answer Submission (Buzzer)
+  socket.on('submit_answer', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!validator.isValidTeamId(clean.teamId)) return;
+    if (gameState.questionState !== 'running') {
+      return socket.emit('submission_error', { message: 'La pregunta no está activa.' });
+    }
+
+    const team = gameState.teams.find(t => t.id === clean.teamId);
+    if (!team || team.eliminated) {
+      return socket.emit('submission_error', { message: 'El equipo está eliminado o no es válido.' });
+    }
+
+    const alreadySubmitted = gameState.submissions.some(s => s.teamId === clean.teamId);
+    if (alreadySubmitted) {
+      return socket.emit('submission_error', { message: 'Tu equipo ya entregó la respuesta.' });
+    }
+
+    const elapsedMs = gameState.timer.startTime ? Date.now() - gameState.timer.startTime : 0;
+    const submission = {
+      teamId: team.id,
+      teamName: team.shortName || team.name,
+      submittedAt: Date.now(),
+      elapsedMs: Math.max(0, elapsedMs),
+      correct: null,
+      basePoints: 0,
+      bonusPoints: 0,
+      totalPoints: 0,
+      order: gameState.submissions.length + 1
+    };
+
+    gameState.submissions.push(submission);
+    recalculateScores();
+
+    socket.emit('submission_confirmed', {
+      order: submission.order,
+      elapsedMs: submission.elapsedMs
+    });
+
+    io.emit('new_submission', {
+      teamId: team.id,
+      teamName: team.shortName,
+      order: submission.order,
+      elapsedMs: submission.elapsedMs
+    });
+
+    broadcastState();
+  });
+
+  // 7. Admin Answer Evaluation
+  socket.on('admin_evaluate_answer', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!isValidAdminPassword(clean.adminPassword)) return;
+    if (!validator.isValidNumber(clean.submissionIndex, 0, gameState.submissions.length - 1)) return;
+
+    const sub = gameState.submissions[clean.submissionIndex];
+    if (sub) {
+      sub.correct = clean.correct === true;
+      recalculateScores();
+      broadcastState();
+      io.emit('evaluation_updated', {
+        teamId: sub.teamId,
+        correct: sub.correct
+      });
+    }
+  });
+
+  // 8. Admin Elimination Management
+  socket.on('admin_eliminate_team', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!isValidAdminPassword(clean.adminPassword)) return;
+    if (!validator.isValidTeamId(clean.teamId)) return;
+
+    const team = gameState.teams.find(t => t.id === clean.teamId);
+    if (team) {
+      team.eliminated = true;
+      team.eliminatedInRound = gameState.currentRoundIndex + 1;
+      broadcastState();
+      io.emit('team_eliminated', {
+        teamId: team.id,
+        teamName: team.name,
+        round: gameState.currentRoundIndex + 1
+      });
+    }
+  });
+
+  // 9. Admin Next Round / Reset
+  socket.on('admin_next_round', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!isValidAdminPassword(clean.adminPassword)) return;
     if (gameState.currentRoundIndex < questionsData.rounds.length - 1) {
       gameState.currentRoundIndex++;
       gameState.currentQuestionIndex = 0;
       gameState.questionState = 'idle';
       gameState.submissions = [];
-      const round = questionsData.rounds[gameState.currentRoundIndex];
-      gameState.currentQuestion = round.questions[0] || null;
-      gameState.timer.duration = round.timeLimit;
-      gameState.timer.remaining = round.timeLimit;
+      const nextRound = questionsData.rounds[gameState.currentRoundIndex];
+      if (nextRound) {
+        gameState.timer.duration = nextRound.timeLimit;
+        gameState.timer.remaining = nextRound.timeLimit;
+      }
       initRoundScores();
       broadcastState();
     }
   });
 
-  socket.on('admin_reset_game', ({ adminPassword } = {}) => {
-    if (!checkAdmin(adminPassword)) return;
+  socket.on('admin_reset_game', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!isValidAdminPassword(clean.adminPassword)) return;
+
     gameState.teams = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
     gameState.currentRoundIndex = 0;
     gameState.currentQuestionIndex = 0;
     gameState.questionState = 'idle';
     gameState.submissions = [];
-    gameState.currentQuestion = questionsData.rounds[0].questions[0] || null;
-    gameState.timer.duration = questionsData.rounds[0].timeLimit;
-    gameState.timer.remaining = questionsData.rounds[0].timeLimit;
     gameState.history = [];
+    const firstRound = questionsData.rounds[0];
+    if (firstRound) {
+      gameState.timer.duration = firstRound.timeLimit;
+      gameState.timer.remaining = firstRound.timeLimit;
+    }
     initRoundScores();
     broadcastState();
   });
+});
 
-  // --- TEAM ACTIONS ---
-  socket.on('team_submit', ({ teamId, password }) => {
-    if (gameState.questionState !== 'running') return;
-    
-    const team = gameState.teams.find(t => t.id === teamId);
-    if (!team || team.eliminated) return;
-
-    // Validate Team Password
-    if (!isValidTeamPassword(teamId, password) && socket.data.teamId !== teamId) {
-      socket.emit('team_auth_error', { error: 'Contraseña inválida para este equipo' });
-      return;
-    }
-
-    // Check if team already submitted
-    const alreadySubmitted = gameState.submissions.some(s => s.teamId === teamId);
-    if (alreadySubmitted) return;
-
-    const submittedAt = Date.now();
-    const elapsedMs = gameState.timer.startTime ? (submittedAt - gameState.timer.startTime) : 0;
-
-    const submissionEntry = {
-      teamId: team.id,
-      teamName: team.name,
-      shortName: team.shortName,
-      color: team.color,
-      submittedAt,
-      elapsedMs,
-      elapsedSec: Math.floor(elapsedMs / 1000),
-      order: gameState.submissions.length + 1,
-      correct: null,
-      basePoints: 0,
-      bonusPoints: 0,
-      totalPoints: 0
-    };
-
-    gameState.submissions.push(submissionEntry);
-    
-    // Notify team specifically of successful receipt
-    socket.emit('submission_confirmed', {
-      order: submissionEntry.order,
-      elapsedMs: submissionEntry.elapsedMs
-    });
-
-    broadcastState();
-    checkAllActiveSubmitted();
+// Global Express Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error('[QQSI Server Error]:', err.stack || err.message);
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: NODE_ENV === 'development' ? err.message : 'Error interno en el servidor.'
   });
 });
 
-// API endpoint for raw questions data
-app.get('/api/questions', (req, res) => {
-  res.json(questionsData);
-});
-
-// API endpoint for environment config
-app.get('/api/config', (req, res) => {
-  const backendUrl = 
-    process.env.BACKEND_URL || 
-    process.env.SERVER_URL || 
-    process.env.COOLIFY_URL || 
-    '';
-  res.json({ backendUrl: backendUrl.trim().replace(/\/$/, '') });
-});
-
-// Helper function to get local IPv4
-function getLocalIp() {
-  const interfaces = os.networkInterfaces();
-  for (let dev in interfaces) {
-    for (let details of interfaces[dev]) {
-      if (details.family === 'IPv4' && !details.internal) {
-        return details.address;
-      }
-    }
-  }
-  return 'localhost';
-}
-
-const localIp = getLocalIp();
-
-server.listen(PORT, () => {
-  console.log(`=======================================================`);
-  console.log(` ¿QUIÉN QUIERE SER INGENIERO? - SERVIDOR EN TIEMPO REAL`);
-  console.log(`=======================================================`);
-  console.log(` Local:      http://localhost:${PORT}`);
-  console.log(` Red Local:  http://${localIp}:${PORT}`);
-  console.log(`-------------------------------------------------------`);
-  console.log(` Proyección: http://${localIp}:${PORT}/display.html`);
-  console.log(` Equipos:    http://${localIp}:${PORT}/team.html`);
-  console.log(` Admin:      http://${localIp}:${PORT}/admin.html`);
-  console.log(`=======================================================`);
+// Start Server
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`====================================================`);
+  console.log(` ¿QUIÉN QUIERE SER INGENIERO? — SERVIDOR EN VIVO`);
+  console.log(` Puerto: ${PORT} | Entorno: ${NODE_ENV}`);
+  console.log(` Orígenes Permitidos: ${rawAllowedOrigins.join(', ')}`);
+  console.log(` Rondas cargadas: ${questionsData.rounds.length}`);
+  console.log(`====================================================`);
 });
