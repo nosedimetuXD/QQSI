@@ -65,9 +65,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (alertIconSlot) alertIconSlot.innerHTML = Icons.alertTriangle("w-4 h-4 text-red-400");
   }
 
-  let questionsData = null;
-  let currentState = null;
+  let questionsData = window.QUESTIONS_DATA || null;
+  let currentState = {
+    teams: [
+      { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0284c7', eliminated: false, score: 0 },
+      { id: 'alimentos', name: 'Ingeniería de Alimentos', shortName: 'Alimentos', color: '#16a34a', eliminated: false, score: 0 },
+      { id: 'quimica', name: 'Ingeniería Química', shortName: 'Química', color: '#9333ea', eliminated: false, score: 0 },
+      { id: 'civil', name: 'Ingeniería Civil', shortName: 'Civil', color: '#ea580c', eliminated: false, score: 0 },
+      { id: 'petroquimica', name: 'Téc. Procesos Petroquímicos', shortName: 'Petroquímica', color: '#0d9488', eliminated: false, score: 0 }
+    ],
+    currentRoundIndex: 0,
+    currentQuestionIndex: 0,
+    questionState: 'idle',
+    submissions: [],
+    roundScores: {}
+  };
   let currentAdminPassword = sessionStorage.getItem('qqsi_admin_password') || '';
+
+  // Initial immediate render so questions and rounds show up without waiting
+  if (questionsData) {
+    renderRoundTabs();
+    renderQuestionsDropdown();
+    updatePreview();
+  }
+  renderAdminView(currentState);
 
   // Check saved session on load
   if (currentAdminPassword && currentAdminPassword === VALID_ADMIN_PASSWORD) {
