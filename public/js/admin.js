@@ -370,21 +370,22 @@ document.addEventListener('DOMContentLoaded', () => {
       const isWrong = sub.correct === false;
 
       return `
-        <div style="background: rgba(8, 20, 36, 0.95); border: 1.5px solid ${isCorrect ? '#10b981' : isWrong ? '#ef4444' : 'rgba(255,255,255,0.15)'}; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
-          <div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 12px; font-weight: 900; color: #38bdf8; font-family: monospace;">#${order}</span>
-              <span style="font-size: 13px; font-weight: 800; color: #ffffff;">${sub.teamName}</span>
-              <span style="font-size: 11px; color: #94a3b8; font-family: monospace;">(${seconds}s)</span>
+        <div style="background: rgba(8, 20, 36, 0.95); border: 1.5px solid ${isCorrect ? '#10b981' : isWrong ? '#ef4444' : 'rgba(255,255,255,0.15)'}; border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box; width: 100%;">
+          <div style="min-width: 0; flex: 1;">
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span style="font-size: 11px; font-weight: 900; color: #38bdf8; font-family: monospace;">#${order}</span>
+              <span style="font-size: 12px; font-weight: 800; color: #ffffff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sub.teamName}</span>
+              <span style="font-size: 10px; color: #94a3b8; font-family: monospace;">(${seconds}s)</span>
             </div>
-            ${isCorrect ? `<span style="font-size: 11px; font-weight: 800; color: #34d399;">+${sub.totalPoints} pts (Base 10 + Bono ${sub.bonusPoints})</span>` : ''}
+            ${isCorrect ? `<span style="font-size: 10px; font-weight: 800; color: #34d399; display: block; margin-top: 2px;">+${sub.totalPoints} pts (+${sub.bonusPoints} bono)</span>` : ''}
           </div>
 
-          <div style="display: flex; gap: 6px;">
+          <div style="display: flex; gap: 4px; flex-shrink: 0;">
             <button 
               type="button" 
               onclick="window.gradeAnswer(${idx}, true)"
-              style="padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; ${
+              title="Calificar como Correcto"
+              style="padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; border: none; white-space: nowrap; ${
                 isCorrect 
                   ? 'background: #10b981; color: #ffffff;' 
                   : 'background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;'
@@ -394,7 +395,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <button 
               type="button" 
               onclick="window.gradeAnswer(${idx}, false)"
-              style="padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; border: none; ${
+              title="Calificar como Incorrecto"
+              style="padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; border: none; white-space: nowrap; ${
                 isWrong 
                   ? 'background: #ef4444; color: #ffffff;' 
                   : 'background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;'
