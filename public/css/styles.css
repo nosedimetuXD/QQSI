@@ -14,6 +14,7 @@
 }
 
 :root {
+  /* Layer 1: Primitives */
   --denim-bg-top: #1b3d64;
   --denim-bg-bottom: #091728;
   --denim-stitch: rgba(255, 255, 255, 0.9);
@@ -27,6 +28,46 @@
   --emerald-bright: #10b981;
   --amber-bright: #f59e0b;
   --red-bright: #ef4444;
+
+  /* Layer 2: Semantic Tokens */
+  --surface-card: #122842;
+  --surface-card-dark: #081424;
+  --surface-elevated: #0b1a2d;
+  --action-primary: #38bdf8;
+  --action-success: #10b981;
+  --action-warning: #f59e0b;
+  --action-danger: #ef4444;
+  --focus-ring: #38bdf8;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-subtle: rgba(255, 255, 255, 0.12);
+  --border-active: rgba(56, 189, 248, 0.4);
+
+  /* Layer 3: Component Level Tokens */
+  --btn-radius: 12px;
+  --card-radius: 24px;
+  --transition-fast: 120ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- Accessible Focus Rings (WCAG 2.1 AA/AAA) --- */
+button:focus-visible, 
+a:focus-visible, 
+input:focus-visible, 
+select:focus-visible {
+  outline: 2px solid var(--focus-ring) !important;
+  outline-offset: 2px !important;
+}
+
+/* --- Respect User Motion Preferences (Emil Kowalski Philosophy) --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 body {
