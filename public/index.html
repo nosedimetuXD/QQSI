@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>¿Quién quiere ser Ingeniero? - Hub Principal</title>
   
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS CDN (Optional / Fallback) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Socket.IO CDN & Configuration -->
@@ -34,31 +34,32 @@
   </div>
 
   <!-- MAIN CONTAINER -->
-  <main class="flex-1 flex flex-col items-center justify-center p-6 max-w-4xl mx-auto w-full z-20">
+  <main class="hub-container flex flex-col items-center justify-center p-4 md:p-6 w-full z-20 my-auto">
     
-    <div class="denim-card denim-texture p-8 md:p-12 w-full text-center shadow-2xl relative">
+    <div class="denim-card denim-texture w-full text-center shadow-2xl relative">
       
       <!-- Top Monogram -->
       <div class="logo-avatar">
         <img src="/img/logo-ceis.png" alt="Logo CEIS">
       </div>
 
-      <!-- Main Title -->
+      <!-- Main Title Ribbon -->
       <div class="ribbon-banner text-2xl md:text-3xl mb-4">
         ¿Quién quiere ser Ingeniero?
       </div>
+      
       <p class="text-sm md:text-base text-slate-100 max-w-xl mx-auto mb-8 font-semibold tracking-wide drop-shadow">
         Sistema interactivo en tiempo real para el concurso intercarreras. Selecciona tu rol para ingresar a la plataforma:
       </p>
 
       <!-- Roles Grid with High Contrast Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-left mb-8">
+      <div class="roles-grid">
         
         <!-- 1. DISPLAY / PROYECCION -->
-        <a href="/display.html" class="role-card-box p-5 group flex flex-col justify-between shadow-xl">
+        <a href="/display.html" class="role-card-box group shadow-xl">
           <div>
-            <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center mb-3 shadow-md" id="hubScreenIcon"></div>
-            <h3 class="text-lg font-black text-white mb-1.5 group-hover:text-cyan-300 transition">Proyección</h3>
+            <div class="role-icon-box role-icon-blue" id="hubScreenIcon"></div>
+            <h3 class="text-lg font-black text-white mb-1.5 group-hover:text-cyan-300 transition font-display">Proyección</h3>
             <p class="text-xs text-slate-200 font-medium leading-relaxed">Para el auditorio o videobeam. Muestra preguntas en grande, fórmulas KaTeX, código y cronómetro en vivo.</p>
           </div>
           <div class="mt-5 flex items-center gap-1.5 text-xs font-black text-cyan-300 group-hover:translate-x-1 transition-transform">
@@ -68,10 +69,10 @@
         </a>
 
         <!-- 2. TEAMS / EQUIPOS -->
-        <a href="/team.html" class="role-card-box p-5 group flex flex-col justify-between shadow-xl">
+        <a href="/team.html" class="role-card-box group shadow-xl">
           <div>
-            <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center mb-3 shadow-md" id="hubPhoneIcon"></div>
-            <h3 class="text-lg font-black text-white mb-1.5 group-hover:text-emerald-300 transition">Equipos</h3>
+            <div class="role-icon-box role-icon-green" id="hubPhoneIcon"></div>
+            <h3 class="text-lg font-black text-white mb-1.5 group-hover:text-emerald-300 transition font-display">Equipos</h3>
             <p class="text-xs text-slate-200 font-medium leading-relaxed">Para los 5 equipos en sus teléfonos o laptops. Requiere la clave de tu carrera para entregar respuestas.</p>
           </div>
           <div class="mt-5 flex items-center gap-1.5 text-xs font-black text-emerald-300 group-hover:translate-x-1 transition-transform">
@@ -81,10 +82,10 @@
         </a>
 
         <!-- 3. ADMIN / JUEZ -->
-        <a href="/admin.html" class="role-card-box p-5 group flex flex-col justify-between shadow-xl">
+        <a href="/admin.html" class="role-card-box group shadow-xl">
           <div>
-            <div class="w-12 h-12 rounded-xl bg-amber-600 text-white flex items-center justify-center mb-3 shadow-md" id="hubShieldIcon"></div>
-            <h3 class="text-lg font-black text-white mb-1.5 group-hover:text-amber-300 transition">Moderador / Juez</h3>
+            <div class="role-icon-box role-icon-amber" id="hubShieldIcon"></div>
+            <h3 class="text-lg font-black text-white mb-1.5 group-hover:text-amber-300 transition font-display">Moderador / Juez</h3>
             <p class="text-xs text-slate-200 font-medium leading-relaxed">Control total del concurso: banco de preguntas, cronómetros, calificación y eliminaciones. Requiere contraseña.</p>
           </div>
           <div class="mt-5 flex items-center gap-1.5 text-xs font-black text-amber-300 group-hover:translate-x-1 transition-transform">
@@ -96,7 +97,7 @@
       </div>
 
       <!-- Network Notice -->
-      <div class="text-xs text-slate-200 bg-slate-950/70 p-3.5 rounded-xl border border-white/20 max-w-lg mx-auto font-medium">
+      <div class="text-xs text-slate-200 bg-slate-950/80 p-3.5 rounded-xl border border-white/20 max-w-lg mx-auto font-medium">
         <span class="font-bold text-cyan-300">Conexión Móvil:</span> Los equipos pueden ingresar directamente a este enlace desde sus teléfonos celulares para competir.
       </div>
 
