@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>¿Quién quiere ser Ingeniero? - Hub Principal</title>
   
-  <!-- Tailwind CSS CDN (Optional / Fallback) -->
+  <!-- Tailwind CSS CDN (Fallback) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Socket.IO CDN & Configuration -->
@@ -34,23 +34,23 @@
   </div>
 
   <!-- MAIN CONTAINER -->
-  <main class="hub-container flex flex-col items-center justify-center p-4 md:p-6 w-full z-20 my-auto">
+  <main class="hub-container my-auto">
     
-    <div class="denim-card denim-texture w-full text-center shadow-2xl relative">
+    <div class="denim-card denim-texture w-full shadow-2xl relative">
       
       <!-- Centered Header Area -->
-      <div class="flex flex-col items-center justify-center text-center mx-auto mb-6">
+      <div class="hub-header">
         <!-- Top Monogram -->
         <div class="logo-avatar">
           <img src="/img/logo-ceis.png" alt="Logo CEIS">
         </div>
 
         <!-- Main Title Ribbon -->
-        <div class="ribbon-banner text-2xl md:text-3xl mb-4 mx-auto">
+        <div class="ribbon-banner text-2xl md:text-3xl">
           ¿Quién quiere ser Ingeniero?
         </div>
         
-        <p class="text-sm md:text-base text-slate-100 max-w-xl mx-auto font-semibold tracking-wide drop-shadow text-center">
+        <p class="hub-subtitle">
           Sistema interactivo en tiempo real para el concurso intercarreras. Selecciona tu rol para ingresar a la plataforma:
         </p>
       </div>
@@ -100,7 +100,7 @@
       </div>
 
       <!-- Network Notice -->
-      <div class="text-xs text-slate-200 bg-slate-950/80 p-3.5 rounded-xl border border-white/20 max-w-lg mx-auto font-medium">
+      <div class="hub-notice">
         <span class="font-bold text-cyan-300">Conexión Móvil:</span> Los equipos pueden ingresar directamente a este enlace desde sus teléfonos celulares para competir.
       </div>
 
