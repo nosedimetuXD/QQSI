@@ -1,6 +1,14 @@
-// Team Client JavaScript with Robust Password Authentication
+// Team Client JavaScript with Immediate Local Fallback & Robust Password Authentication
 document.addEventListener('DOMContentLoaded', () => {
   const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
+
+  const DEFAULT_TEAMS = [
+    { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0284c7', eliminated: false },
+    { id: 'alimentos', name: 'Ingeniería de Alimentos', shortName: 'Alimentos', color: '#16a34a', eliminated: false },
+    { id: 'quimica', name: 'Ingeniería Química', shortName: 'Química', color: '#9333ea', eliminated: false },
+    { id: 'civil', name: 'Ingeniería Civil', shortName: 'Civil', color: '#ea580c', eliminated: false },
+    { id: 'petroquimica', name: 'Téc. Procesos Petroquímicos', shortName: 'Petroquímica', color: '#0d9488', eliminated: false }
+  ];
 
   const TEAM_PASSWORDS = {
     sistemas: ['Sistemas2026*'],
@@ -62,7 +70,16 @@ document.addEventListener('DOMContentLoaded', () => {
   let selectedTeamId = localStorage.getItem('qqsi_selected_team') || null;
   let savedTeamPassword = localStorage.getItem('qqsi_team_password') || null;
   let pendingTeamId = null;
-  let currentState = null;
+  
+  // Initial default state so screen is NEVER blank
+  let currentState = {
+    teams: DEFAULT_TEAMS,
+    currentRoundIndex: 0,
+    currentQuestionIndex: 0,
+    questionState: 'idle',
+    currentQuestion: null,
+    submissions: []
+  };
 
   // Haptic feedback
   function hapticAndChime() {
@@ -103,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Open Auth Modal for Team
   function openTeamAuth(teamId) {
     pendingTeamId = teamId;
-    const team = currentState ? currentState.teams.find(t => t.id === teamId) : null;
+    const team = (currentState.teams || DEFAULT_TEAMS).find(t => t.id === teamId);
     modalTeamName.textContent = team ? team.name : 'Equipo';
     inputTeamPassword.value = '';
     teamAuthError.classList.add('hidden');
@@ -148,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Submit Answer Button Handler
   btnSubmitAnswer.addEventListener('click', () => {
-    if (!selectedTeamId || !currentState) return;
+    if (!selectedTeamId) return;
     if (currentState.questionState !== 'running') return;
 
     btnSubmitAnswer.disabled = true;
@@ -160,13 +177,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function updateView() {
-    if (!currentState) return;
-
     const roundNames = ["Ronda 1: Nivel Fácil", "Ronda 2: Nivel Normal", "Ronda 3: Nivel Difícil", "Ronda 4: Nivel Experto"];
-    const roundName = roundNames[currentState.currentRoundIndex] || `Ronda ${currentState.currentRoundIndex + 1}`;
+    const roundName = roundNames[currentState.currentRoundIndex || 0] || `Ronda ${(currentState.currentRoundIndex || 0) + 1}`;
+
+    const teams = currentState.teams || DEFAULT_TEAMS;
 
     // Render team list on selection screen
-    teamsListContainer.innerHTML = currentState.teams.map(team => {
+    teamsListContainer.innerHTML = teams.map(team => {
       const isEliminated = team.eliminated;
       return `
         <button 
@@ -189,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.openTeamAuthModal = openTeamAuth;
 
     // Check if team is authenticated
-    const team = currentState.teams.find(t => t.id === selectedTeamId);
+    const team = teams.find(t => t.id === selectedTeamId);
 
     if (!team || !savedTeamPassword || !checkTeamPassword(selectedTeamId, savedTeamPassword)) {
       teamSelectScreen.classList.remove('hidden');
@@ -220,7 +237,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Check submission status for current question
-    const submission = currentState.submissions.find(s => s.teamId === team.id);
+    const submissions = currentState.submissions || [];
+    const submission = submissions.find(s => s.teamId === team.id);
 
     if (currentState.questionState === 'running') {
       const q = currentState.currentQuestion;
@@ -262,4 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btnSubmitAnswer.classList.remove('hidden');
     }
   }
+
+  // Initial render so the team list is displayed IMMEDIATELY on load!
+  updateView();
 });
