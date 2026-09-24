@@ -199,6 +199,8 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  margin: 0 auto 16px auto;
+  text-align: center;
   padding: 10px 40px;
   border-radius: 6px;
   border-top: 2px dashed rgba(255, 255, 255, 0.95);
