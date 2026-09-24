@@ -42,8 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const eliminationCallout = document.getElementById('eliminationCallout');
 
   // Insert SVGs
+  const trophyIconSlot = document.getElementById('trophyIconSlot');
   if (timerIconSlot && window.Icons) timerIconSlot.innerHTML = Icons.timer("w-6 h-6");
   if (footerUsersIconSlot && window.Icons) footerUsersIconSlot.innerHTML = Icons.users("w-4 h-4");
+  if (trophyIconSlot && window.Icons) trophyIconSlot.innerHTML = Icons.trophy("w-4 h-4");
 
   let currentState = {
     teams: DEFAULT_TEAMS,
@@ -272,14 +274,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return (b.totalPoints || 0) - (a.totalPoints || 0);
     });
 
-    const medals = ['🥇 1º', '🥈 2º', '🥉 3º', '4º', '5º'];
-
     questionPointsGrid.innerHTML = sortedSubmissions.map((sub, idx) => {
       const team = teams.find(t => t.id === sub.teamId) || { color: '#38bdf8' };
       const isCorrect = sub.correct === true;
       const isWrong = sub.correct === false;
       const seconds = (sub.elapsedMs / 1000).toFixed(1);
       const totalRoundPts = roundScores[sub.teamId] !== undefined ? roundScores[sub.teamId] : (team.score || 0);
+
+      let medalSvg = '';
+      if (idx === 0 && window.Icons) medalSvg = Icons.medal1("w-4 h-4");
+      else if (idx === 1 && window.Icons) medalSvg = Icons.medal2("w-4 h-4");
+      else if (idx === 2 && window.Icons) medalSvg = Icons.medal3("w-4 h-4");
 
       let cardBorder = 'rgba(56, 189, 248, 0.4)';
       let cardBg = 'rgba(8, 20, 36, 0.95)';
@@ -308,7 +313,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <div style="background: ${cardBg}; border: 1.5px solid ${cardBorder}; border-radius: 14px; padding: 12px 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-            <span style="font-size: 13px; font-weight: 900; color: #facc15; font-family: monospace;">${medals[idx] || (idx + 1 + 'º')}</span>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              ${medalSvg}
+              <span style="font-size: 13px; font-weight: 900; color: #facc15; font-family: monospace;">#${idx + 1}</span>
+            </div>
             <span style="font-size: 11px; color: #94a3b8; font-family: monospace;">${seconds}s</span>
           </div>
 
@@ -342,18 +350,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const isWrong = sub.correct === false;
       
       let badgeStyle = 'background: rgba(14, 32, 54, 0.9); border: 1.5px solid #38bdf8; color: #ffffff;';
-      let iconHtml = order <= 3 ? `👑 ${order}º` : `${order}º`;
+      let iconHtml = `#${order}`;
       if (isCorrect) {
         badgeStyle = 'background: rgba(5, 150, 105, 0.4); border: 1.5px solid #10b981; color: #6ee7b7;';
-        iconHtml = `✓ ${order}º (+${sub.totalPoints || 10})`;
+        iconHtml = `#${order} (+${sub.totalPoints || 10})`;
       } else if (isWrong) {
         badgeStyle = 'background: rgba(239, 68, 68, 0.3); border: 1.5px solid #ef4444; color: #fca5a5;';
-        iconHtml = `✗ ${order}º (0)`;
+        iconHtml = `#${order} (0)`;
       }
 
       return `
         <div class="submission-pill" style="${badgeStyle}">
-          <span>${iconHtml}</span>
+          <span style="font-weight: 900; font-family: monospace;">${iconHtml}</span>
           <span style="font-weight: 800;">${sub.teamName}</span>
           <span style="font-size: 11px; opacity: 0.8; font-family: monospace;">${seconds}s</span>
         </div>
@@ -364,17 +372,26 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderLeaderboard(state) {
     const teams = [...(state.teams || DEFAULT_TEAMS)];
     teams.sort((a, b) => (b.score || 0) - (a.score || 0));
-    const medals = ['🥇 1º Lugar', '🥈 2º Lugar', '🥉 3º Lugar', '4º Lugar', '5º Lugar'];
 
-    leaderboardList.innerHTML = teams.map((team, idx) => `
-      <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-radius: 14px; background: rgba(8, 20, 36, 0.9); border: 1.5px solid ${idx === 0 ? '#facc15' : 'rgba(255, 255, 255, 0.15)'}; box-shadow: ${idx === 0 ? '0 0 15px rgba(250, 204, 21, 0.3)' : 'none'};">
-        <div style="display: flex; align-items: center; gap: 14px;">
-          <span style="font-size: 16px; font-weight: 900; color: ${idx === 0 ? '#facc15' : '#38bdf8'}; font-family: monospace;">${medals[idx] || '#' + (idx + 1)}</span>
-          <div style="width: 14px; height: 14px; border-radius: 9999px; background-color: ${team.color};"></div>
-          <span style="font-size: 16px; font-weight: 800; color: #ffffff;">${team.name}</span>
+    leaderboardList.innerHTML = teams.map((team, idx) => {
+      let medalSvg = '';
+      if (idx === 0 && window.Icons) medalSvg = Icons.medal1("w-6 h-6");
+      else if (idx === 1 && window.Icons) medalSvg = Icons.medal2("w-6 h-6");
+      else if (idx === 2 && window.Icons) medalSvg = Icons.medal3("w-6 h-6");
+
+      return `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-radius: 14px; background: rgba(8, 20, 36, 0.9); border: 1.5px solid ${idx === 0 ? '#facc15' : 'rgba(255, 255, 255, 0.15)'}; box-shadow: ${idx === 0 ? '0 0 15px rgba(250, 204, 21, 0.3)' : 'none'};">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 6px; min-width: 100px;">
+              ${medalSvg}
+              <span style="font-size: 16px; font-weight: 900; color: ${idx === 0 ? '#facc15' : '#38bdf8'}; font-family: monospace;">${idx + 1}º Lugar</span>
+            </div>
+            <div style="width: 14px; height: 14px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0;"></div>
+            <span style="font-size: 16px; font-weight: 800; color: #ffffff;">${team.name}</span>
+          </div>
+          <span style="font-size: 22px; font-weight: 900; color: #34d399; font-family: monospace;">${team.score || 0} pts</span>
         </div>
-        <span style="font-size: 22px; font-weight: 900; color: #34d399; font-family: monospace;">${team.score || 0} pts</span>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 });

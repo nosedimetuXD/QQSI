@@ -1,10 +1,10 @@
-# ¿Quién quiere ser Ingeniero? (QQSI) 🎓
+# ¿Quién quiere ser Ingeniero? (QQSI)
 
 Sistema interactivo web multi-pantalla en tiempo real diseñado para el concurso universitario intercarreras **"¿Quién quiere ser Ingeniero?"**.
 
 ---
 
-## 🚀 Características Principales
+## Características Principales
 
 - **Fiel al Diseño Original**:
   - Estética basada en el diseño del concurso con patrón a cuadros *gingham/vichy* celeste y blanco.
@@ -17,13 +17,13 @@ Sistema interactivo web multi-pantalla en tiempo real diseñado para el concurso
 - **Sincronización en Tiempo Real (Socket.IO)**: Conexión instantánea entre el auditorio, los dispositivos móviles de los equipos y la mesa del jurado.
 - **Lógica de Bonos y Reasignación Dinámica**:
   - Respuesta Correcta: **10 puntos base**.
-  - Bonos de tiempo: 🥇 1º correcto (+5 pts), 🥈 2º correcto (+3 pts), 🥉 3º correcto (+1 pt).
+  - Bonos de tiempo: 1º correcto (+5 pts), 2º correcto (+3 pts), 3º correcto (+1 pt).
   - Si un equipo entrega primero pero su respuesta es incorrecta, el bono de velocidad de +5 puntos se transfiere automáticamente al siguiente equipo que haya acertado.
 - **Dinámica de Eliminación por Ronda**: 4 rondas con eliminación del equipo de menor puntaje en cada fase y reinicio de puntuación acumulada.
 
 ---
 
-## 📱 Pantallas del Sistema
+## Pantallas del Sistema
 
 | Vista | URL | Descripción |
 | :--- | :--- | :--- |
@@ -34,7 +34,7 @@ Sistema interactivo web multi-pantalla en tiempo real diseñado para el concurso
 
 ---
 
-## 🛠️ Instalación y Uso
+## Instalación y Uso
 
 1. **Clonar el repositorio**:
    ```bash
