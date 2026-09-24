@@ -86,6 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   socket.on('team_login_success', ({ teamId }) => {
+    if (btnSubmitTeamAuth) {
+      btnSubmitTeamAuth.disabled = false;
+      btnSubmitTeamAuth.textContent = 'Ingresar';
+    }
     selectedTeamId = teamId;
     localStorage.setItem('qqsi_selected_team', teamId);
     if (pendingTeamId) {
@@ -98,6 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   socket.on('team_login_error', (data) => {
+    if (btnSubmitTeamAuth) {
+      btnSubmitTeamAuth.disabled = false;
+      btnSubmitTeamAuth.textContent = 'Ingresar';
+    }
     teamAuthError.textContent = (data && data.error) || 'Contraseña incorrecta.';
     teamAuthError.style.display = 'block';
   });
@@ -239,7 +247,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const pwd = inputTeamPassword.value.trim();
     if (!pendingTeamId || !pwd) return;
 
+    teamAuthError.style.display = 'none';
+    if (btnSubmitTeamAuth) {
+      btnSubmitTeamAuth.disabled = true;
+      btnSubmitTeamAuth.textContent = 'Verificando...';
+    }
+
     socket.emit('team_login', { teamId: pendingTeamId, password: pwd });
+
+    // 4s network timeout safety
+    setTimeout(() => {
+      if (teamAuthModal.style.display === 'flex' && btnSubmitTeamAuth && btnSubmitTeamAuth.disabled) {
+        btnSubmitTeamAuth.disabled = false;
+        btnSubmitTeamAuth.textContent = 'Ingresar';
+        if (socket.connected === false) {
+          teamAuthError.textContent = 'Conectando con el servidor... Reintenta en 3 segundos.';
+          teamAuthError.style.display = 'block';
+        }
+      }
+    }, 4000);
   });
 
   btnCancelTeamAuth.addEventListener('click', () => {

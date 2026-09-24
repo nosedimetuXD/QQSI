@@ -88,6 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
     adminLoginModal.style.display = 'flex';
   }
 
+  const btnSubmitAdminAuth = document.getElementById('btnSubmitAdminAuth');
+
   // Handle Form Submit
   adminLoginForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -96,7 +98,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     adminLoginError.style.display = 'none';
     currentAdminPassword = pwd;
+    if (btnSubmitAdminAuth) {
+      btnSubmitAdminAuth.disabled = true;
+      btnSubmitAdminAuth.textContent = 'Verificando...';
+    }
+
     socket.emit('admin_login', { password: pwd });
+
+    // 4s timeout safety
+    setTimeout(() => {
+      if (adminLoginModal.style.display === 'flex' && btnSubmitAdminAuth && btnSubmitAdminAuth.disabled) {
+        btnSubmitAdminAuth.disabled = false;
+        btnSubmitAdminAuth.textContent = 'Ingresar al Panel';
+        if (socket.connected === false) {
+          adminLoginError.textContent = 'Conectando con el servidor... Reintenta en 3 segundos.';
+          adminLoginError.style.display = 'block';
+        }
+      }
+    }, 4000);
   });
 
   btnLogoutAdmin.addEventListener('click', () => {
@@ -106,12 +125,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   socket.on('admin_login_success', () => {
+    if (btnSubmitAdminAuth) {
+      btnSubmitAdminAuth.disabled = false;
+      btnSubmitAdminAuth.textContent = 'Ingresar al Panel';
+    }
     sessionStorage.setItem('qqsi_admin_password', currentAdminPassword);
     adminLoginModal.style.display = 'none';
     inputAdminPassword.value = '';
   });
 
   socket.on('admin_login_error', (data) => {
+    if (btnSubmitAdminAuth) {
+      btnSubmitAdminAuth.disabled = false;
+      btnSubmitAdminAuth.textContent = 'Ingresar al Panel';
+    }
     sessionStorage.removeItem('qqsi_admin_password');
     currentAdminPassword = '';
     adminLoginModal.style.display = 'flex';
