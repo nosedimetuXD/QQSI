@@ -218,6 +218,26 @@ function stopTimer() {
   broadcastState();
 }
 
+function archiveCurrentQuestionSubmissions() {
+  if (!gameState.submissions || gameState.submissions.length === 0) return;
+  
+  const existingIdx = gameState.history.findIndex(
+    h => h.roundIndex === gameState.currentRoundIndex && h.questionIndex === gameState.currentQuestionIndex
+  );
+  
+  const historyEntry = {
+    roundIndex: gameState.currentRoundIndex,
+    questionIndex: gameState.currentQuestionIndex,
+    submissions: JSON.parse(JSON.stringify(gameState.submissions))
+  };
+
+  if (existingIdx >= 0) {
+    gameState.history[existingIdx] = historyEntry;
+  } else {
+    gameState.history.push(historyEntry);
+  }
+}
+
 function recalculateScores() {
   const currentRound = questionsData.rounds[gameState.currentRoundIndex];
   if (!currentRound) return;
@@ -247,8 +267,9 @@ function recalculateScores() {
     if (!t.eliminated) roundPointsByTeam[t.id] = 0;
   });
 
+  // 1. Accumulate points from previous questions in this round
   gameState.history.forEach(item => {
-    if (item.roundIndex === gameState.currentRoundIndex) {
+    if (item.roundIndex === gameState.currentRoundIndex && item.questionIndex !== gameState.currentQuestionIndex) {
       item.submissions.forEach(sub => {
         if (sub.totalPoints && roundPointsByTeam[sub.teamId] !== undefined) {
           roundPointsByTeam[sub.teamId] += sub.totalPoints;
@@ -257,6 +278,7 @@ function recalculateScores() {
     }
   });
 
+  // 2. Accumulate points from the current active question
   gameState.submissions.forEach(sub => {
     if (sub.totalPoints && roundPointsByTeam[sub.teamId] !== undefined) {
       roundPointsByTeam[sub.teamId] += sub.totalPoints;
@@ -333,13 +355,52 @@ io.on('connection', (socket) => {
     if (!currentRound) return;
     if (!validator.isValidNumber(clean.questionIndex, 0, currentRound.questions.length - 1)) return;
 
+    // Archive current question before switching
+    archiveCurrentQuestionSubmissions();
+    recalculateScores();
+
     gameState.currentQuestionIndex = clean.questionIndex;
     gameState.questionState = 'idle';
-    gameState.submissions = [];
+
+    // Check if newly selected question has saved submissions in history
+    const saved = gameState.history.find(
+      h => h.roundIndex === gameState.currentRoundIndex && h.questionIndex === clean.questionIndex
+    );
+    gameState.submissions = saved ? JSON.parse(JSON.stringify(saved.submissions)) : [];
+
     gameState.currentQuestion = currentRound.questions[clean.questionIndex];
     gameState.timer.duration = currentRound.timeLimit;
     gameState.timer.remaining = currentRound.timeLimit;
+    recalculateScores();
     broadcastState();
+  });
+
+  // 4.1 Admin Next Question Navigation
+  socket.on('admin_next_question', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!isValidAdminPassword(clean.adminPassword)) return;
+    const currentRound = questionsData.rounds[gameState.currentRoundIndex];
+    if (!currentRound) return;
+
+    // Archive current question submissions before moving
+    archiveCurrentQuestionSubmissions();
+    recalculateScores();
+
+    if (gameState.currentQuestionIndex < currentRound.questions.length - 1) {
+      gameState.currentQuestionIndex++;
+      gameState.questionState = 'idle';
+
+      const saved = gameState.history.find(
+        h => h.roundIndex === gameState.currentRoundIndex && h.questionIndex === gameState.currentQuestionIndex
+      );
+      gameState.submissions = saved ? JSON.parse(JSON.stringify(saved.submissions)) : [];
+
+      gameState.currentQuestion = currentRound.questions[gameState.currentQuestionIndex];
+      gameState.timer.duration = currentRound.timeLimit;
+      gameState.timer.remaining = currentRound.timeLimit;
+      recalculateScores();
+      broadcastState();
+    }
   });
 
   // 5. Admin Timer Controls
@@ -349,10 +410,13 @@ io.on('connection', (socket) => {
     const currentRound = questionsData.rounds[gameState.currentRoundIndex];
     if (!currentRound) return;
 
+    if (gameState.questionState !== 'paused') {
+      gameState.submissions = [];
+    }
     gameState.questionState = 'running';
-    gameState.submissions = [];
     gameState.currentQuestion = currentRound.questions[gameState.currentQuestionIndex];
     startTimer(currentRound.timeLimit);
+    recalculateScores();
     broadcastState();
     io.emit('question_started', {
       question: gameState.currentQuestion,
@@ -435,6 +499,7 @@ io.on('connection', (socket) => {
     if (sub) {
       sub.correct = clean.correct === true;
       recalculateScores();
+      archiveCurrentQuestionSubmissions();
       broadcastState();
       io.emit('evaluation_updated', {
         teamId: sub.teamId,
@@ -475,6 +540,7 @@ io.on('connection', (socket) => {
     const clean = validator.sanitizePayload(data);
     if (!isValidAdminPassword(clean.adminPassword)) return;
     if (gameState.currentRoundIndex < questionsData.rounds.length - 1) {
+      archiveCurrentQuestionSubmissions();
       gameState.currentRoundIndex++;
       gameState.currentQuestionIndex = 0;
       gameState.questionState = 'idle';
@@ -483,6 +549,7 @@ io.on('connection', (socket) => {
       if (nextRound) {
         gameState.timer.duration = nextRound.timeLimit;
         gameState.timer.remaining = nextRound.timeLimit;
+        gameState.currentQuestion = nextRound.questions[0];
       }
       initRoundScores();
       broadcastState();

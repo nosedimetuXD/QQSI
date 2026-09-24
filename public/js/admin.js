@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnPauseResume = document.getElementById('btnPauseResume');
   const pauseResumeText = document.getElementById('pauseResumeText');
   const btnStopQuestion = document.getElementById('btnStopQuestion');
+  const btnNextQuestion = document.getElementById('btnNextQuestion');
+  const nextQuestionText = document.getElementById('nextQuestionText');
   
   const adminTimerStatus = document.getElementById('adminTimerStatus');
   const adminTimerClock = document.getElementById('adminTimerClock');
@@ -311,6 +313,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // Standings & Elimination
     renderStandings(state);
 
+    // Next Question Button State
+    if (btnNextQuestion && nextQuestionText && questionsData) {
+      const currentRound = questionsData.rounds[state.currentRoundIndex];
+      const totalQuestionsInRound = currentRound ? currentRound.questions.length : 0;
+      const isLastQuestion = state.currentQuestionIndex >= totalQuestionsInRound - 1;
+
+      if (isLastQuestion) {
+        nextQuestionText.textContent = 'Última Pregunta de la Ronda';
+        btnNextQuestion.disabled = true;
+        btnNextQuestion.style.opacity = '0.5';
+        btnNextQuestion.style.cursor = 'not-allowed';
+      } else {
+        nextQuestionText.textContent = `Avanzar a Siguiente Pregunta (${(state.currentQuestionIndex || 0) + 2}/${totalQuestionsInRound}) →`;
+        btnNextQuestion.disabled = false;
+        btnNextQuestion.style.opacity = '1';
+        btnNextQuestion.style.cursor = 'pointer';
+      }
+    }
+
     // Toggle leaderboard button state
     if (toggleLeaderboardText && btnToggleLeaderboard) {
       if (state.showLeaderboard) {
@@ -437,6 +458,12 @@ document.addEventListener('DOMContentLoaded', () => {
   btnStopQuestion.addEventListener('click', () => {
     socket.emit('admin_stop_timer', { adminPassword: currentAdminPassword });
   });
+
+  if (btnNextQuestion) {
+    btnNextQuestion.addEventListener('click', () => {
+      socket.emit('admin_next_question', { adminPassword: currentAdminPassword });
+    });
+  }
 
   if (btnToggleLeaderboard) {
     btnToggleLeaderboard.addEventListener('click', () => {
