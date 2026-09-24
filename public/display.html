@@ -135,6 +135,17 @@
         <div id="questionStatusIndicator" style="font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #38bdf8; margin-top: 14px;">
           Tiempo corriendo — Esperando respuestas de los equipos
         </div>
+
+        <!-- Question Points & Standings Breakdown (When evaluated or ended) -->
+        <div id="questionResultsBreakdown" style="display: none; width: 100%; margin-top: 18px; border-top: 1.5px dashed rgba(255, 255, 255, 0.25); padding-top: 16px;">
+          <div style="font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span>🏆</span>
+            <span>Puntos de la Pregunta & Posiciones</span>
+          </div>
+          <div id="questionPointsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; text-align: left;">
+            <!-- Populated by JS -->
+          </div>
+        </div>
       </div>
 
     </div>

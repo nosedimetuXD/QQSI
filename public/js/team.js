@@ -193,8 +193,26 @@ document.addEventListener('DOMContentLoaded', () => {
       btnSubmitAnswer.disabled = true;
       btnSubmitAnswer.classList.remove('pulsing');
       deliveryStatusBox.style.display = 'block';
-      deliveryOrderText.textContent = `¡Entregado en posición ${alreadySubmitted.order || 1}º!`;
-      deliveryTimeText.textContent = `Tiempo registrado: ${(alreadySubmitted.elapsedMs / 1000).toFixed(1)} segundos`;
+
+      if (alreadySubmitted.correct === true) {
+        deliveryStatusBox.style.background = 'rgba(5, 150, 105, 0.35)';
+        deliveryStatusBox.style.border = '1.5px solid #10b981';
+        deliveryOrderText.textContent = `✓ ¡Correcto! +${alreadySubmitted.totalPoints || 10} pts`;
+        deliveryOrderText.style.color = '#6ee7b7';
+        deliveryTimeText.textContent = `Posición #${alreadySubmitted.order || 1} (${(alreadySubmitted.elapsedMs / 1000).toFixed(1)}s) • Total Ronda: ${currentState.roundScores[selectedTeamId] || currentTeam.score || 0} pts`;
+      } else if (alreadySubmitted.correct === false) {
+        deliveryStatusBox.style.background = 'rgba(239, 68, 68, 0.25)';
+        deliveryStatusBox.style.border = '1.5px solid #ef4444';
+        deliveryOrderText.textContent = `✗ Respuesta Incorrecta (0 pts)`;
+        deliveryOrderText.style.color = '#fca5a5';
+        deliveryTimeText.textContent = `Total Ronda: ${currentState.roundScores[selectedTeamId] || currentTeam.score || 0} pts`;
+      } else {
+        deliveryStatusBox.style.background = 'rgba(5, 150, 105, 0.25)';
+        deliveryStatusBox.style.border = '1.5px solid #10b981';
+        deliveryOrderText.textContent = `¡Entregado en posición ${alreadySubmitted.order || 1}º!`;
+        deliveryOrderText.style.color = '#6ee7b7';
+        deliveryTimeText.textContent = `Tiempo registrado: ${(alreadySubmitted.elapsedMs / 1000).toFixed(1)} segundos`;
+      }
     } else if (currentState.questionState === 'running') {
       btnSubmitAnswer.disabled = false;
       btnSubmitAnswer.classList.add('pulsing');

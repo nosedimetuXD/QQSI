@@ -441,6 +441,14 @@ io.on('connection', (socket) => {
     }
   });
 
+  // 7.1 Admin Toggle Leaderboard Screen
+  socket.on('admin_toggle_results', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!isValidAdminPassword(clean.adminPassword)) return;
+    gameState.showLeaderboard = clean.showLeaderboard !== undefined ? clean.showLeaderboard : !gameState.showLeaderboard;
+    broadcastState();
+  });
+
   // 8. Admin Elimination Management
   socket.on('admin_eliminate_team', (data) => {
     const clean = validator.sanitizePayload(data);

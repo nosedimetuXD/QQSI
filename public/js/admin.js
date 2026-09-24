@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const submissionsQueueContainer = document.getElementById('submissionsQueueContainer');
   
   const adminStandingsList = document.getElementById('adminStandingsList');
+  const btnToggleLeaderboard = document.getElementById('btnToggleLeaderboard');
+  const toggleLeaderboardText = document.getElementById('toggleLeaderboardText');
   const selectTeamToEliminate = document.getElementById('selectTeamToEliminate');
   const btnConfirmElimination = document.getElementById('btnConfirmElimination');
   const btnNextRound = document.getElementById('btnNextRound');
@@ -308,6 +310,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Standings & Elimination
     renderStandings(state);
+
+    // Toggle leaderboard button state
+    if (toggleLeaderboardText && btnToggleLeaderboard) {
+      if (state.showLeaderboard) {
+        toggleLeaderboardText.textContent = 'Ocultar Ranking';
+        btnToggleLeaderboard.style.background = 'rgba(239, 68, 68, 0.2)';
+        btnToggleLeaderboard.style.borderColor = '#ef4444';
+        btnToggleLeaderboard.style.color = '#f87171';
+      } else {
+        toggleLeaderboardText.textContent = 'Proyectar Ranking';
+        btnToggleLeaderboard.style.background = 'rgba(56, 189, 248, 0.15)';
+        btnToggleLeaderboard.style.borderColor = '#38bdf8';
+        btnToggleLeaderboard.style.color = '#38bdf8';
+      }
+    }
   }
 
   function renderSubmissionsQueue(state) {
@@ -420,6 +437,12 @@ document.addEventListener('DOMContentLoaded', () => {
   btnStopQuestion.addEventListener('click', () => {
     socket.emit('admin_stop_timer', { adminPassword: currentAdminPassword });
   });
+
+  if (btnToggleLeaderboard) {
+    btnToggleLeaderboard.addEventListener('click', () => {
+      socket.emit('admin_toggle_results', { adminPassword: currentAdminPassword });
+    });
+  }
 
   btnConfirmElimination.addEventListener('click', () => {
     const teamId = selectTeamToEliminate.value;
