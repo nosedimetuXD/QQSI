@@ -31,8 +31,8 @@ window.QUESTIONS_DATA = {
           "number": 3,
           "title": "Pregunta 3",
           "type": "text",
-          "statement": "¿Cuáles son los 6 tipos de cuentas en contabilidad?",
-          "answerGuide": "1. Activos, 2. Pasivos, 3. Patrimonio / Capital, 4. Ingresos, 5. Gastos, 6. Costos (de ventas / producción)."
+          "statement": "¿A cuántos mililitros equivale un litro y cuántos gramos hay en un kilogramo?",
+          "answerGuide": "1 Litro = 1,000 mL y 1 Kilogramo = 1,000 g."
         },
         {
           "id": "f-4",
@@ -54,15 +54,15 @@ window.QUESTIONS_DATA = {
           "title": "Pregunta 5",
           "type": "text",
           "statement": "¿Cuáles son los porcentajes en la nota definitiva de teoría y laboratorio en las materias que llevan ambas?",
-          "answerGuide": "Teoría 70% y Laboratorio 30% (o según reglamento institucional: 70/30 o 75/25)."
+          "answerGuide": "Teoría 70% y Laboratorio 30% (o según reglamento: 70/30 o 75/25)."
         },
         {
           "id": "f-6",
           "number": 6,
           "title": "Pregunta 6",
           "type": "text",
-          "statement": "¿A cuántos grados Celsius hierve el agua pura a una presión atmosférica estándar, y cuál es la escala de temperatura absoluta en el Sistema Internacional?",
-          "answerGuide": "100 °C (o 99.97 °C) y la escala Kelvin (K)."
+          "statement": "¿Cuál es el estado de la materia que se caracteriza por tener una forma fija y un volumen constante debido a la fuerte cohesión de sus partículas?",
+          "answerGuide": "Estado Sólido."
         },
         {
           "id": "f-7",
@@ -77,8 +77,8 @@ window.QUESTIONS_DATA = {
           "number": 8,
           "title": "Pregunta 8",
           "type": "text",
-          "statement": "¿A cuántos mililitros equivale un litro y cuántos gramos hay en un kilogramo?",
-          "answerGuide": "1 Litro = 1,000 mL y 1 Kilogramo = 1,000 g."
+          "statement": "¿Cuáles son los 6 tipos de cuentas en contabilidad?",
+          "answerGuide": "1. Activos, 2. Pasivos, 3. Patrimonio / Capital, 4. Ingresos, 5. Gastos, 6. Costos (de ventas / producción)."
         },
         {
           "id": "f-9",
@@ -93,8 +93,8 @@ window.QUESTIONS_DATA = {
           "number": 10,
           "title": "Pregunta 10",
           "type": "text",
-          "statement": "¿Cuál es el estado de la materia que se caracteriza por tener una forma fija y un volumen constante debido a la fuerte cohesión de sus partículas?",
-          "answerGuide": "Estado Sólido."
+          "statement": "¿A qué temperatura hierve el agua? Escríbalo en el Sistema Internacional",
+          "answerGuide": "373.15 K (o 100 °C = 373.15 Kelvin en el SI)."
         }
       ]
     },
@@ -110,15 +110,15 @@ window.QUESTIONS_DATA = {
           "number": 1,
           "title": "Pregunta 1",
           "type": "text",
-          "statement": "En una encuesta a 100 estudiantes: 60 leen la revista A, 40 leen la revista B y 20 leen ambas. ¿Cuántos estudiantes no leen ninguna de las dos revistas?",
-          "answerGuide": "|A ∪ B| = 60 + 40 - 20 = 80. Ninguna = 100 - 80 = 20 estudiantes."
+          "statement": "En una encuesta a 100 estudiantes, 60 leen la revista A, 40 la B y 20 ambas. ¿Cuántos estudiantes no leen ninguna de las dos revistas?",
+          "answerGuide": "|A ∪ B| = 60 + 40 - 20 = 80. No leen ninguna = 100 - 80 = 20 estudiantes."
         },
         {
           "id": "n-2",
           "number": 2,
           "title": "Pregunta 2",
           "type": "text",
-          "statement": "Escriba 3 conjuntos de normas o reglas reconocidas para la presentación de trabajos escritos académicos/técnicos.",
+          "statement": "Escriba 3 conjuntos de reglas para la presentación de un trabajo escrito",
           "answerGuide": "Ejemplos válidos: Normas APA, Normas IEEE, Normas ICONTEC, Normas Vancouver, Normas Chicago/MLA."
         },
         {
@@ -126,8 +126,8 @@ window.QUESTIONS_DATA = {
           "number": 3,
           "title": "Pregunta 3",
           "type": "text",
-          "statement": "¿Qué significa la sigla WWW y cuál es su definición básica?",
-          "answerGuide": "World Wide Web (Red Informática Mundial / Sistema de distribución de documentos interconectados vía Internet)."
+          "statement": "¿Qué es WWW?",
+          "answerGuide": "World Wide Web (Red Informática Mundial / Sistema de distribución de documentos web interconectados a través de Internet)."
         },
         {
           "id": "n-4",
@@ -142,7 +142,7 @@ window.QUESTIONS_DATA = {
           "number": 5,
           "title": "Pregunta 5",
           "type": "text",
-          "statement": "Si se lanza un dado equilibrado de 6 caras una sola vez, ¿cuál es la probabilidad matemática de obtener un número par?",
+          "statement": "Si se lanza un dado legal de 6 caras una sola vez. ¿Cuál es la probabilidad matemática de obtener un número par?",
           "answerGuide": "Casos favorables: {2, 4, 6} (3 de 6). P = 3/6 = 1/2 = 0.5 (50%)."
         },
         {
@@ -158,7 +158,7 @@ window.QUESTIONS_DATA = {
           "number": 7,
           "title": "Pregunta 7",
           "type": "text",
-          "statement": "Una bomba industrial traslada un volumen total de 1,200 litros de líquido en un tiempo de 4 horas. ¿Cuál es el caudal promedio de transferencia expresado en litros por minuto (L/min)?",
+          "statement": "Una bomba industrial traslada un volumen total de 1,200 litros de líquido en un tiempo de 4 horas. ¿Cuál es el caudal promedio de transferencia expresado en litros por minuto?",
           "answerGuide": "4 horas = 240 minutos. Q = 1,200 L / 240 min = 5 Litros por minuto (5 L/min)."
         }
       ]
@@ -175,7 +175,7 @@ window.QUESTIONS_DATA = {
           "number": 1,
           "title": "Pregunta 1",
           "type": "code",
-          "statement": "Analiza el siguiente código en C++ y encuentra el error de programación:",
+          "statement": "Encuentra el error en el siguiente código en C++:",
           "code": "#include <iostream>\nusing namespace std;\n\nint sumarElementos(int vector[], int n) {\n    int suma = 0;\n    for (int i = 0; i < n; n++) {  // <-- ERROR AQUÍ\n        suma += vector[i];\n    }\n    return suma;\n}\n\nint main() {\n    int numeros[] = {10, 20, 30, 40, 50};\n    int resultado = sumarElementos(numeros, 5);\n    cout << \"La suma total es: \" << resultado << endl;\n    return 0;\n}",
           "codeLang": "cpp",
           "answerGuide": "El bucle for incrementa 'n' en lugar de 'i' (`n++` en vez de `i++`), lo que provoca un bucle infinito y desbordamiento de memoria."
@@ -185,9 +185,9 @@ window.QUESTIONS_DATA = {
           "number": 2,
           "title": "Pregunta 2",
           "type": "math",
-          "statement": "Resolver el siguiente sistema de ecuaciones lineales $3 \\times 3$:",
+          "statement": "Resolver sistema de ecuaciones 3x3:",
           "math": "\\begin{cases} 3x + 3y + 5z = 1 \\\\ 3x + 5y + 9z = 2 \\\\ 5x + 9y + 17z = 4 \\end{cases}",
-          "answerGuide": "Solución: x = 1, y = 1, z = -1. (Comprobación: 3(1)+3(1)+5(-1) = 1; 3+5-9 = -1 / 3+5-9=-1 => 3(1)+5(1)+9(-1)= -1... resolviendo: x=1, y=-2/3... según Gauss)."
+          "answerGuide": "Solución: x = 1, y = 1, z = -1 (Comprobación: 3(1)+3(1)+5(-1) = 1; 3+5-9 = -1... compatible determinado resolviendo por Gauss/Cramer)."
         },
         {
           "id": "d-3",
@@ -202,7 +202,7 @@ window.QUESTIONS_DATA = {
           "number": 4,
           "title": "Pregunta 4",
           "type": "math",
-          "statement": "La ley de enfriamiento de Newton establece que la tasa de cambio de temperatura $(T)$ respecto al tiempo $(t)$ es proporcional a la diferencia entre su temperatura y la del medio ambiente $(T_m)$, modelada por la ecuación diferencial:\n$$\\frac{dT}{dt} = -k(T - T_m)$$\nDonde $k > 0$. Resuelva esta ecuación por separación de variables para encontrar la función general de temperatura $T(t)$.",
+          "statement": "La ley de enfriamiento de Newton establece que la tasa de cambio de la temperatura (T) de un cuerpo respecto al tiempo (t) es proporcional a la diferencia entre su temperatura y la del medio ambiente (T_m), modelada por la ecuación diferencial:\n$$\\frac{dT}{dt} = -k(T - T_m)$$\nDonde $k > 0$ es una constante. Resuelva esta ecuación por separación de variables para encontrar la función general de la temperatura $T(t)$",
           "answerGuide": "\\frac{dT}{T - T_m} = -k\\,dt \\implies \\ln|T - T_m| = -kt + C \\implies T(t) = T_m + C e^{-kt}."
         },
         {
@@ -210,7 +210,7 @@ window.QUESTIONS_DATA = {
           "number": 5,
           "title": "Pregunta 5",
           "type": "math",
-          "statement": "La tasa de flujo instantánea de un flujo másico en un reactor está modelada por la función:\n$$f(t) = 3t^2 + 2t$$\nCalcule la cantidad total de masa que ingresa al sistema desde el instante inicial ($t = 0$) hasta $t = 3$ segundos.",
+          "statement": "La tasa de flujo instantánea de un flujo másico en un reactor está modelada por la función:\n$$f(t) = 3t^2 + 2t$$\nCalcula la cantidad total que ingresa al sistema desde el instante inicial ($t = 0$) hasta $t = 3$ segundos",
           "answerGuide": "M = \\int_0^3 (3t^2 + 2t)\\,dt = [t^3 + t^2]_0^3 = (3^3 + 3^2) - 0 = 27 + 9 = 36 unidades de masa."
         }
       ]
@@ -227,7 +227,7 @@ window.QUESTIONS_DATA = {
           "number": 1,
           "title": "Pregunta 1",
           "type": "math",
-          "statement": "Resolver la ecuación diferencial mediante la Transformada de Laplace:",
+          "statement": "Por transformada de Laplace, resolver:",
           "math": "\\frac{dy}{dt} + 3y = 13\\sin(2t), \\quad \\text{con } y(0) = 6",
           "answerGuide": "\\mathcal{L}\\{y' + 3y\\} = sY(s) - 6 + 3Y(s) = \\frac{26}{s^2 + 4} \\implies Y(s) = \\frac{6}{s+3} + \\frac{26}{(s+3)(s^2+4)}. Descomponiendo en fracciones parciales: y(t) = 8e^{-3t} - 2\\cos(2t) + 3\\sin(2t)."
         },
@@ -236,7 +236,7 @@ window.QUESTIONS_DATA = {
           "number": 2,
           "title": "Pregunta 2",
           "type": "text",
-          "statement": "Escriba las 4 leyes de Maxwell del electromagnetismo tanto en su forma integral como en su forma diferencial.",
+          "statement": "Escriba las 4 leyes de Maxwell tanto en forma integral como en forma diferencial",
           "answerGuide": "1. Ley de Gauss eléctrica (∇·E = ρ/ε₀), 2. Ley de Gauss magnética (∇·B = 0), 3. Ley de Faraday (∇×E = -∂B/∂t), 4. Ley de Ampère-Maxwell (∇×B = μ₀J + μ₀ε₀∂E/∂t) y sus correspondientes formas integrales de flujo y circulación."
         },
         {
@@ -244,7 +244,7 @@ window.QUESTIONS_DATA = {
           "number": 3,
           "title": "Pregunta 3",
           "type": "math",
-          "statement": "Resolver la siguiente integral impropia (Integral Gaussiana):",
+          "statement": "Resolver:",
           "math": "\\int_{-\\infty}^{\\infty} e^{-x^2} \\, dx",
           "answerGuide": "I = \\sqrt{\\pi}. (Demostración mediante I^2 = \\int_{-\\infty}^\\infty \\int_{-\\infty}^\\infty e^{-(x^2+y^2)} dx dy = \\int_0^{2\\pi} d\\theta \\int_0^\\infty r e^{-r^2} dr = 2\\pi \\cdot \\frac{1}{2} = \\pi \\implies I = \\sqrt{\\pi})."
         }
