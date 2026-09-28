@@ -69,12 +69,17 @@ select:focus-visible {
   }
 }
 
-/* --- Solid High-Contrast Canvas Backdrop (Un Solo Color, Sin Cuadrícula) --- */
+/* --- Dynamic Ambient Gradient Mesh Canvas --- */
 body, body.gingham-pattern {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #0C1B3D;
-  background-color: #d0dff0;
-  background-image: none !important;
+  color: #f1f5f9;
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% -15%, rgba(76, 144, 222, 0.35), transparent 70%),
+    radial-gradient(ellipse 65% 45% at 92% 92%, rgba(252, 97, 35, 0.2), transparent 60%),
+    radial-gradient(ellipse 50% 35% at 8% 85%, rgba(40, 110, 221, 0.24), transparent 60%),
+    linear-gradient(155deg, #07152f 0%, #0C1B3D 30%, #07225D 65%, #032D8D 100%);
+  background-attachment: fixed;
+  background-color: #0C1B3D;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -84,8 +89,12 @@ body, body.gingham-pattern {
 
 /* --- Ambient Stage for Dark Control Displays & Moderation --- */
 body.dark-stage {
+  background: 
+    radial-gradient(ellipse 75% 45% at 50% -10%, rgba(76, 144, 222, 0.25), transparent 70%),
+    radial-gradient(ellipse 55% 40% at 90% 90%, rgba(252, 97, 35, 0.15), transparent 60%),
+    linear-gradient(160deg, #050e1f 0%, #0C1B3D 45%, #07225D 100%) !important;
+  background-attachment: fixed !important;
   background-color: #0C1B3D !important;
-  background-image: none !important;
   color: #ffffff !important;
 }
 
@@ -230,37 +239,58 @@ svg {
    LIQUID GLASS CARD ARCHITECTURE
    ========================================================================== */
 .denim-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16) 0%, rgba(14, 34, 62, 0.94) 28%, rgba(5, 15, 30, 0.98) 100%) !important;
+  background: linear-gradient(145deg, rgba(20, 48, 92, 0.88) 0%, rgba(12, 27, 61, 0.96) 45%, rgba(7, 34, 93, 0.94) 100%) !important;
   backdrop-filter: blur(28px) saturate(200%) !important;
   -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
-  border-top: 2px solid rgba(255, 255, 255, 0.75) !important;
-  border-left: 1.5px solid rgba(255, 255, 255, 0.5) !important;
+  border: 1.5px solid rgba(108, 168, 228, 0.3) !important;
+  border-top: 2px solid rgba(255, 255, 255, 0.65) !important;
+  border-left: 1.5px solid rgba(108, 168, 228, 0.45) !important;
   border-radius: var(--card-radius);
   box-shadow: 
-    0 25px 60px -10px rgba(2, 6, 18, 0.75),
-    0 0 25px rgba(76, 144, 222, 0.25),
-    inset 0 2px 3px 0 rgba(255, 255, 255, 0.5),
-    inset 0 -2px 3px 0 rgba(0, 0, 0, 0.7) !important;
+    0 25px 60px -10px rgba(2, 6, 18, 0.85),
+    0 0 35px rgba(76, 144, 222, 0.25),
+    0 0 70px rgba(252, 97, 35, 0.08),
+    inset 0 2px 3px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 3px 0 rgba(0, 0, 0, 0.6) !important;
   color: #ffffff !important;
   padding: 40px 36px;
   position: relative;
   z-index: 10;
   text-align: center !important;
+  overflow: hidden;
 }
 
-/* Costuras pespunteadas interiores de cristal grabado */
+/* Marco gráfico holográfico de cristal líquido con esquinas luminosas (reemplaza las viñetas/costuras) */
 .denim-card::before {
   content: '';
   position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  border: 2px dashed rgba(255, 255, 255, 0.55);
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
   border-radius: 20px;
   pointer-events: none;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6), inset 0 0 12px rgba(76, 144, 222, 0.1);
+  border: 1px solid rgba(108, 168, 228, 0.24);
+  background: 
+    radial-gradient(circle at 0% 0%, rgba(76, 144, 222, 0.22) 0%, transparent 40%),
+    radial-gradient(circle at 100% 100%, rgba(252, 97, 35, 0.16) 0%, transparent 40%);
+  box-shadow: 
+    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    inset 0 0 20px rgba(4, 55, 166, 0.15);
+}
+
+/* Haz de luz de refracción especular superior */
+.denim-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(76, 144, 222, 0.8) 25%, rgba(255, 115, 38, 0.9) 50%, rgba(76, 144, 222, 0.8) 75%, transparent 100%);
+  filter: blur(0.5px);
+  pointer-events: none;
+  border-radius: 9999px;
 }
 
 /* --- Header del Hub --- */
@@ -280,56 +310,42 @@ svg {
   max-width: 580px !important;
   font-size: 15px !important;
   line-height: 1.5 !important;
-  color: #d0dff0 !important;
+  color: #b8cde0 !important;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
   font-weight: 600 !important;
   display: block !important;
 }
 
-/* --- Cinta / Lazo de Cristal Líquido (Liquid Glass Ribbon) --- */
+/* --- Insignia / Banner Flotante Liquid Glass (Reemplaza la cinta clásica) --- */
 .ribbon-banner {
   position: relative !important;
-  background: linear-gradient(180deg, rgba(76, 144, 222, 0.95) 0%, rgba(4, 55, 166, 0.9) 60%, rgba(3, 45, 141, 0.95) 100%) !important;
+  background: linear-gradient(135deg, #0140B9 0%, #0437A6 35%, #286EDD 70%, #FC6123 100%) !important;
   color: #ffffff !important;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-style: italic;
-  font-weight: 700;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  font-family: 'Cabinet Grotesk', -apple-system, sans-serif !important;
+  font-style: normal !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
   box-shadow: 
-    0 10px 25px rgba(4, 55, 166, 0.45),
-    inset 0 1.5px 1.5px rgba(255, 255, 255, 0.8),
-    inset 0 -1.5px 2px rgba(0, 0, 0, 0.4) !important;
+    0 10px 28px rgba(4, 55, 166, 0.5),
+    0 0 22px rgba(252, 97, 35, 0.35),
+    inset 0 1.5px 1.5px rgba(255, 255, 255, 0.85),
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.45) !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   margin: 0 auto 16px auto !important;
   text-align: center !important;
-  padding: 10px 40px;
-  border-radius: 8px;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.95);
-  border-bottom: 1.5px solid rgba(255, 255, 255, 0.6);
+  padding: 8px 34px !important;
+  border-radius: 9999px !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.9) !important;
 }
 
 .ribbon-banner::before,
 .ribbon-banner::after {
-  content: '';
-  position: absolute;
-  top: 8px;
-  bottom: -8px;
-  width: 24px;
-  background: #0437A6;
-  z-index: -1;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-}
-
-.ribbon-banner::before {
-  left: -16px;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 50% 50%);
-}
-
-.ribbon-banner::after {
-  right: -16px;
-  clip-path: polygon(0 0, 100% 0, 50% 50%, 100% 100%, 0 100%);
+  display: none !important;
 }
 
 /* --- Cuadrícula de Roles del Hub --- */
@@ -357,11 +373,11 @@ svg {
 
 /* Tarjetas de Rol en Cristal Líquido */
 .role-card-box {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(8, 22, 42, 0.75) 50%, rgba(3, 10, 20, 0.9) 100%) !important;
+  background: linear-gradient(145deg, rgba(20, 48, 92, 0.7) 0%, rgba(12, 27, 61, 0.85) 50%, rgba(7, 34, 93, 0.9) 100%) !important;
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-top: 1.5px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(108, 168, 228, 0.25);
+  border-top: 1.5px solid rgba(255, 255, 255, 0.6);
   border-radius: 22px;
   padding: 24px 20px;
   display: flex;
@@ -371,7 +387,8 @@ svg {
   color: #ffffff !important;
   transition: transform var(--transition-liquid), border-color var(--transition-liquid), box-shadow var(--transition-liquid);
   box-shadow: 
-    0 15px 35px -5px rgba(0, 0, 0, 0.6),
+    0 15px 35px -5px rgba(0, 0, 0, 0.65),
+    0 0 20px rgba(76, 144, 222, 0.1),
     inset 0 1px 1.5px rgba(255, 255, 255, 0.35);
   position: relative;
   overflow: hidden;
@@ -389,12 +406,13 @@ svg {
 }
 
 .role-card-box:hover {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.14) 0%, rgba(14, 34, 64, 0.85) 50%, rgba(4, 14, 28, 0.95) 100%) !important;
-  border-color: var(--liquid-cyan-glow);
-  transform: translateY(-5px);
+  background: linear-gradient(145deg, rgba(25, 60, 115, 0.8) 0%, rgba(14, 34, 64, 0.92) 50%, rgba(7, 22, 48, 0.98) 100%) !important;
+  border-color: rgba(108, 168, 228, 0.6);
+  transform: translateY(-6px);
   box-shadow: 
-    0 22px 45px -5px rgba(0, 0, 0, 0.75), 
-    0 0 25px rgba(76, 144, 222, 0.35),
+    0 24px 48px -5px rgba(0, 0, 0, 0.8), 
+    0 0 30px rgba(76, 144, 222, 0.4),
+    0 0 15px rgba(252, 97, 35, 0.2),
     inset 0 1.5px 2px rgba(255, 255, 255, 0.5);
 }
 
@@ -672,9 +690,9 @@ svg {
 }
 
 .option-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(10, 26, 48, 0.75) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-top: 1.5px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, rgba(20, 48, 92, 0.7) 0%, rgba(12, 27, 61, 0.85) 100%);
+  border: 1px solid rgba(108, 168, 228, 0.25);
+  border-top: 1.5px solid rgba(255, 255, 255, 0.6);
   border-radius: 18px;
   padding: 16px 20px;
   display: flex;
@@ -685,18 +703,18 @@ svg {
   font-weight: 700;
   color: #ffffff;
   box-shadow: 
-    0 8px 25px rgba(0, 0, 0, 0.4), 
+    0 8px 25px rgba(0, 0, 0, 0.45), 
     inset 0 1px 1.5px rgba(255, 255, 255, 0.35);
   transition: transform var(--transition-liquid), border-color var(--transition-liquid), box-shadow var(--transition-liquid);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(16px);
 }
 
 .option-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--liquid-cyan-glow);
+  transform: translateY(-3px);
+  border-color: rgba(76, 144, 222, 0.6);
   box-shadow: 
-    0 12px 30px rgba(0, 0, 0, 0.5), 
-    0 0 15px rgba(76, 144, 222, 0.25),
+    0 14px 32px rgba(0, 0, 0, 0.6), 
+    0 0 20px rgba(76, 144, 222, 0.35),
     inset 0 1.5px 2px rgba(255, 255, 255, 0.5);
 }
 
@@ -773,12 +791,12 @@ svg {
   max-width: 85vw;
   max-height: 85vw;
   border-radius: 9999px;
-  background: radial-gradient(circle at 38% 28%, #FF853E 0%, #FC6123 35%, #E84F0B 70%, #D42900 100%);
-  border: 7px solid #ffffff;
+  background: radial-gradient(circle at 35% 25%, #FFBD3E 0%, #FF853E 22%, #FC6123 48%, #DF440C 75%, #D42900 100%);
+  border: 6px solid #ffffff;
   box-shadow: 
-    0 0 0 4px rgba(252, 97, 35, 0.6),
-    0 0 35px rgba(255, 115, 38, 0.75),
-    0 20px 45px rgba(1, 8, 20, 0.85),
+    0 0 0 4px rgba(252, 97, 35, 0.65),
+    0 0 40px rgba(255, 115, 38, 0.8),
+    0 22px 50px rgba(1, 8, 20, 0.85),
     inset 0 4px 6px rgba(255, 255, 255, 0.95),
     inset 0 -8px 16px rgba(180, 40, 0, 0.95);
   color: #ffffff !important;
@@ -825,21 +843,22 @@ svg {
 }
 
 .buzzer-arcade-btn:disabled {
-  background: radial-gradient(circle at 38% 28%, #3d5f82 0%, #2d4b6e 45%, #17345a 80%, #0C1B3D 100%) !important;
-  border: 6px solid #5a7a9f !important;
+  background: radial-gradient(circle at 35% 25%, #1d3557 0%, #12223b 40%, #0C1B3D 75%, #050d1e 100%) !important;
+  border: 6px solid rgba(108, 168, 228, 0.35) !important;
   box-shadow: 
-    0 0 0 3px rgba(90, 122, 159, 0.3),
-    0 12px 25px rgba(0, 0, 0, 0.6),
-    inset 0 3px 4px rgba(255, 255, 255, 0.35),
-    inset 0 -6px 12px rgba(0, 0, 0, 0.85) !important;
+    0 0 0 3px rgba(76, 144, 222, 0.12),
+    0 16px 36px rgba(0, 0, 0, 0.7),
+    inset 0 3px 5px rgba(255, 255, 255, 0.2),
+    inset 0 -6px 14px rgba(0, 0, 0, 0.9) !important;
   cursor: not-allowed;
-  opacity: 0.85;
+  opacity: 0.9;
   transform: none !important;
 }
 
 .buzzer-arcade-btn:disabled #buzzerIconSlot {
-  color: #8ba3c4 !important;
+  color: #6CA8E4 !important;
   filter: none;
+  opacity: 0.75;
 }
 
 .buzzer-arcade-btn:disabled span {
