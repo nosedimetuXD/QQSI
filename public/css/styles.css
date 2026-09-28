@@ -548,7 +548,7 @@ svg {
 
 .lobby-card {
   width: 100%;
-  max-width: 860px;
+  max-width: 980px;
   padding: 36px 28px;
   text-align: center;
 }
@@ -571,8 +571,8 @@ svg {
 
 .lobby-teams-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .badge-pill {
@@ -1159,6 +1159,11 @@ svg {
   .options-grid {
     grid-template-columns: 1fr !important;
     gap: 10px !important;
+  }
+
+  .lobby-teams-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
   }
 
   .option-card {
