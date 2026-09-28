@@ -142,7 +142,11 @@ initRoundScores();
 let timerInterval = null;
 
 function broadcastState() {
-  io.emit('state_update', gameState);
+  const payload = JSON.parse(JSON.stringify(gameState));
+  if (payload.questionState === 'idle') {
+    payload.currentQuestion = null;
+  }
+  io.emit('state_update', payload);
 }
 
 function startTimer(durationSeconds) {
@@ -297,9 +301,12 @@ function recalculateScores() {
 io.on('connection', (socket) => {
   const clientIp = socket.handshake.address;
 
-  // Send Initial Snapshot
-  socket.emit('state_update', gameState);
-  socket.emit('questions_data', questionsData);
+  // Send Initial Snapshot (Sanitized when question is idle)
+  const initialPayload = JSON.parse(JSON.stringify(gameState));
+  if (initialPayload.questionState === 'idle') {
+    initialPayload.currentQuestion = null;
+  }
+  socket.emit('state_update', initialPayload);
 
   // 1. Admin Authentication with Rate Limiting
   socket.on('admin_login', (data) => {
@@ -309,6 +316,7 @@ io.on('connection', (socket) => {
     const clean = validator.sanitizePayload(data);
     if (isValidAdminPassword(clean.password)) {
       socket.emit('admin_login_success', { ok: true });
+      socket.emit('questions_data', questionsData);
     } else {
       socket.emit('admin_login_error', { error: 'Contraseña de administrador incorrecta.' });
     }

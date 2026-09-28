@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
       questionScreen.style.display = 'none';
       resultsScreen.style.display = 'block';
       renderLeaderboard(state);
-    } else if (state.questionState === 'idle' && !state.currentQuestion) {
+    } else if (state.questionState === 'idle' || !state.currentQuestion) {
       lobbyScreen.style.display = 'block';
       questionScreen.style.display = 'none';
       resultsScreen.style.display = 'none';

@@ -163,7 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const roundNames = ['Ronda 1: Nivel Fácil', 'Ronda 2: Nivel Normal', 'Ronda 3: Nivel Difícil', 'Ronda 4: Nivel Experto'];
     activeTeamRoundBadge.textContent = roundNames[currentState.currentRoundIndex] || `Ronda ${currentState.currentRoundIndex + 1}`;
 
-    const q = currentState.currentQuestion;
+    const isQuestionStarted = (
+      currentState.questionState === 'running' ||
+      currentState.questionState === 'paused' ||
+      currentState.questionState === 'ended' ||
+      currentState.questionState === 'evaluated'
+    );
+    const q = isQuestionStarted ? currentState.currentQuestion : null;
+
     if (q) {
       teamQuestionBanner.textContent = q.title || `Pregunta ${(currentState.currentQuestionIndex || 0) + 1}`;
       teamQuestionStatement.textContent = q.statement || 'Pregunta en curso';
@@ -183,8 +190,8 @@ document.addEventListener('DOMContentLoaded', () => {
         teamQuestionMath.style.display = 'none';
       }
     } else {
-      teamQuestionBanner.textContent = "Sin Pregunta Activa";
-      teamQuestionStatement.textContent = "Esperando que el moderador inicie la pregunta...";
+      teamQuestionBanner.textContent = "Esperando Inicio...";
+      teamQuestionStatement.textContent = "Esperando que el moderador inicie la pregunta para los equipos...";
       teamQuestionMath.style.display = 'none';
     }
 
