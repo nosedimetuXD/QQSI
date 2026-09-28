@@ -235,6 +235,24 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.emit('admin_select_question', { questionIndex: qIdx, adminPassword: currentAdminPassword });
   };
 
+  function renderMathContent(targetElement, rawText) {
+    if (!targetElement) return;
+    targetElement.textContent = rawText || '';
+    if (window.renderMathInElement) {
+      try {
+        renderMathInElement(targetElement, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
+          ],
+          throwOnError: false
+        });
+      } catch (e) {}
+    }
+  }
+
   // Update Question Preview
   function updatePreview() {
     if (!questionsData || !currentState) return;
@@ -245,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     previewQNumber.textContent = q.title || `Pregunta ${(currentState.currentQuestionIndex || 0) + 1}`;
     previewQTime.textContent = `${currentRound.timeLimit} segundos`;
-    previewQStatement.textContent = q.statement || '';
+    renderMathContent(previewQStatement, q.statement || '');
 
     if (q.math) {
       previewQMath.style.display = 'block';
@@ -262,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
       previewQMath.style.display = 'none';
     }
 
-    previewQAnswer.textContent = q.answerGuide || 'No especificada.';
+    renderMathContent(previewQAnswer, q.answerGuide || 'No especificada.');
   }
 
   function renderAdminView(state) {
@@ -418,34 +436,60 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   function renderStandings(state) {
-    const teams = [...(state.teams || [])];
-    teams.sort((a, b) => (b.score || 0) - (a.score || 0));
-    const maxScore = Math.max(...teams.map(t => t.score || 0), 30);
+    const allTeams = [...(state.teams || [])];
+    const activeTeams = allTeams.filter(t => !t.eliminated);
+    const eliminatedTeams = allTeams.filter(t => t.eliminated);
 
-    adminStandingsList.innerHTML = teams.map(team => {
-      const pct = Math.round(((team.score || 0) / maxScore) * 100);
-      const isEliminated = team.eliminated;
+    activeTeams.sort((a, b) => (b.score || 0) - (a.score || 0));
+    eliminatedTeams.sort((a, b) => (b.score || 0) - (a.score || 0));
 
-      return `
-        <div style="opacity: ${isEliminated ? '0.4' : '1'};">
-          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: #ffffff; margin-bottom: 2px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <div style="width: 10px; height: 10px; border-radius: 9999px; background-color: ${team.color};"></div>
-              <span>${team.shortName}</span>
-              ${isEliminated ? '<span style="color: #ef4444; font-size: 10px;">(Eliminado)</span>' : ''}
+    const maxScore = Math.max(...allTeams.map(t => t.score || 0), 30);
+
+    let html = '';
+
+    if (activeTeams.length > 0) {
+      html += activeTeams.map(team => {
+        const pct = Math.round(((team.score || 0) / maxScore) * 100);
+        return `
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: #ffffff; margin-bottom: 2px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 10px; height: 10px; border-radius: 9999px; background-color: ${team.color};"></div>
+                <span>${team.shortName}</span>
+              </div>
+              <span style="font-family: monospace; color: #34d399;">${team.score || 0} pts</span>
             </div>
-            <span style="font-family: monospace; color: #34d399;">${team.score || 0} pts</span>
+            <div class="team-progress-bar">
+              <div class="team-progress-fill" style="width: ${pct}%; background-color: ${team.color};"></div>
+            </div>
           </div>
-          <div class="team-progress-bar">
-            <div class="team-progress-fill" style="width: ${pct}%; background-color: ${team.color};"></div>
-          </div>
+        `;
+      }).join('');
+    }
+
+    if (eliminatedTeams.length > 0) {
+      html += `
+        <div style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed rgba(255, 255, 255, 0.15);">
+          <span style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Eliminados:</span>
+          ${eliminatedTeams.map(team => `
+            <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 4px; opacity: 0.7;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="width: 8px; height: 8px; border-radius: 9999px; background-color: ${team.color};"></div>
+                <span>${team.shortName}</span>
+                <span style="color: #ef4444; font-size: 9px; font-weight: 800;">(Eliminado)</span>
+              </div>
+              <span style="font-family: monospace;">${team.score || 0} pts</span>
+            </div>
+          `).join('')}
         </div>
       `;
-    }).join('');
+    }
+
+    adminStandingsList.innerHTML = html;
 
     // Update elimination dropdown
     selectTeamToEliminate.innerHTML = '<option value="">Seleccionar equipo a eliminar...</option>' + 
-      teams.filter(t => !t.eliminated).map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+      activeTeams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
   }
 
   // Button Handlers

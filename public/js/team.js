@@ -127,6 +127,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial View Update
   updateView();
 
+  function renderMathContent(targetElement, rawText) {
+    if (!targetElement) return;
+    targetElement.textContent = rawText || '';
+    if (window.renderMathInElement) {
+      try {
+        renderMathInElement(targetElement, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
+          ],
+          throwOnError: false
+        });
+      } catch (e) {}
+    }
+  }
+
   function updateView() {
     const teams = currentState.teams || DEFAULT_TEAMS;
     const currentTeam = teams.find(t => t.id === selectedTeamId);
@@ -173,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (q) {
       teamQuestionBanner.textContent = q.title || `Pregunta ${(currentState.currentQuestionIndex || 0) + 1}`;
-      teamQuestionStatement.textContent = q.statement || 'Pregunta en curso';
+      renderMathContent(teamQuestionStatement, q.statement || 'Pregunta en curso');
 
       if (q.math) {
         teamQuestionMath.style.display = 'block';

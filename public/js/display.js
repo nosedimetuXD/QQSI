@@ -191,6 +191,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
+  function renderMathContent(targetElement, rawText) {
+    if (!targetElement) return;
+    targetElement.textContent = rawText || '';
+    if (window.renderMathInElement) {
+      try {
+        renderMathInElement(targetElement, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
+          ],
+          throwOnError: false
+        });
+      } catch (e) {}
+    }
+  }
+
   function renderQuestion(state) {
     let q = state.currentQuestion;
     if (!q && questionsData && questionsData.rounds && questionsData.rounds[state.currentRoundIndex]) {
@@ -199,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!q) return;
 
     questionRibbon.textContent = q.title || `Pregunta ${(state.currentQuestionIndex || 0) + 1}`;
-    questionStatement.textContent = q.statement || '';
+    renderMathContent(questionStatement, q.statement || '');
 
     if (q.math) {
       questionMathArea.style.display = 'block';
@@ -370,28 +388,69 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderLeaderboard(state) {
-    const teams = [...(state.teams || DEFAULT_TEAMS)];
-    teams.sort((a, b) => (b.score || 0) - (a.score || 0));
+    const allTeams = [...(state.teams || DEFAULT_TEAMS)];
+    const activeTeams = allTeams.filter(t => !t.eliminated);
+    const eliminatedTeams = allTeams.filter(t => t.eliminated);
 
-    leaderboardList.innerHTML = teams.map((team, idx) => {
-      let medalSvg = '';
-      if (idx === 0 && window.Icons) medalSvg = Icons.medal1("w-6 h-6");
-      else if (idx === 1 && window.Icons) medalSvg = Icons.medal2("w-6 h-6");
-      else if (idx === 2 && window.Icons) medalSvg = Icons.medal3("w-6 h-6");
+    activeTeams.sort((a, b) => (b.score || 0) - (a.score || 0));
+    eliminatedTeams.sort((a, b) => (b.score || 0) - (a.score || 0));
 
-      return `
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-radius: 14px; background: rgba(8, 20, 36, 0.9); border: 1.5px solid ${idx === 0 ? '#facc15' : 'rgba(255, 255, 255, 0.15)'}; box-shadow: ${idx === 0 ? '0 0 15px rgba(250, 204, 21, 0.3)' : 'none'};">
-          <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="display: flex; align-items: center; gap: 6px; min-width: 100px;">
-              ${medalSvg}
-              <span style="font-size: 16px; font-weight: 900; color: ${idx === 0 ? '#facc15' : '#38bdf8'}; font-family: monospace;">${idx + 1}º Lugar</span>
+    let html = '';
+
+    if (activeTeams.length > 0) {
+      html += activeTeams.map((team, idx) => {
+        let medalSvg = '';
+        if (idx === 0 && window.Icons) medalSvg = Icons.medal1("w-6 h-6");
+        else if (idx === 1 && window.Icons) medalSvg = Icons.medal2("w-6 h-6");
+        else if (idx === 2 && window.Icons) medalSvg = Icons.medal3("w-6 h-6");
+
+        const isChampion = activeTeams.length === 1 || (state.currentRoundIndex === 3 && idx === 0);
+        const placeLabel = isChampion ? '¡Ganador!' : `${idx + 1}º Lugar`;
+
+        return `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-radius: 14px; background: rgba(8, 20, 36, 0.9); border: 1.5px solid ${idx === 0 ? '#facc15' : 'rgba(255, 255, 255, 0.15)'}; box-shadow: ${idx === 0 ? '0 0 15px rgba(250, 204, 21, 0.3)' : 'none'};">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="display: flex; align-items: center; gap: 6px; min-width: 100px;">
+                ${medalSvg}
+                <span style="font-size: 16px; font-weight: 900; color: ${idx === 0 ? '#facc15' : '#38bdf8'}; font-family: monospace;">${placeLabel}</span>
+              </div>
+              <div style="width: 14px; height: 14px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0;"></div>
+              <span style="font-size: 16px; font-weight: 800; color: #ffffff;">${team.name}</span>
             </div>
-            <div style="width: 14px; height: 14px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0;"></div>
-            <span style="font-size: 16px; font-weight: 800; color: #ffffff;">${team.name}</span>
+            <span style="font-size: 22px; font-weight: 900; color: #34d399; font-family: monospace;">${team.score || 0} pts</span>
           </div>
-          <span style="font-size: 22px; font-weight: 900; color: #34d399; font-family: monospace;">${team.score || 0} pts</span>
+        `;
+      }).join('');
+    } else {
+      html += `
+        <div style="text-align: center; color: #94a3b8; padding: 16px;">
+          No hay equipos activos en esta ronda.
         </div>
       `;
-    }).join('');
+    }
+
+    if (eliminatedTeams.length > 0) {
+      html += `
+        <div style="margin-top: 20px; padding-top: 14px; border-top: 1px dashed rgba(255, 255, 255, 0.2);">
+          <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+            <span>Equipos Eliminados:</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            ${eliminatedTeams.map(team => `
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-radius: 10px; background: rgba(4, 12, 24, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); opacity: 0.65;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div style="width: 10px; height: 10px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0;"></div>
+                  <span style="font-size: 13px; font-weight: 700; color: #cbd5e1;">${team.name}</span>
+                  <span style="font-size: 10px; font-weight: 800; color: #ef4444; background: rgba(239, 68, 68, 0.2); padding: 2px 6px; border-radius: 6px;">Eliminado</span>
+                </div>
+                <span style="font-size: 14px; font-weight: 800; color: #94a3b8; font-family: monospace;">${team.score || 0} pts</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    leaderboardList.innerHTML = html;
   }
 });
