@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentState = {
     teams: [
       { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0284c7', eliminated: false, score: 0 },
+      { id: 'software', name: 'Ingeniería de Software', shortName: 'Software', color: '#06b6d4', eliminated: false, score: 0 },
       { id: 'alimentos', name: 'Ingeniería de Alimentos', shortName: 'Alimentos', color: '#16a34a', eliminated: false, score: 0 },
       { id: 'quimica', name: 'Ingeniería Química', shortName: 'Química', color: '#9333ea', eliminated: false, score: 0 },
       { id: 'civil', name: 'Ingeniería Civil', shortName: 'Civil', color: '#ea580c', eliminated: false, score: 0 },

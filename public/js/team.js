@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const DEFAULT_TEAMS = [
     { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0284c7', eliminated: false },
+    { id: 'software', name: 'Ingeniería de Software', shortName: 'Software', color: '#06b6d4', eliminated: false },
     { id: 'alimentos', name: 'Ingeniería de Alimentos', shortName: 'Alimentos', color: '#16a34a', eliminated: false },
     { id: 'quimica', name: 'Ingeniería Química', shortName: 'Química', color: '#9333ea', eliminated: false },
     { id: 'civil', name: 'Ingeniería Civil', shortName: 'Civil', color: '#ea580c', eliminated: false },

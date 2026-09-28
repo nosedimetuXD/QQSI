@@ -45,7 +45,7 @@ if (cleanupInterval && cleanupInterval.unref) {
   cleanupInterval.unref();
 }
 
-const VALID_TEAM_IDS = ['sistemas', 'alimentos', 'quimica', 'civil', 'petroquimica'];
+const VALID_TEAM_IDS = ['sistemas', 'software', 'alimentos', 'quimica', 'civil', 'petroquimica'];
 
 module.exports = {
   cleanString,

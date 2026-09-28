@@ -19,6 +19,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'LinoTeto';
 
 const TEAM_PASSWORDS = {
   sistemas: [process.env.PASSWORD_SISTEMAS || 'Sistemas2026*'],
+  software: [process.env.PASSWORD_SOFTWARE || 'Software2026*'],
   alimentos: [process.env.PASSWORD_ALIMENTOS || 'Alimentos2026*'],
   quimica: [process.env.PASSWORD_QUIMICA || 'Quimica2026*', 'Química2026*'],
   civil: [process.env.PASSWORD_CIVIL || 'Civil2026*'],
@@ -101,6 +102,7 @@ function isValidTeamPassword(teamId, pwd) {
 // Master Teams Setup
 const DEFAULT_TEAMS = [
   { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0284c7', eliminated: false, score: 0, eliminatedInRound: null },
+  { id: 'software', name: 'Ingeniería de Software', shortName: 'Software', color: '#06b6d4', eliminated: false, score: 0, eliminatedInRound: null },
   { id: 'alimentos', name: 'Ingeniería de Alimentos', shortName: 'Alimentos', color: '#16a34a', eliminated: false, score: 0, eliminatedInRound: null },
   { id: 'quimica', name: 'Ingeniería Química', shortName: 'Química', color: '#9333ea', eliminated: false, score: 0, eliminatedInRound: null },
   { id: 'civil', name: 'Ingeniería Civil', shortName: 'Civil', color: '#ea580c', eliminated: false, score: 0, eliminatedInRound: null },
