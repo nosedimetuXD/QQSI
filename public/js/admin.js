@@ -188,13 +188,13 @@ document.addEventListener('DOMContentLoaded', () => {
       <button 
         type="button"
         onclick="window.selectAdminRound(${idx})"
-        style="padding: 10px; border-radius: 12px; font-size: 11px; font-weight: 800; text-align: left; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; cursor: pointer; ${
+        style="padding: 10px 12px; border-radius: 14px; font-size: 11px; font-weight: 800; text-align: left; transition: transform var(--transition-liquid), box-shadow var(--transition-liquid), border-color var(--transition-liquid); display: flex; align-items: center; justify-content: space-between; cursor: pointer; ${
           idx === currentRoundIdx
-            ? 'background: #2563eb; border: 1.5px solid #60a5fa; color: #ffffff; box-shadow: 0 0 10px rgba(37,99,235,0.4);'
-            : 'background: rgba(4, 12, 24, 0.7); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8;'
+            ? 'background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border: 1.5px solid #60a5fa; border-top: 1.5px solid #93c5fd; color: #ffffff; box-shadow: 0 0 15px rgba(37,99,235,0.5), inset 0 1px 1px rgba(255,255,255,0.5);'
+            : 'background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(6,17,33,0.7) 100%); border: 1px solid rgba(255,255,255,0.12); border-top: 1px solid rgba(255,255,255,0.25); color: #94a3b8;'
         }">
         <span>${round.name}</span>
-        <span style="font-size: 10px; opacity: 0.8; font-family: monospace;">${round.timeLimit}s</span>
+        <span style="font-size: 10px; opacity: 0.85; font-family: monospace;">${round.timeLimit}s</span>
       </button>
     `).join('');
   }
@@ -215,12 +215,12 @@ document.addEventListener('DOMContentLoaded', () => {
         <button 
           type="button"
           onclick="window.selectAdminQuestion(${idx})"
-          style="width: 100%; text-align: left; padding: 10px 14px; border-radius: 12px; transition: all 0.2s; cursor: pointer; display: flex; align-items: center; gap: 10px; ${
+          style="width: 100%; text-align: left; padding: 10px 14px; border-radius: 14px; transition: transform var(--transition-liquid), border-color var(--transition-liquid), box-shadow var(--transition-liquid); cursor: pointer; display: flex; align-items: center; gap: 10px; ${
             isSelected
-              ? 'background: rgba(56, 189, 248, 0.2); border: 1.5px solid #38bdf8; color: #ffffff;'
-              : 'background: rgba(4, 12, 24, 0.6); border: 1px solid rgba(255,255,255,0.08); color: #94a3b8;'
+              ? 'background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(14, 34, 61, 0.8) 100%); border: 1.5px solid #38bdf8; border-top: 1.5px solid rgba(255,255,255,0.7); color: #ffffff; box-shadow: 0 0 12px rgba(56,189,248,0.3), inset 0 1px 1px rgba(255,255,255,0.4);'
+              : 'background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(4, 12, 24, 0.65) 100%); border: 1px solid rgba(255,255,255,0.1); border-top: 1px solid rgba(255,255,255,0.2); color: #94a3b8;'
           }">
-          <span style="width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; background: ${isSelected ? '#38bdf8' : '#1e293b'}; color: ${isSelected ? '#031428' : '#cbd5e1'}; font-family: monospace; flex-shrink: 0;">
+          <span style="width: 24px; height: 24px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; background: ${isSelected ? 'linear-gradient(180deg, #38bdf8, #0284c7)' : 'rgba(255,255,255,0.1)'}; color: ${isSelected ? '#031428' : '#cbd5e1'}; font-family: monospace; flex-shrink: 0; box-shadow: ${isSelected ? '0 0 8px rgba(56,189,248,0.5)' : 'none'};">
             ${idx + 1}
           </span>
           <span style="font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">

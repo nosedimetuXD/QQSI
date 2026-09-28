@@ -232,13 +232,13 @@ document.addEventListener('DOMContentLoaded', () => {
           type="button"
           onclick="window.selectTeamAuth('${team.id}')"
           ${isEliminated ? 'disabled' : ''}
-          style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 16px; transition: all 0.2s ease; cursor: ${isEliminated ? 'not-allowed' : 'pointer'}; ${
+          style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 18px; transition: transform var(--transition-liquid), border-color var(--transition-liquid), box-shadow var(--transition-liquid); cursor: ${isEliminated ? 'not-allowed' : 'pointer'}; ${
             isEliminated 
               ? 'background: rgba(4, 12, 24, 0.4); opacity: 0.4; border: 1px solid rgba(255,255,255,0.08);' 
-              : 'background: rgba(8, 20, 36, 0.9); border: 1.5px solid rgba(255, 255, 255, 0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.3);'
+              : 'background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(10,24,46,0.7) 100%); border: 1px solid rgba(255,255,255,0.18); border-top: 1.5px solid rgba(255,255,255,0.45); box-shadow: 0 8px 20px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.3); backdrop-filter: blur(12px);'
           }">
           <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 16px; height: 16px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0;"></div>
+            <div style="width: 16px; height: 16px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0; box-shadow: 0 0 10px ${team.color};"></div>
             <span style="font-size: 15px; font-weight: 800; color: #ffffff; text-align: left;">${team.name}</span>
           </div>
           <span style="font-size: 12px; font-weight: 800; color: #38bdf8;">${isEliminated ? 'Eliminado' : 'Ingresar →'}</span>
