@@ -499,14 +499,80 @@ svg {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 28px;
-  background: linear-gradient(180deg, rgba(8, 22, 42, 0.85) 0%, rgba(4, 12, 24, 0.95) 100%);
+  padding: 12px 24px;
+  background: linear-gradient(180deg, rgba(8, 22, 42, 0.92) 0%, rgba(4, 12, 24, 0.98) 100%);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   z-index: 30;
   width: 100%;
+}
+
+.display-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.display-header-title {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.display-header-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.display-main-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+  position: relative;
+  z-index: 20;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.lobby-card {
+  width: 100%;
+  max-width: 860px;
+  padding: 36px 28px;
+  text-align: center;
+}
+
+.display-lobby-title {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: clamp(22px, 5vw, 34px);
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.display-lobby-sub {
+  font-size: 14px;
+  color: #bae6fd;
+  max-width: 600px;
+  margin: 0 auto 20px auto;
+  font-weight: 500;
+}
+
+.lobby-teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
 }
 
 .badge-pill {
@@ -803,6 +869,118 @@ svg {
 /* ==========================================================================
    ADMIN PANEL EN CRISTAL LÍQUIDO (3 COLUMNS)
    ========================================================================== */
+/* Top Admin Header Bar & Responsive Elements */
+.admin-header-bar {
+  width: 100%;
+  padding: 10px 18px;
+  background: rgba(4, 12, 24, 0.96);
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-header-title {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.admin-header-round-badge {
+  font-size: 11px;
+  font-weight: 800;
+  color: #38bdf8;
+  margin-top: 2px;
+}
+
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-top-action-btn {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  background: #1e293b;
+  border: 1px solid #334155;
+  padding: 6px 12px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  min-height: 36px;
+  transition: background 0.15s ease;
+}
+
+.admin-top-action-btn:hover {
+  background: #334155;
+}
+
+.btn-reset-style {
+  color: #f87171 !important;
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: #ef4444 !important;
+}
+
+.btn-reset-style:hover {
+  background: rgba(239, 68, 68, 0.3) !important;
+}
+
+.btn-logout-style {
+  color: #94a3b8 !important;
+  background: #0f172a !important;
+}
+
+.admin-action-btn-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.admin-ctrl-btn {
+  padding: 12px 8px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 44px;
+}
+
+.btn-pause-style {
+  background: #1e293b;
+  color: #fbbf24;
+  border: 1.5px solid #d97706;
+}
+
+.btn-stop-style {
+  background: #1e293b;
+  color: #f87171;
+  border: 1.5px solid #ef4444;
+}
+
 .admin-layout-grid {
   display: grid;
   grid-template-columns: 280px 1fr 340px;
@@ -817,6 +995,8 @@ svg {
 @media (max-width: 1100px) {
   .admin-layout-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
   }
 }
 
@@ -890,4 +1070,142 @@ svg {
   border-radius: 9999px;
   transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 0 10px currentColor, inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* ==========================================================================
+   COMPREHENSIVE MOBILE RESPONSIVE MEDIA QUERIES (PHONES & TABLETS)
+   ========================================================================== */
+@media (max-width: 640px) {
+  /* Layout Containers */
+  .hub-container {
+    padding: 12px 10px !important;
+    margin: 8px auto !important;
+  }
+
+  .denim-card {
+    padding: 24px 16px !important;
+    border-radius: 20px !important;
+  }
+
+  .denim-card::before {
+    top: 6px !important;
+    left: 6px !important;
+    right: 6px !important;
+    bottom: 6px !important;
+    border-radius: 14px !important;
+  }
+
+  .ribbon-banner {
+    font-size: clamp(14px, 4.5vw, 18px) !important;
+    padding: 6px 18px !important;
+  }
+
+  .logo-avatar {
+    width: 65px !important;
+    height: 65px !important;
+    max-width: 65px !important;
+    max-height: 65px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .logo-avatar-sm {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  /* Tone down floating decor on mobile screens to prioritize touch targets */
+  .decor-stars {
+    width: 45px !important;
+    height: 45px !important;
+    opacity: 0.25 !important;
+    top: 6px !important;
+    left: 6px !important;
+  }
+
+  .decor-boat {
+    width: 60px !important;
+    height: 40px !important;
+    opacity: 0.25 !important;
+    bottom: 6px !important;
+    right: 6px !important;
+  }
+
+  .decor-waves {
+    height: 20px !important;
+  }
+
+  /* Display Projection Screen on Mobile */
+  .display-header-bar {
+    padding: 10px 14px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .display-header-bar .timer-led-box {
+    align-self: stretch !important;
+    justify-content: space-between !important;
+    padding: 6px 14px !important;
+  }
+
+  .display-header-title {
+    font-size: 16px !important;
+  }
+
+  .timer-led-digits {
+    font-size: 22px !important;
+  }
+
+  .options-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .option-card {
+    padding: 12px 14px !important;
+    font-size: 14px !important;
+  }
+
+  .option-letter {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 14px !important;
+  }
+
+  .math-display {
+    font-size: 1.25rem !important;
+    overflow-x: auto !important;
+  }
+
+  /* Admin Screen on Mobile */
+  .admin-header-bar {
+    padding: 8px 12px !important;
+  }
+
+  .admin-layout-grid {
+    padding: 10px 8px !important;
+    gap: 14px !important;
+  }
+
+  .admin-card {
+    padding: 16px 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .admin-action-btn-grid {
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 6px !important;
+  }
+
+  .admin-ctrl-btn {
+    font-size: 11px !important;
+    padding: 10px 4px !important;
+  }
+
+  /* Buzzer on Mobile Phones */
+  .buzzer-arcade-btn {
+    width: min(200px, 62vw) !important;
+    height: min(200px, 62vw) !important;
+    font-size: 22px !important;
+  }
 }

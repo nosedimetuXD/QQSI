@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="/css/styles.css">
   <script src="/js/icons.js"></script>
 </head>
-<body class="gingham-pattern text-slate-800 flex flex-col h-screen overflow-hidden select-none relative">
+<body class="gingham-pattern text-slate-800 flex flex-col min-h-screen select-none relative">
 
   <!-- Origami Stars (Top-Left Decor) -->
   <div class="decor-stars">
@@ -44,15 +44,15 @@
 
   <!-- TOP DISPLAY HEADER -->
   <header class="display-header-bar">
-    <div style="display: flex; align-items: center; gap: 14px;">
+    <div class="display-header-left">
       <div class="logo-avatar-sm">
         <img src="/img/logo-ceis.png" alt="CEIS">
       </div>
       <div>
-        <h1 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 20px; font-weight: 900; color: #ffffff; line-height: 1.1;">
+        <h1 class="display-header-title">
           ¿Quién quiere ser Ingeniero?
         </h1>
-        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+        <div class="display-header-badges">
           <span class="badge-pill badge-round" id="headerRoundName">Ronda 1: Nivel Fácil</span>
           <span class="badge-pill badge-teams" id="headerRoundTeamsCount">5 Equipos Activos</span>
         </div>
@@ -70,17 +70,17 @@
   </header>
 
   <!-- MAIN STAGE -->
-  <main style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 24px; position: relative; z-index: 20; max-width: 1200px; margin: 0 auto; width: 100%;">
+  <main class="display-main-stage">
 
     <!-- 1. LOBBY SCREEN -->
-    <div id="lobbyScreen" class="denim-card denim-texture" style="width: 100%; max-width: 860px; padding: 36px 30px; text-align: center;">
+    <div id="lobbyScreen" class="denim-card denim-texture lobby-card">
       <div class="logo-avatar" style="margin-bottom: 14px;">
         <img src="/img/logo-ceis.png" alt="Logo CEIS">
       </div>
-      <h2 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 32px; font-weight: 900; color: #ffffff; margin-bottom: 8px;">
+      <h2 class="display-lobby-title">
         Gran Concurso Intercarreras
       </h2>
-      <p style="font-size: 15px; color: #bae6fd; max-width: 600px; margin: 0 auto 24px auto; font-weight: 500;">
+      <p class="display-lobby-sub">
         Demuestra la destreza técnica y velocidad de tu facultad.
       </p>
 
@@ -88,7 +88,7 @@
         <h3 style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; margin-bottom: 12px;">
           Equipos en Competencia
         </h3>
-        <div id="lobbyTeamsGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+        <div id="lobbyTeamsGrid" class="lobby-teams-grid">
           <!-- Populated by JS -->
         </div>
       </div>
