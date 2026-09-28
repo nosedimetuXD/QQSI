@@ -3,12 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
 
   const DEFAULT_TEAMS = [
-    { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0284c7', eliminated: false },
-    { id: 'software', name: 'Ingeniería de Software', shortName: 'Software', color: '#06b6d4', eliminated: false },
-    { id: 'alimentos', name: 'Ingeniería de Alimentos', shortName: 'Alimentos', color: '#16a34a', eliminated: false },
+    { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0140B9', eliminated: false },
+    { id: 'software', name: 'Ingeniería de Software', shortName: 'Software', color: '#286EDD', eliminated: false },
+    { id: 'alimentos', name: 'Ingeniería de Alimentos', shortName: 'Alimentos', color: '#0437A6', eliminated: false },
     { id: 'quimica', name: 'Ingeniería Química', shortName: 'Química', color: '#9333ea', eliminated: false },
-    { id: 'civil', name: 'Ingeniería Civil', shortName: 'Civil', color: '#ea580c', eliminated: false },
-    { id: 'petroquimica', name: 'Téc. Procesos Petroquímicos', shortName: 'Petroquímica', color: '#0d9488', eliminated: false }
+    { id: 'civil', name: 'Ingeniería Civil', shortName: 'Civil', color: '#FC6123', eliminated: false },
+    { id: 'petroquimica', name: 'Téc. Procesos Petroquímicos', shortName: 'Petroquímica', color: '#032D8D', eliminated: false }
   ];
 
   // Auth Modal Elements
@@ -221,22 +221,22 @@ document.addEventListener('DOMContentLoaded', () => {
       deliveryStatusBox.style.display = 'block';
 
       if (alreadySubmitted.correct === true) {
-        deliveryStatusBox.style.background = 'rgba(5, 150, 105, 0.35)';
-        deliveryStatusBox.style.border = '1.5px solid #10b981';
+        deliveryStatusBox.style.background = 'rgba(40, 110, 221, 0.35)';
+        deliveryStatusBox.style.border = '1.5px solid #286EDD';
         deliveryOrderText.textContent = `✓ ¡Correcto! +${alreadySubmitted.totalPoints || 10} pts`;
-        deliveryOrderText.style.color = '#6ee7b7';
+        deliveryOrderText.style.color = '#6CA8E4';
         deliveryTimeText.textContent = `Posición #${alreadySubmitted.order || 1} (${(alreadySubmitted.elapsedMs / 1000).toFixed(1)}s) • Total Ronda: ${currentState.roundScores[selectedTeamId] || currentTeam.score || 0} pts`;
       } else if (alreadySubmitted.correct === false) {
-        deliveryStatusBox.style.background = 'rgba(239, 68, 68, 0.25)';
-        deliveryStatusBox.style.border = '1.5px solid #ef4444';
+        deliveryStatusBox.style.background = 'rgba(212, 41, 0, 0.25)';
+        deliveryStatusBox.style.border = '1.5px solid #D42900';
         deliveryOrderText.textContent = `✗ Respuesta Incorrecta (0 pts)`;
-        deliveryOrderText.style.color = '#fca5a5';
+        deliveryOrderText.style.color = '#FF853E';
         deliveryTimeText.textContent = `Total Ronda: ${currentState.roundScores[selectedTeamId] || currentTeam.score || 0} pts`;
       } else {
-        deliveryStatusBox.style.background = 'rgba(5, 150, 105, 0.25)';
-        deliveryStatusBox.style.border = '1.5px solid #10b981';
+        deliveryStatusBox.style.background = 'rgba(40, 110, 221, 0.25)';
+        deliveryStatusBox.style.border = '1.5px solid #286EDD';
         deliveryOrderText.textContent = `¡Entregado en posición ${alreadySubmitted.order || 1}º!`;
-        deliveryOrderText.style.color = '#6ee7b7';
+        deliveryOrderText.style.color = '#6CA8E4';
         deliveryTimeText.textContent = `Tiempo registrado: ${(alreadySubmitted.elapsedMs / 1000).toFixed(1)} segundos`;
       }
     } else if (currentState.questionState === 'running') {
@@ -260,14 +260,14 @@ document.addEventListener('DOMContentLoaded', () => {
           ${isEliminated ? 'disabled' : ''}
           style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 18px; transition: transform var(--transition-liquid), border-color var(--transition-liquid), box-shadow var(--transition-liquid); cursor: ${isEliminated ? 'not-allowed' : 'pointer'}; ${
             isEliminated 
-              ? 'background: rgba(4, 12, 24, 0.4); opacity: 0.4; border: 1px solid rgba(255,255,255,0.08);' 
+              ? 'background: rgba(12, 27, 61, 0.4); opacity: 0.4; border: 1px solid rgba(255,255,255,0.08);' 
               : 'background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(10,24,46,0.7) 100%); border: 1px solid rgba(255,255,255,0.18); border-top: 1.5px solid rgba(255,255,255,0.45); box-shadow: 0 8px 20px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.3); backdrop-filter: blur(12px);'
           }">
           <div style="display: flex; align-items: center; gap: 12px;">
             <div style="width: 16px; height: 16px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0; box-shadow: 0 0 10px ${team.color};"></div>
             <span style="font-size: 15px; font-weight: 800; color: #ffffff; text-align: left;">${team.name}</span>
           </div>
-          <span style="font-size: 12px; font-weight: 800; color: #38bdf8;">${isEliminated ? 'Eliminado' : 'Ingresar →'}</span>
+          <span style="font-size: 12px; font-weight: 800; color: #4C90DE;">${isEliminated ? 'Eliminado' : 'Ingresar →'}</span>
         </button>
       `;
     }).join('');

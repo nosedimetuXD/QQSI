@@ -3,12 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const socket = window.QQSI_CONFIG ? window.QQSI_CONFIG.getSocket() : io();
 
   const DEFAULT_TEAMS = [
-    { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0284c7', eliminated: false },
-    { id: 'software', name: 'Ingeniería de Software', shortName: 'Software', color: '#06b6d4', eliminated: false },
-    { id: 'alimentos', name: 'Ingeniería de Alimentos', shortName: 'Alimentos', color: '#16a34a', eliminated: false },
+    { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0140B9', eliminated: false },
+    { id: 'software', name: 'Ingeniería de Software', shortName: 'Software', color: '#286EDD', eliminated: false },
+    { id: 'alimentos', name: 'Ingeniería de Alimentos', shortName: 'Alimentos', color: '#0437A6', eliminated: false },
     { id: 'quimica', name: 'Ingeniería Química', shortName: 'Química', color: '#9333ea', eliminated: false },
-    { id: 'civil', name: 'Ingeniería Civil', shortName: 'Civil', color: '#ea580c', eliminated: false },
-    { id: 'petroquimica', name: 'Téc. Procesos Petroquímicos', shortName: 'Petroquímica', color: '#0d9488', eliminated: false }
+    { id: 'civil', name: 'Ingeniería Civil', shortName: 'Civil', color: '#FC6123', eliminated: false },
+    { id: 'petroquimica', name: 'Téc. Procesos Petroquímicos', shortName: 'Petroquímica', color: '#032D8D', eliminated: false }
   ];
 
   // DOM Elements
@@ -179,14 +179,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <div style="padding: 12px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; ${
           isEliminated 
-            ? 'background: rgba(4, 12, 24, 0.4); opacity: 0.4; border: 1px solid rgba(255,255,255,0.08);' 
-            : 'background: rgba(8, 20, 36, 0.9); border: 1.5px solid rgba(56, 189, 248, 0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.4);'
+            ? 'background: rgba(12, 27, 61, 0.4); opacity: 0.4; border: 1px solid rgba(255,255,255,0.08);' 
+            : 'background: rgba(12, 27, 61, 0.9); border: 1.5px solid rgba(76, 144, 222, 0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.4);'
         }">
           <div style="width: 40px; height: 40px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: #fff; margin-bottom: 8px; background-color: ${team.color}; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">
             ${isEliminated && window.Icons ? Icons.cross("w-5 h-5") : (window.Icons ? Icons.users("w-5 h-5") : '')}
           </div>
           <span style="font-size: 13px; font-weight: 800; color: #ffffff; line-height: 1.2;">${team.shortName}</span>
-          ${isEliminated ? '<span style="font-size: 10px; color: #ef4444; font-weight: 800; text-transform: uppercase; margin-top: 4px;">Eliminado</span>' : ''}
+          ${isEliminated ? '<span style="font-size: 10px; color: #D42900; font-weight: 800; text-transform: uppercase; margin-top: 4px;">Eliminado</span>' : ''}
         </div>
       `;
     }).join('');
@@ -262,15 +262,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (state.questionState === 'running') {
       questionStatusIndicator.textContent = "Pregunta en curso — Equipos respondiendo con el pulsador";
-      questionStatusIndicator.style.color = "#34d399";
+      questionStatusIndicator.style.color = "#4C90DE";
       if (questionResultsBreakdown) questionResultsBreakdown.style.display = 'none';
     } else if (state.questionState === 'paused') {
       questionStatusIndicator.textContent = "Tiempo en pausa";
-      questionStatusIndicator.style.color = "#fbbf24";
+      questionStatusIndicator.style.color = "#FF7326";
       if (questionResultsBreakdown) questionResultsBreakdown.style.display = 'none';
     } else if (state.questionState === 'ended' || hasEvaluated) {
       questionStatusIndicator.textContent = hasEvaluated ? "¡Pregunta Calificada! Puntos asignados:" : "Tiempo agotado — Calificando respuestas";
-      questionStatusIndicator.style.color = "#38bdf8";
+      questionStatusIndicator.style.color = "#4C90DE";
 
       if (questionResultsBreakdown && (submissions.length > 0 || hasEvaluated)) {
         questionResultsBreakdown.style.display = 'block';
@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     questionPointsGrid.innerHTML = sortedSubmissions.map((sub, idx) => {
-      const team = teams.find(t => t.id === sub.teamId) || { color: '#38bdf8' };
+      const team = teams.find(t => t.id === sub.teamId) || { color: '#4C90DE' };
       const isCorrect = sub.correct === true;
       const isWrong = sub.correct === false;
       const seconds = (sub.elapsedMs / 1000).toFixed(1);
@@ -305,26 +305,26 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (idx === 1 && window.Icons) medalSvg = Icons.medal2("w-4 h-4");
       else if (idx === 2 && window.Icons) medalSvg = Icons.medal3("w-4 h-4");
 
-      let cardBorder = 'rgba(56, 189, 248, 0.4)';
-      let cardBg = 'rgba(8, 20, 36, 0.95)';
-      let pointsBadge = `<span style="color: #94a3b8; font-size: 11px;">Pendiente de juez</span>`;
+      let cardBorder = 'rgba(76, 144, 222, 0.4)';
+      let cardBg = 'rgba(12, 27, 61, 0.95)';
+      let pointsBadge = `<span style="color: #8ba3c4; font-size: 11px;">Pendiente de juez</span>`;
 
       if (isCorrect) {
-        cardBorder = '#10b981';
-        cardBg = 'rgba(5, 150, 105, 0.2)';
+        cardBorder = '#286EDD';
+        cardBg = 'rgba(40, 110, 221, 0.2)';
         pointsBadge = `
           <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
-            <span style="font-size: 15px; font-weight: 900; color: #34d399; font-family: monospace;">+${sub.totalPoints || 10} pts</span>
-            <span style="font-size: 10px; font-weight: 700; color: #a7f3d0;">(10 + ${sub.bonusPoints || 0} bono)</span>
+            <span style="font-size: 15px; font-weight: 900; color: #4C90DE; font-family: monospace;">+${sub.totalPoints || 10} pts</span>
+            <span style="font-size: 10px; font-weight: 700; color: #6CA8E4;">(10 + ${sub.bonusPoints || 0} bono)</span>
           </div>
         `;
       } else if (isWrong) {
-        cardBorder = '#ef4444';
-        cardBg = 'rgba(239, 68, 68, 0.15)';
+        cardBorder = '#D42900';
+        cardBg = 'rgba(212, 41, 0, 0.15)';
         pointsBadge = `
           <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
-            <span style="font-size: 14px; font-weight: 900; color: #f87171; font-family: monospace;">0 pts</span>
-            <span style="font-size: 10px; font-weight: 700; color: #fca5a5;">(Incorrecto)</span>
+            <span style="font-size: 14px; font-weight: 900; color: #DF440C; font-family: monospace;">0 pts</span>
+            <span style="font-size: 10px; font-weight: 700; color: #FF853E;">(Incorrecto)</span>
           </div>
         `;
       }
@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 11px; font-weight: 700;">
             <span style="color: #94a3b8;">Total Ronda:</span>
-            <span style="color: #38bdf8; font-family: monospace; font-weight: 900;">${totalRoundPts} pts</span>
+            <span style="color: #4C90DE; font-family: monospace; font-weight: 900;">${totalRoundPts} pts</span>
           </div>
         </div>
       `;
@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderFooterSubmissions(state) {
     const submissions = state.submissions || [];
     if (submissions.length === 0) {
-      liveSubmissionsList.innerHTML = '<span style="font-size: 12px; color: #64748b; font-style: italic;">Esperando pulsaciones...</span>';
+      liveSubmissionsList.innerHTML = '<span style="font-size: 12px; color: #5a7a9f; font-style: italic;">Esperando pulsaciones...</span>';
       return;
     }
 
@@ -368,13 +368,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const isCorrect = sub.correct === true;
       const isWrong = sub.correct === false;
       
-      let badgeStyle = 'background: rgba(14, 32, 54, 0.9); border: 1.5px solid #38bdf8; color: #ffffff;';
+      let badgeStyle = 'background: rgba(12, 27, 61, 0.9); border: 1.5px solid #4C90DE; color: #ffffff;';
       let iconHtml = `#${order}`;
       if (isCorrect) {
-        badgeStyle = 'background: rgba(5, 150, 105, 0.4); border: 1.5px solid #10b981; color: #6ee7b7;';
+        badgeStyle = 'background: rgba(40, 110, 221, 0.4); border: 1.5px solid #286EDD; color: #6CA8E4;';
         iconHtml = `#${order} (+${sub.totalPoints || 10})`;
       } else if (isWrong) {
-        badgeStyle = 'background: rgba(239, 68, 68, 0.3); border: 1.5px solid #ef4444; color: #fca5a5;';
+        badgeStyle = 'background: rgba(212, 41, 0, 0.3); border: 1.5px solid #D42900; color: #FF853E;';
         iconHtml = `#${order} (0)`;
       }
 
@@ -409,22 +409,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const placeLabel = isChampion ? '¡Ganador!' : `${idx + 1}º Lugar`;
 
         return `
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-radius: 14px; background: rgba(8, 20, 36, 0.9); border: 1.5px solid ${idx === 0 ? '#facc15' : 'rgba(255, 255, 255, 0.15)'}; box-shadow: ${idx === 0 ? '0 0 15px rgba(250, 204, 21, 0.3)' : 'none'};">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-radius: 14px; background: rgba(12, 27, 61, 0.9); border: 1.5px solid ${idx === 0 ? '#FFBD3E' : 'rgba(255, 255, 255, 0.15)'}; box-shadow: ${idx === 0 ? '0 0 15px rgba(255, 189, 62, 0.3)' : 'none'};">
             <div style="display: flex; align-items: center; gap: 14px;">
               <div style="display: flex; align-items: center; gap: 6px; min-width: 100px;">
                 ${medalSvg}
-                <span style="font-size: 16px; font-weight: 900; color: ${idx === 0 ? '#facc15' : '#38bdf8'}; font-family: monospace;">${placeLabel}</span>
+                <span style="font-size: 16px; font-weight: 900; color: ${idx === 0 ? '#FFBD3E' : '#4C90DE'}; font-family: monospace;">${placeLabel}</span>
               </div>
               <div style="width: 14px; height: 14px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0;"></div>
               <span style="font-size: 16px; font-weight: 800; color: #ffffff;">${team.name}</span>
             </div>
-            <span style="font-size: 22px; font-weight: 900; color: #34d399; font-family: monospace;">${team.score || 0} pts</span>
+            <span style="font-size: 22px; font-weight: 900; color: #4C90DE; font-family: monospace;">${team.score || 0} pts</span>
           </div>
         `;
       }).join('');
     } else {
       html += `
-        <div style="text-align: center; color: #94a3b8; padding: 16px;">
+        <div style="text-align: center; color: #8ba3c4; padding: 16px;">
           No hay equipos activos en esta ronda.
         </div>
       `;
@@ -433,18 +433,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (eliminatedTeams.length > 0) {
       html += `
         <div style="margin-top: 20px; padding-top: 14px; border-top: 1px dashed rgba(255, 255, 255, 0.2);">
-          <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+          <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #8ba3c4; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
             <span>Equipos Eliminados:</span>
           </div>
           <div style="display: flex; flex-direction: column; gap: 8px;">
             ${eliminatedTeams.map(team => `
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-radius: 10px; background: rgba(4, 12, 24, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); opacity: 0.65;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-radius: 10px; background: rgba(12, 27, 61, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); opacity: 0.65;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <div style="width: 10px; height: 10px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0;"></div>
-                  <span style="font-size: 13px; font-weight: 700; color: #cbd5e1;">${team.name}</span>
-                  <span style="font-size: 10px; font-weight: 800; color: #ef4444; background: rgba(239, 68, 68, 0.2); padding: 2px 6px; border-radius: 6px;">Eliminado</span>
+                  <span style="font-size: 13px; font-weight: 700; color: #b8cde0;">${team.name}</span>
+                  <span style="font-size: 10px; font-weight: 800; color: #D42900; background: rgba(212, 41, 0, 0.2); padding: 2px 6px; border-radius: 6px;">Eliminado</span>
                 </div>
-                <span style="font-size: 14px; font-weight: 800; color: #94a3b8; font-family: monospace;">${team.score || 0} pts</span>
+                <span style="font-size: 14px; font-weight: 800; color: #8ba3c4; font-family: monospace;">${team.score || 0} pts</span>
               </div>
             `).join('')}
           </div>

@@ -61,9 +61,9 @@
 
     <!-- Digital Glowing LED Timer -->
     <div class="timer-led-box" id="timerContainer">
-      <div id="timerIconSlot" style="color: #38bdf8;"></div>
+      <div id="timerIconSlot" style="color: #4C90DE;"></div>
       <div style="display: flex; flex-direction: column; align-items: flex-end;">
-        <span style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Tiempo</span>
+        <span style="font-size: 10px; font-weight: 800; color: #8ba3c4; text-transform: uppercase; letter-spacing: 0.05em;">Tiempo</span>
         <span class="timer-led-digits" id="timerText">02:00</span>
       </div>
     </div>
@@ -84,8 +84,8 @@
         Demuestra la destreza técnica y velocidad de tu facultad.
       </p>
 
-      <div style="background: rgba(4, 12, 24, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 18px; padding: 18px; margin-top: 14px;">
-        <h3 style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; margin-bottom: 12px;">
+      <div style="background: rgba(12, 27, 61, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 18px; padding: 18px; margin-top: 14px;">
+        <h3 style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #4C90DE; margin-bottom: 12px;">
           Equipos en Competencia
         </h3>
         <div id="lobbyTeamsGrid" class="lobby-teams-grid">
@@ -93,7 +93,7 @@
         </div>
       </div>
 
-      <div style="margin-top: 20px; font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">
+      <div style="margin-top: 20px; font-size: 12px; font-weight: 700; color: #8ba3c4; text-transform: uppercase; letter-spacing: 0.05em;">
         Esperando que el moderador lance la siguiente pregunta...
       </div>
     </div>
@@ -116,13 +116,13 @@
           </h2>
 
           <!-- Math Display Area -->
-          <div id="questionMathArea" style="display: none; margin: 16px 0; padding: 16px; background: rgba(3, 10, 20, 0.7); border-radius: 16px; border: 1px solid rgba(56, 189, 248, 0.3);">
+          <div id="questionMathArea" style="display: none; margin: 16px 0; padding: 16px; background: rgba(7, 34, 93, 0.7); border-radius: 16px; border: 1px solid rgba(76, 144, 222, 0.3);">
             <div id="mathTarget" class="math-display"></div>
           </div>
 
           <!-- Code Display Area -->
           <div id="questionCodeArea" style="display: none; margin: 16px 0; text-align: left; max-width: 720px; margin-left: auto; margin-right: auto;">
-            <pre style="border-radius: 12px; border: 1.5px solid rgba(56, 189, 248, 0.3);"><code id="codeTarget" class="language-cpp"></code></pre>
+            <pre style="border-radius: 12px; border: 1.5px solid rgba(76, 144, 222, 0.3);"><code id="codeTarget" class="language-cpp"></code></pre>
           </div>
 
           <!-- Multiple Choice Options (A, B, C, D) -->
@@ -132,13 +132,13 @@
         </div>
 
         <!-- Question Status State -->
-        <div id="questionStatusIndicator" style="font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #38bdf8; margin-top: 14px;">
+        <div id="questionStatusIndicator" style="font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #4C90DE; margin-top: 14px;">
           Tiempo corriendo — Esperando respuestas de los equipos
         </div>
 
         <!-- Question Points & Standings Breakdown (When evaluated or ended) -->
         <div id="questionResultsBreakdown" style="display: none; width: 100%; margin-top: 18px; border-top: 1.5px dashed rgba(255, 255, 255, 0.25); padding-top: 16px;">
-          <div style="font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <div style="font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #4C90DE; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <span id="trophyIconSlot"></span>
             <span>Puntos de la Pregunta & Posiciones</span>
           </div>
@@ -167,12 +167,12 @@
 
   <!-- BOTTOM LIVE SUBMISSIONS SPEED FEED -->
   <footer class="live-submissions-bar">
-    <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+    <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #4C90DE; display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
       <span id="footerUsersIconSlot"></span>
       <span>Entregas en Vivo:</span>
     </div>
     <div id="liveSubmissionsList" style="display: flex; align-items: center; gap: 10px; flex: 1;">
-      <span style="font-size: 12px; color: #64748b; font-style: italic;">Esperando pulsaciones...</span>
+      <span style="font-size: 12px; color: #5a7a9f; font-style: italic;">Esperando pulsaciones...</span>
     </div>
   </footer>
 

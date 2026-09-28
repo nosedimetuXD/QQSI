@@ -33,10 +33,10 @@
     medal1: (cls = "w-6 h-6") => {
       const px = getDim(cls, 24);
       return `<svg class="${cls}" width="${px}" height="${px}" style="width: ${px}px; height: ${px}px; max-width: ${px}px; max-height: ${px}px; flex-shrink: 0; display: inline-block; vertical-align: middle;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <circle cx="12" cy="14" r="7" fill="#f59e0b" stroke="#b45309" stroke-width="1.5" />
+        <circle cx="12" cy="14" r="7" fill="#FFBD3E" stroke="#E84F0B" stroke-width="1.5" />
         <path d="M9 12.5h6l-3 3z" fill="#fef3c7" opacity="0.3"/>
-        <path d="M8.2 2.5 L12 9 L6.5 9 Z" fill="#ef4444" />
-        <path d="M15.8 2.5 L12 9 L17.5 9 Z" fill="#3b82f6" />
+        <path d="M8.2 2.5 L12 9 L6.5 9 Z" fill="#D42900" />
+        <path d="M15.8 2.5 L12 9 L17.5 9 Z" fill="#286EDD" />
         <text x="12" y="16.5" font-size="7" font-weight="900" font-family="sans-serif" fill="#ffffff" text-anchor="middle">1º</text>
       </svg>`;
     },
@@ -44,9 +44,9 @@
     medal2: (cls = "w-6 h-6") => {
       const px = getDim(cls, 24);
       return `<svg class="${cls}" width="${px}" height="${px}" style="width: ${px}px; height: ${px}px; max-width: ${px}px; max-height: ${px}px; flex-shrink: 0; display: inline-block; vertical-align: middle;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <circle cx="12" cy="14" r="7" fill="#94a3b8" stroke="#475569" stroke-width="1.5" />
-        <path d="M8.2 2.5 L12 9 L6.5 9 Z" fill="#ef4444" />
-        <path d="M15.8 2.5 L12 9 L17.5 9 Z" fill="#3b82f6" />
+        <circle cx="12" cy="14" r="7" fill="#8ba3c4" stroke="#3d5f82" stroke-width="1.5" />
+        <path d="M8.2 2.5 L12 9 L6.5 9 Z" fill="#D42900" />
+        <path d="M15.8 2.5 L12 9 L17.5 9 Z" fill="#286EDD" />
         <text x="12" y="16.5" font-size="7" font-weight="900" font-family="sans-serif" fill="#ffffff" text-anchor="middle">2º</text>
       </svg>`;
     },
@@ -54,9 +54,9 @@
     medal3: (cls = "w-6 h-6") => {
       const px = getDim(cls, 24);
       return `<svg class="${cls}" width="${px}" height="${px}" style="width: ${px}px; height: ${px}px; max-width: ${px}px; max-height: ${px}px; flex-shrink: 0; display: inline-block; vertical-align: middle;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <circle cx="12" cy="14" r="7" fill="#d97706" stroke="#92400e" stroke-width="1.5" />
-        <path d="M8.2 2.5 L12 9 L6.5 9 Z" fill="#ef4444" />
-        <path d="M15.8 2.5 L12 9 L17.5 9 Z" fill="#3b82f6" />
+        <circle cx="12" cy="14" r="7" fill="#FC6123" stroke="#D42900" stroke-width="1.5" />
+        <path d="M8.2 2.5 L12 9 L6.5 9 Z" fill="#D42900" />
+        <path d="M15.8 2.5 L12 9 L17.5 9 Z" fill="#286EDD" />
         <text x="12" y="16.5" font-size="7" font-weight="900" font-family="sans-serif" fill="#ffffff" text-anchor="middle">3º</text>
       </svg>`;
     },

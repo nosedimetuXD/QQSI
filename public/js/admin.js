@@ -63,12 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let questionsData = window.QUESTIONS_DATA || null;
   let currentState = {
     teams: [
-      { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0284c7', eliminated: false, score: 0 },
-      { id: 'software', name: 'Ingeniería de Software', shortName: 'Software', color: '#06b6d4', eliminated: false, score: 0 },
-      { id: 'alimentos', name: 'Ingeniería de Alimentos', shortName: 'Alimentos', color: '#16a34a', eliminated: false, score: 0 },
+      { id: 'sistemas', name: 'Ingeniería de Sistemas', shortName: 'Sistemas', color: '#0140B9', eliminated: false, score: 0 },
+      { id: 'software', name: 'Ingeniería de Software', shortName: 'Software', color: '#286EDD', eliminated: false, score: 0 },
+      { id: 'alimentos', name: 'Ingeniería de Alimentos', shortName: 'Alimentos', color: '#0437A6', eliminated: false, score: 0 },
       { id: 'quimica', name: 'Ingeniería Química', shortName: 'Química', color: '#9333ea', eliminated: false, score: 0 },
-      { id: 'civil', name: 'Ingeniería Civil', shortName: 'Civil', color: '#ea580c', eliminated: false, score: 0 },
-      { id: 'petroquimica', name: 'Téc. Procesos Petroquímicos', shortName: 'Petroquímica', color: '#0d9488', eliminated: false, score: 0 }
+      { id: 'civil', name: 'Ingeniería Civil', shortName: 'Civil', color: '#FC6123', eliminated: false, score: 0 },
+      { id: 'petroquimica', name: 'Téc. Procesos Petroquímicos', shortName: 'Petroquímica', color: '#032D8D', eliminated: false, score: 0 }
     ],
     currentRoundIndex: 0,
     currentQuestionIndex: 0,
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('question_time_up', () => {
     adminTimerClock.textContent = "00:00";
     adminTimerStatus.textContent = "Tiempo Agotado";
-    adminTimerStatus.style.color = "#ef4444";
+    adminTimerStatus.style.color = "#D42900";
   });
 
   // Render Round Tabs
@@ -191,8 +191,8 @@ document.addEventListener('DOMContentLoaded', () => {
         onclick="window.selectAdminRound(${idx})"
         style="padding: 10px 12px; border-radius: 14px; font-size: 11px; font-weight: 800; text-align: left; transition: transform var(--transition-liquid), box-shadow var(--transition-liquid), border-color var(--transition-liquid); display: flex; align-items: center; justify-content: space-between; cursor: pointer; ${
           idx === currentRoundIdx
-            ? 'background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border: 1.5px solid #60a5fa; border-top: 1.5px solid #93c5fd; color: #ffffff; box-shadow: 0 0 15px rgba(37,99,235,0.5), inset 0 1px 1px rgba(255,255,255,0.5);'
-            : 'background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(6,17,33,0.7) 100%); border: 1px solid rgba(255,255,255,0.12); border-top: 1px solid rgba(255,255,255,0.25); color: #94a3b8;'
+            ? 'background: linear-gradient(135deg, #0437A6 0%, #032D8D 100%); border: 1.5px solid #6CA8E4; border-top: 1.5px solid #6CA8E4; color: #ffffff; box-shadow: 0 0 15px rgba(37,99,235,0.5), inset 0 1px 1px rgba(255,255,255,0.5);'
+            : 'background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(6,17,33,0.7) 100%); border: 1px solid rgba(255,255,255,0.12); border-top: 1px solid rgba(255,255,255,0.25); color: #8ba3c4;'
         }">
         <span>${round.name}</span>
         <span style="font-size: 10px; opacity: 0.85; font-family: monospace;">${round.timeLimit}s</span>
@@ -218,10 +218,10 @@ document.addEventListener('DOMContentLoaded', () => {
           onclick="window.selectAdminQuestion(${idx})"
           style="width: 100%; text-align: left; padding: 10px 14px; border-radius: 14px; transition: transform var(--transition-liquid), border-color var(--transition-liquid), box-shadow var(--transition-liquid); cursor: pointer; display: flex; align-items: center; gap: 10px; ${
             isSelected
-              ? 'background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(14, 34, 61, 0.8) 100%); border: 1.5px solid #38bdf8; border-top: 1.5px solid rgba(255,255,255,0.7); color: #ffffff; box-shadow: 0 0 12px rgba(56,189,248,0.3), inset 0 1px 1px rgba(255,255,255,0.4);'
-              : 'background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(4, 12, 24, 0.65) 100%); border: 1px solid rgba(255,255,255,0.1); border-top: 1px solid rgba(255,255,255,0.2); color: #94a3b8;'
+              ? 'background: linear-gradient(135deg, rgba(76, 144, 222, 0.25) 0%, rgba(14, 34, 61, 0.8) 100%); border: 1.5px solid #4C90DE; border-top: 1.5px solid rgba(255,255,255,0.7); color: #ffffff; box-shadow: 0 0 12px rgba(76, 144, 222, 0.3), inset 0 1px 1px rgba(255,255,255,0.4);'
+              : 'background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(12, 27, 61, 0.65) 100%); border: 1px solid rgba(255,255,255,0.1); border-top: 1px solid rgba(255,255,255,0.2); color: #8ba3c4;'
           }">
-          <span style="width: 24px; height: 24px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; background: ${isSelected ? 'linear-gradient(180deg, #38bdf8, #0284c7)' : 'rgba(255,255,255,0.1)'}; color: ${isSelected ? '#031428' : '#cbd5e1'}; font-family: monospace; flex-shrink: 0; box-shadow: ${isSelected ? '0 0 8px rgba(56,189,248,0.5)' : 'none'};">
+          <span style="width: 24px; height: 24px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; background: ${isSelected ? 'linear-gradient(180deg, #4C90DE, #0140B9)' : 'rgba(255,255,255,0.1)'}; color: ${isSelected ? '#031428' : '#b8cde0'}; font-family: monospace; flex-shrink: 0; box-shadow: ${isSelected ? '0 0 8px rgba(76, 144, 222, 0.5)' : 'none'};">
             ${idx + 1}
           </span>
           <span style="font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">
@@ -300,27 +300,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (state.questionState === 'running') {
       adminTimerStatus.textContent = "Pregunta en Curso";
-      adminTimerStatus.style.color = "#34d399";
+      adminTimerStatus.style.color = "#4C90DE";
       btnLaunchQuestion.disabled = true;
       btnPauseResume.disabled = false;
       pauseResumeText.textContent = "Pausar";
       btnStopQuestion.disabled = false;
     } else if (state.questionState === 'paused') {
       adminTimerStatus.textContent = "Pausado";
-      adminTimerStatus.style.color = "#fbbf24";
+      adminTimerStatus.style.color = "#FF7326";
       btnLaunchQuestion.disabled = true;
       btnPauseResume.disabled = false;
       pauseResumeText.textContent = "Reanudar";
       btnStopQuestion.disabled = false;
     } else if (state.questionState === 'ended') {
       adminTimerStatus.textContent = "Pregunta Finalizada";
-      adminTimerStatus.style.color = "#ef4444";
+      adminTimerStatus.style.color = "#D42900";
       btnLaunchQuestion.disabled = false;
       btnPauseResume.disabled = true;
       btnStopQuestion.disabled = true;
     } else {
       adminTimerStatus.textContent = "En Espera";
-      adminTimerStatus.style.color = "#38bdf8";
+      adminTimerStatus.style.color = "#4C90DE";
       btnLaunchQuestion.disabled = false;
       btnPauseResume.disabled = true;
       btnStopQuestion.disabled = true;
@@ -355,14 +355,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleLeaderboardText && btnToggleLeaderboard) {
       if (state.showLeaderboard) {
         toggleLeaderboardText.textContent = 'Ocultar Ranking';
-        btnToggleLeaderboard.style.background = 'rgba(239, 68, 68, 0.2)';
-        btnToggleLeaderboard.style.borderColor = '#ef4444';
-        btnToggleLeaderboard.style.color = '#f87171';
+        btnToggleLeaderboard.style.background = 'rgba(212, 41, 0, 0.2)';
+        btnToggleLeaderboard.style.borderColor = '#D42900';
+        btnToggleLeaderboard.style.color = '#DF440C';
       } else {
         toggleLeaderboardText.textContent = 'Proyectar Ranking';
-        btnToggleLeaderboard.style.background = 'rgba(56, 189, 248, 0.15)';
-        btnToggleLeaderboard.style.borderColor = '#38bdf8';
-        btnToggleLeaderboard.style.color = '#38bdf8';
+        btnToggleLeaderboard.style.background = 'rgba(76, 144, 222, 0.15)';
+        btnToggleLeaderboard.style.borderColor = '#4C90DE';
+        btnToggleLeaderboard.style.color = '#4C90DE';
       }
     }
   }
@@ -389,14 +389,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const isWrong = sub.correct === false;
 
       return `
-        <div style="background: rgba(8, 20, 36, 0.95); border: 1.5px solid ${isCorrect ? '#10b981' : isWrong ? '#ef4444' : 'rgba(255,255,255,0.15)'}; border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box; width: 100%;">
+        <div style="background: rgba(12, 27, 61, 0.95); border: 1.5px solid ${isCorrect ? '#286EDD' : isWrong ? '#D42900' : 'rgba(255,255,255,0.15)'}; border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box; width: 100%;">
           <div style="min-width: 0; flex: 1;">
             <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-              <span style="font-size: 11px; font-weight: 900; color: #38bdf8; font-family: monospace;">#${order}</span>
+              <span style="font-size: 11px; font-weight: 900; color: #4C90DE; font-family: monospace;">#${order}</span>
               <span style="font-size: 12px; font-weight: 800; color: #ffffff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sub.teamName}</span>
-              <span style="font-size: 10px; color: #94a3b8; font-family: monospace;">(${seconds}s)</span>
+              <span style="font-size: 10px; color: #8ba3c4; font-family: monospace;">(${seconds}s)</span>
             </div>
-            ${isCorrect ? `<span style="font-size: 10px; font-weight: 800; color: #34d399; display: block; margin-top: 2px;">+${sub.totalPoints} pts (+${sub.bonusPoints} bono)</span>` : ''}
+            ${isCorrect ? `<span style="font-size: 10px; font-weight: 800; color: #4C90DE; display: block; margin-top: 2px;">+${sub.totalPoints} pts (+${sub.bonusPoints} bono)</span>` : ''}
           </div>
 
           <div style="display: flex; gap: 4px; flex-shrink: 0;">
@@ -406,8 +406,8 @@ document.addEventListener('DOMContentLoaded', () => {
               title="Calificar como Correcto"
               style="padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; border: none; white-space: nowrap; ${
                 isCorrect 
-                  ? 'background: #10b981; color: #ffffff;' 
-                  : 'background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;'
+                  ? 'background: #286EDD; color: #ffffff;' 
+                  : 'background: rgba(40, 110, 221, 0.2); color: #4C90DE; border: 1px solid #286EDD;'
               }">
               ✓ Correcto
             </button>
@@ -417,8 +417,8 @@ document.addEventListener('DOMContentLoaded', () => {
               title="Calificar como Incorrecto"
               style="padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; border: none; white-space: nowrap; ${
                 isWrong 
-                  ? 'background: #ef4444; color: #ffffff;' 
-                  : 'background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;'
+                  ? 'background: #D42900; color: #ffffff;' 
+                  : 'background: rgba(212, 41, 0, 0.2); color: #DF440C; border: 1px solid #D42900;'
               }">
               ✗ Incorrecto
             </button>
@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div style="width: 10px; height: 10px; border-radius: 9999px; background-color: ${team.color};"></div>
                 <span>${team.shortName}</span>
               </div>
-              <span style="font-family: monospace; color: #34d399;">${team.score || 0} pts</span>
+              <span style="font-family: monospace; color: #4C90DE;">${team.score || 0} pts</span>
             </div>
             <div class="team-progress-bar">
               <div class="team-progress-fill" style="width: ${pct}%; background-color: ${team.color};"></div>
@@ -471,13 +471,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (eliminatedTeams.length > 0) {
       html += `
         <div style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed rgba(255, 255, 255, 0.15);">
-          <span style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Eliminados:</span>
+          <span style="font-size: 10px; font-weight: 800; color: #8ba3c4; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Eliminados:</span>
           ${eliminatedTeams.map(team => `
-            <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 4px; opacity: 0.7;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #8ba3c4; margin-bottom: 4px; opacity: 0.7;">
               <div style="display: flex; align-items: center; gap: 6px;">
                 <div style="width: 8px; height: 8px; border-radius: 9999px; background-color: ${team.color};"></div>
                 <span>${team.shortName}</span>
-                <span style="color: #ef4444; font-size: 9px; font-weight: 800;">(Eliminado)</span>
+                <span style="color: #D42900; font-size: 9px; font-weight: 800;">(Eliminado)</span>
               </div>
               <span style="font-family: monospace;">${team.score || 0} pts</span>
             </div>

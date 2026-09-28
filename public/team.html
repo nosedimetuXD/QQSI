@@ -22,7 +22,7 @@
 
   <!-- TEAM PASSWORD MODAL (OVERLAY) -->
   <div id="teamAuthModal" class="auth-modal-backdrop" style="display: none;">
-    <div class="denim-card denim-texture" style="max-width: 380px; width: 100%; padding: 32px 24px; text-align: center; border: 1.5px solid rgba(56, 189, 248, 0.4);">
+    <div class="denim-card denim-texture" style="max-width: 380px; width: 100%; padding: 32px 24px; text-align: center; border: 1.5px solid rgba(76, 144, 222, 0.4);">
       <div class="logo-avatar-sm" style="margin: 0 auto 12px auto; width: 50px; height: 50px;">
         <img src="/img/logo-ceis.png" alt="CEIS">
       </div>
@@ -32,7 +32,7 @@
       <h3 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 22px; font-weight: 900; color: #ffffff; margin-bottom: 6px;" id="modalTeamName">
         Ingeniería
       </h3>
-      <p style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">
+      <p style="font-size: 12px; color: #8ba3c4; margin-bottom: 20px;">
         Ingresa la contraseña autorizada de tu carrera para participar:
       </p>
 
@@ -42,17 +42,17 @@
           id="inputTeamPassword" 
           aria-label="Contraseña de la carrera"
           placeholder="Contraseña de Carrera..." 
-          style="width: 100%; background: rgba(3, 10, 20, 0.9); border: 1.5px solid #475569; color: #ffffff; border-radius: 14px; padding: 12px 16px; font-size: 15px; text-align: center; font-family: monospace; font-weight: 700; outline: none;"
+          style="width: 100%; background: rgba(7, 34, 93, 0.9); border: 1.5px solid #3d5f82; color: #ffffff; border-radius: 14px; padding: 12px 16px; font-size: 15px; text-align: center; font-family: monospace; font-weight: 700; outline: none;"
           required
           autocomplete="current-password"
         >
 
-        <div id="teamAuthError" style="display: none; font-size: 12px; color: #fca5a5; background: rgba(153, 27, 27, 0.5); border: 1px solid #dc2626; padding: 10px; border-radius: 10px; font-weight: 700;">
+        <div id="teamAuthError" style="display: none; font-size: 12px; color: #FF853E; background: rgba(180, 40, 0, 0.5); border: 1px solid #D42900; padding: 10px; border-radius: 10px; font-weight: 700;">
           <!-- Error message -->
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px;">
-          <button type="button" id="btnCancelTeamAuth" style="padding: 12px; background: #1e293b; color: #cbd5e1; font-weight: 800; border-radius: 12px; font-size: 13px; border: none; cursor: pointer;">
+          <button type="button" id="btnCancelTeamAuth" style="padding: 12px; background: #17345a; color: #b8cde0; font-weight: 800; border-radius: 12px; font-size: 13px; border: none; cursor: pointer;">
             Cancelar
           </button>
           <button type="submit" id="btnSubmitTeamAuth" class="role-action-btn btn-glow-green" style="margin-top: 0; padding: 12px; cursor: pointer;">
@@ -64,7 +64,7 @@
   </div>
 
   <!-- TOP TEAM MOBILE HEADER -->
-  <header style="width: 100%; padding: 12px 20px; background: rgba(4, 12, 24, 0.95); backdrop-filter: blur(10px); border-bottom: 1.5px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 30;">
+  <header style="width: 100%; padding: 12px 20px; background: rgba(12, 27, 61, 0.95); backdrop-filter: blur(10px); border-bottom: 1.5px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 30;">
     <div style="display: flex; align-items: center; gap: 10px;">
       <div class="logo-avatar-sm" style="width: 36px; height: 36px;">
         <img src="/img/logo-ceis.png" alt="CEIS">
@@ -73,7 +73,7 @@
         <h1 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 15px; font-weight: 900; color: #ffffff; line-height: 1;">
           QQSI
         </h1>
-        <p style="font-size: 11px; font-weight: 800; color: #38bdf8; margin-top: 2px;" id="teamHeaderName">
+        <p style="font-size: 11px; font-weight: 800; color: #4C90DE; margin-top: 2px;" id="teamHeaderName">
           Seleccionar Carrera
         </p>
       </div>
@@ -81,7 +81,7 @@
 
     <!-- Live Timer Widget -->
     <div class="timer-led-box" style="padding: 4px 12px; border-radius: 12px;" id="teamTimerBox">
-      <div id="teamTimerIconSlot" style="color: #38bdf8;"></div>
+      <div id="teamTimerIconSlot" style="color: #4C90DE;"></div>
       <span class="timer-led-digits" style="font-size: 18px;" id="teamTimerText">02:00</span>
     </div>
   </header>
@@ -98,7 +98,7 @@
         <h2 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 24px; font-weight: 900; color: #ffffff;">
           Identifica a tu Equipo
         </h2>
-        <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
+        <p style="font-size: 12px; color: #8ba3c4; margin-top: 4px;">
           Selecciona tu carrera e ingresa la contraseña:
         </p>
       </div>
@@ -112,19 +112,19 @@
     <div id="teamDashboardScreen" style="display: none; flex-direction: column; align-items: center; width: 100%;">
       
       <!-- Team Profile Card -->
-      <div style="width: 100%; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; background: rgba(8, 20, 36, 0.95); backdrop-filter: blur(10px); padding: 12px 18px; border-radius: 18px; border: 1.5px solid rgba(255, 255, 255, 0.12);">
+      <div style="width: 100%; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; background: rgba(12, 27, 61, 0.95); backdrop-filter: blur(10px); padding: 12px 18px; border-radius: 18px; border: 1.5px solid rgba(255, 255, 255, 0.12);">
         <div style="display: flex; align-items: center; gap: 10px;">
           <div id="activeTeamColorDot" style="width: 14px; height: 14px; border-radius: 9999px;"></div>
           <div>
             <h3 id="activeTeamName" style="font-size: 15px; font-weight: 900; color: #ffffff; line-height: 1.1;">
               Ingeniería
             </h3>
-            <span id="activeTeamRoundBadge" style="font-size: 10px; font-weight: 800; color: #38bdf8; text-transform: uppercase;">
+            <span id="activeTeamRoundBadge" style="font-size: 10px; font-weight: 800; color: #4C90DE; text-transform: uppercase;">
               Ronda 1: Nivel Fácil
             </span>
           </div>
         </div>
-        <button id="btnChangeTeam" style="font-size: 11px; font-weight: 800; color: #94a3b8; background: #1e293b; border: 1px solid #334155; padding: 6px 12px; border-radius: 10px; cursor: pointer;">
+        <button id="btnChangeTeam" style="font-size: 11px; font-weight: 800; color: #8ba3c4; background: #17345a; border: 1px solid #2d4b6e; padding: 6px 12px; border-radius: 10px; cursor: pointer;">
           Cambiar
         </button>
       </div>
@@ -138,7 +138,7 @@
         </div>
 
         <!-- Question Statement Preview -->
-        <div style="width: 100%; background: rgba(4, 12, 24, 0.7); border-radius: 14px; padding: 12px 16px; margin-bottom: 18px; border: 1px solid rgba(255, 255, 255, 0.1);">
+        <div style="width: 100%; background: rgba(12, 27, 61, 0.7); border-radius: 14px; padding: 12px 16px; margin-bottom: 18px; border: 1px solid rgba(255, 255, 255, 0.1);">
           <p id="teamQuestionStatement" style="font-size: 14px; font-weight: 700; color: #ffffff; line-height: 1.4;">
             Esperando que el moderador inicie la pregunta...
           </p>
@@ -155,12 +155,12 @@
         </div>
 
         <!-- Delivery Status Box -->
-        <div id="deliveryStatusBox" style="display: none; width: 100%; margin-top: 14px; padding: 14px; border-radius: 14px; background: rgba(5, 150, 105, 0.25); border: 1.5px solid #10b981;">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #6ee7b7;">
+        <div id="deliveryStatusBox" style="display: none; width: 100%; margin-top: 14px; padding: 14px; border-radius: 14px; background: rgba(40, 110, 221, 0.25); border: 1.5px solid #286EDD;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #6CA8E4;">
             <div id="checkIconSlot"></div>
             <span id="deliveryOrderText" style="font-size: 15px; font-weight: 900;">¡Respuesta Entregada!</span>
           </div>
-          <p id="deliveryTimeText" style="font-size: 12px; color: #a7f3d0; margin-top: 4px; font-family: monospace;">
+          <p id="deliveryTimeText" style="font-size: 12px; color: #6CA8E4; margin-top: 4px; font-family: monospace;">
             Tiempo registrado: 0.0s
           </p>
         </div>
@@ -171,11 +171,11 @@
 
     <!-- ELIMINATED NOTICE -->
     <div id="eliminatedScreen" style="display: none; width: 100%;" class="denim-card denim-texture">
-      <div style="width: 56px; height: 56px; border-radius: 9999px; background: rgba(239, 68, 68, 0.2); border: 2px solid #ef4444; color: #f87171; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;" id="eliminatedIconSlot"></div>
-      <h2 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 22px; font-weight: 900; color: #ef4444; margin-bottom: 6px;">
+      <div style="width: 56px; height: 56px; border-radius: 9999px; background: rgba(212, 41, 0, 0.2); border: 2px solid #D42900; color: #DF440C; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;" id="eliminatedIconSlot"></div>
+      <h2 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 22px; font-weight: 900; color: #D42900; margin-bottom: 6px;">
         Equipo Eliminado
       </h2>
-      <p style="font-size: 13px; color: #cbd5e1; line-height: 1.4;">
+      <p style="font-size: 13px; color: #b8cde0; line-height: 1.4;">
         Tu equipo ha completado su participación en esta fase del concurso. ¡Gracias por competir con gran nivel técnico!
       </p>
     </div>

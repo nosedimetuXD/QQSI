@@ -14,16 +14,22 @@
 }
 
 :root {
+  /* Liquid Glass Tokens */
+  --liquid-glass-bg: rgba(12, 27, 61, 0.65);
+  --liquid-glass-border: rgba(108, 168, 228, 0.2);
+  --liquid-glass-glow: 0 0 0 1px rgba(76, 144, 222, 0.06), 0 4px 16px rgba(0, 0, 0, 0.08);
+  --liquid-glass-radius: 22px;
+
   /* Layer 1: Primitives & Core Liquid Glass Palette */
-  --liquid-deep-space: #030a16;
-  --liquid-navy-1: #07152b;
-  --liquid-navy-2: #0e2444;
-  --liquid-cyan-glow: #38bdf8;
-  --liquid-blue-glow: #3b82f6;
+  --liquid-deep-space: #0C1B3D;
+  --liquid-navy-1: #0C1B3D;
+  --liquid-navy-2: #07225D;
+  --liquid-cyan-glow: #4C90DE;
+  --liquid-blue-glow: #286EDD;
   --liquid-indigo-glow: #6366f1;
-  --liquid-emerald-glow: #10b981;
-  --liquid-amber-glow: #f59e0b;
-  --liquid-red-glow: #ef4444;
+  --liquid-emerald-glow: #286EDD;
+  --liquid-amber-glow: #FF7326;
+  --liquid-red-glow: #D42900;
   
   /* Layer 2: Semantic Glass & Refraction Tokens */
   --glass-bg: rgba(14, 34, 61, 0.65);
@@ -34,10 +40,10 @@
   --glass-inner-gloss: inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.45);
   --glass-inner-shadow: inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.4);
   --glass-blur: blur(24px) saturate(190%);
-  --glass-shadow: 0 25px 60px -15px rgba(2, 6, 14, 0.85), 0 0 35px rgba(56, 189, 248, 0.12);
+  --glass-shadow: 0 25px 60px -15px rgba(2, 6, 14, 0.85), 0 0 35px rgba(76, 144, 222, 0.12);
   
   /* Layer 3: Action & UI Variables */
-  --focus-ring: #38bdf8;
+  --focus-ring: #4C90DE;
   --btn-radius: 14px;
   --card-radius: 28px;
   --transition-liquid: 200ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -50,7 +56,7 @@ input:focus-visible,
 select:focus-visible {
   outline: 2px solid var(--focus-ring) !important;
   outline-offset: 3px !important;
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.6) !important;
+  box-shadow: 0 0 15px rgba(76, 144, 222, 0.6) !important;
 }
 
 /* --- Respect User Motion Preferences (Emil Kowalski Philosophy) --- */
@@ -66,8 +72,8 @@ select:focus-visible {
 /* --- Solid High-Contrast Canvas Backdrop (Un Solo Color, Sin Cuadrícula) --- */
 body, body.gingham-pattern {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #0f172a;
-  background-color: #dbeafe;
+  color: #0C1B3D;
+  background-color: #d0dff0;
   background-image: none !important;
   min-height: 100vh;
   display: flex;
@@ -78,7 +84,7 @@ body, body.gingham-pattern {
 
 /* --- Ambient Stage for Dark Control Displays & Moderation --- */
 body.dark-stage {
-  background-color: #030a16 !important;
+  background-color: #0C1B3D !important;
   background-image: none !important;
   color: #ffffff !important;
 }
@@ -131,7 +137,7 @@ svg {
   pointer-events: none !important;
   z-index: 5 !important;
   opacity: 0.85 !important;
-  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.4));
+  filter: drop-shadow(0 0 10px rgba(76, 144, 222, 0.4));
 }
 
 .decor-boat {
@@ -143,7 +149,7 @@ svg {
   pointer-events: none !important;
   z-index: 15 !important;
   opacity: 0.9 !important;
-  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.3));
+  filter: drop-shadow(0 0 12px rgba(76, 144, 222, 0.3));
 }
 
 .decor-waves {
@@ -172,7 +178,7 @@ svg {
   margin: 0 auto 16px auto !important;
   border: 2.5px solid rgba(255, 255, 255, 0.8) !important;
   box-shadow: 
-    0 0 25px rgba(56, 189, 248, 0.6), 
+    0 0 25px rgba(76, 144, 222, 0.6), 
     0 12px 30px rgba(0, 0, 0, 0.6),
     inset 0 2px 4px rgba(255, 255, 255, 0.9) !important;
   overflow: hidden !important;
@@ -185,7 +191,7 @@ svg {
 .logo-avatar:hover {
   transform: scale(1.05);
   box-shadow: 
-    0 0 35px rgba(56, 189, 248, 0.85), 
+    0 0 35px rgba(76, 144, 222, 0.85), 
     0 16px 40px rgba(0, 0, 0, 0.7),
     inset 0 2px 4px rgba(255, 255, 255, 1) !important;
 }
@@ -208,7 +214,7 @@ svg {
   align-items: center !important;
   justify-content: center !important;
   border: 2px solid rgba(255, 255, 255, 0.8) !important;
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 0 15px rgba(76, 144, 222, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
   overflow: hidden !important;
   flex-shrink: 0 !important;
 }
@@ -233,7 +239,7 @@ svg {
   border-radius: var(--card-radius);
   box-shadow: 
     0 25px 60px -10px rgba(2, 6, 18, 0.75),
-    0 0 25px rgba(56, 189, 248, 0.25),
+    0 0 25px rgba(76, 144, 222, 0.25),
     inset 0 2px 3px 0 rgba(255, 255, 255, 0.5),
     inset 0 -2px 3px 0 rgba(0, 0, 0, 0.7) !important;
   color: #ffffff !important;
@@ -254,7 +260,7 @@ svg {
   border: 2px dashed rgba(255, 255, 255, 0.55);
   border-radius: 20px;
   pointer-events: none;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6), inset 0 0 12px rgba(56, 189, 248, 0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6), inset 0 0 12px rgba(76, 144, 222, 0.1);
 }
 
 /* --- Header del Hub --- */
@@ -274,7 +280,7 @@ svg {
   max-width: 580px !important;
   font-size: 15px !important;
   line-height: 1.5 !important;
-  color: #e2e8f0 !important;
+  color: #d0dff0 !important;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
   font-weight: 600 !important;
   display: block !important;
@@ -283,14 +289,14 @@ svg {
 /* --- Cinta / Lazo de Cristal Líquido (Liquid Glass Ribbon) --- */
 .ribbon-banner {
   position: relative !important;
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.95) 0%, rgba(37, 99, 235, 0.9) 60%, rgba(29, 78, 216, 0.95) 100%) !important;
+  background: linear-gradient(180deg, rgba(76, 144, 222, 0.95) 0%, rgba(4, 55, 166, 0.9) 60%, rgba(3, 45, 141, 0.95) 100%) !important;
   color: #ffffff !important;
   font-family: 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-weight: 700;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
   box-shadow: 
-    0 10px 25px rgba(37, 99, 235, 0.45),
+    0 10px 25px rgba(4, 55, 166, 0.45),
     inset 0 1.5px 1.5px rgba(255, 255, 255, 0.8),
     inset 0 -1.5px 2px rgba(0, 0, 0, 0.4) !important;
   display: inline-flex !important;
@@ -311,7 +317,7 @@ svg {
   top: 8px;
   bottom: -8px;
   width: 24px;
-  background: #1d4ed8;
+  background: #0437A6;
   z-index: -1;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
@@ -388,7 +394,7 @@ svg {
   transform: translateY(-5px);
   box-shadow: 
     0 22px 45px -5px rgba(0, 0, 0, 0.75), 
-    0 0 25px rgba(56, 189, 248, 0.35),
+    0 0 25px rgba(76, 144, 222, 0.35),
     inset 0 1.5px 2px rgba(255, 255, 255, 0.5);
 }
 
@@ -407,9 +413,9 @@ svg {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.role-icon-blue { background: linear-gradient(135deg, #38bdf8 0%, #1d4ed8 100%); color: #ffffff; }
-.role-icon-green { background: linear-gradient(135deg, #34d399 0%, #047857 100%); color: #ffffff; }
-.role-icon-amber { background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%); color: #ffffff; }
+.role-icon-blue { background: linear-gradient(135deg, #4C90DE 0%, #0437A6 100%); color: #ffffff; }
+.role-icon-green { background: linear-gradient(135deg, #286EDD 0%, #286EDD 100%); color: #ffffff; }
+.role-icon-amber { background: linear-gradient(135deg, #FF7326 0%, #E84F0B 100%); color: #ffffff; }
 
 /* ==========================================================================
    LIQUID GLASS BUTTONS & ACTION CONTROLS
@@ -442,52 +448,52 @@ svg {
 }
 
 .btn-glow-blue {
-  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 60%, #0369a1 100%) !important;
+  background: linear-gradient(180deg, #4C90DE 0%, #0140B9 60%, #0437A6 100%) !important;
   color: #031428 !important;
   box-shadow: 
-    0 8px 20px rgba(2, 132, 199, 0.45), 
+    0 8px 20px rgba(1, 64, 185, 0.45), 
     inset 0 1.5px 1px rgba(255, 255, 255, 0.8),
     inset 0 -1.5px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 .btn-glow-blue:hover:not(:disabled) {
   box-shadow: 
-    0 12px 28px rgba(56, 189, 248, 0.6), 
-    0 0 20px rgba(56, 189, 248, 0.4),
+    0 12px 28px rgba(76, 144, 222, 0.6), 
+    0 0 20px rgba(76, 144, 222, 0.4),
     inset 0 1.5px 1px rgba(255, 255, 255, 0.9) !important;
   filter: brightness(1.06);
 }
 
 .btn-glow-green {
-  background: linear-gradient(180deg, #34d399 0%, #059669 60%, #047857 100%) !important;
+  background: linear-gradient(180deg, #286EDD 0%, #0437A6 60%, #032D8D 100%) !important;
   color: #022013 !important;
   box-shadow: 
-    0 8px 20px rgba(5, 150, 105, 0.45), 
+    0 8px 20px rgba(40, 110, 221, 0.45), 
     inset 0 1.5px 1px rgba(255, 255, 255, 0.8),
     inset 0 -1.5px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 .btn-glow-green:hover:not(:disabled) {
   box-shadow: 
-    0 12px 28px rgba(52, 211, 153, 0.6), 
-    0 0 20px rgba(52, 211, 153, 0.4),
+    0 12px 28px rgba(40, 110, 221, 0.6), 
+    0 0 20px rgba(40, 110, 221, 0.4),
     inset 0 1.5px 1px rgba(255, 255, 255, 0.9) !important;
   filter: brightness(1.06);
 }
 
 .btn-glow-amber {
-  background: linear-gradient(180deg, #fbbf24 0%, #d97706 60%, #b45309 100%) !important;
+  background: linear-gradient(180deg, #FFBD3E 0%, #FC6123 60%, #E84F0B 100%) !important;
   color: #241402 !important;
   box-shadow: 
-    0 8px 20px rgba(217, 119, 6, 0.45), 
+    0 8px 20px rgba(252, 97, 35, 0.45), 
     inset 0 1.5px 1px rgba(255, 255, 255, 0.8),
     inset 0 -1.5px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 .btn-glow-amber:hover:not(:disabled) {
   box-shadow: 
-    0 12px 28px rgba(251, 191, 36, 0.6), 
-    0 0 20px rgba(251, 191, 36, 0.4),
+    0 12px 28px rgba(255, 115, 38, 0.6), 
+    0 0 20px rgba(255, 115, 38, 0.4),
     inset 0 1.5px 1px rgba(255, 255, 255, 0.9) !important;
   filter: brightness(1.06);
 }
@@ -563,7 +569,7 @@ svg {
 
 .display-lobby-sub {
   font-size: 14px;
-  color: #bae6fd;
+  color: #6CA8E4;
   max-width: 600px;
   margin: 0 auto 20px auto;
   font-weight: 500;
@@ -589,19 +595,19 @@ svg {
 }
 
 .badge-round {
-  background: rgba(37, 99, 235, 0.35);
-  border: 1px solid rgba(56, 189, 248, 0.6);
+  background: rgba(4, 55, 166, 0.35);
+  border: 1px solid rgba(76, 144, 222, 0.6);
   border-top: 1.5px solid rgba(255, 255, 255, 0.6);
-  color: #7dd3fc;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  color: #6CA8E4;
+  box-shadow: 0 0 12px rgba(76, 144, 222, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
 }
 
 .badge-teams {
-  background: rgba(16, 185, 129, 0.3);
-  border: 1px solid rgba(52, 211, 153, 0.55);
+  background: rgba(252, 97, 35, 0.3);
+  border: 1px solid rgba(255, 115, 38, 0.55);
   border-top: 1.5px solid rgba(255, 255, 255, 0.6);
-  color: #6ee7b7;
-  box-shadow: 0 0 12px rgba(52, 211, 153, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  color: #FF853E;
+  box-shadow: 0 0 12px rgba(255, 115, 38, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
 }
 
 /* Temporizador Digital LED Cristalino */
@@ -610,14 +616,14 @@ svg {
   align-items: center;
   gap: 10px;
   background: rgba(2, 6, 14, 0.9);
-  border: 1.5px solid rgba(56, 189, 248, 0.45);
+  border: 1.5px solid rgba(76, 144, 222, 0.45);
   border-top: 2px solid rgba(255, 255, 255, 0.6);
   padding: 8px 20px;
   border-radius: 18px;
   box-shadow: 
-    0 0 20px rgba(56, 189, 248, 0.35), 
+    0 0 20px rgba(76, 144, 222, 0.35), 
     inset 0 1px 2px rgba(255, 255, 255, 0.3),
-    inset 0 0 12px rgba(2, 132, 199, 0.35);
+    inset 0 0 12px rgba(1, 64, 185, 0.35);
   backdrop-filter: blur(16px);
 }
 
@@ -625,24 +631,24 @@ svg {
   font-family: 'JetBrains Mono', monospace;
   font-size: 32px;
   font-weight: 900;
-  color: #38bdf8;
+  color: #4C90DE;
   letter-spacing: 0.05em;
-  text-shadow: 0 0 12px rgba(56, 189, 248, 0.8), 0 0 25px rgba(56, 189, 248, 0.5);
+  text-shadow: 0 0 12px rgba(76, 144, 222, 0.8), 0 0 25px rgba(76, 144, 222, 0.5);
 }
 
 .timer-led-box.urgent {
-  border-color: #ef4444;
-  border-top-color: #fca5a5;
+  border-color: #D42900;
+  border-top-color: #FF853E;
   box-shadow: 
-    0 0 25px rgba(239, 68, 68, 0.6), 
+    0 0 25px rgba(212, 41, 0, 0.6), 
     inset 0 1px 2px rgba(255, 255, 255, 0.4),
-    inset 0 0 15px rgba(239, 68, 68, 0.5);
+    inset 0 0 15px rgba(212, 41, 0, 0.5);
   animation: pulse-urgent 1s infinite alternate;
 }
 
 .timer-led-box.urgent .timer-led-digits {
-  color: #f87171;
-  text-shadow: 0 0 15px rgba(239, 68, 68, 0.9), 0 0 30px rgba(239, 68, 68, 0.6);
+  color: #D42900;
+  text-shadow: 0 0 15px rgba(212, 41, 0, 0.9), 0 0 30px rgba(212, 41, 0, 0.6);
 }
 
 @keyframes pulse-urgent {
@@ -690,7 +696,7 @@ svg {
   border-color: var(--liquid-cyan-glow);
   box-shadow: 
     0 12px 30px rgba(0, 0, 0, 0.5), 
-    0 0 15px rgba(56, 189, 248, 0.25),
+    0 0 15px rgba(76, 144, 222, 0.25),
     inset 0 1.5px 2px rgba(255, 255, 255, 0.5);
 }
 
@@ -698,7 +704,7 @@ svg {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+  background: linear-gradient(180deg, #4C90DE 0%, #0140B9 100%);
   color: #041224;
   font-family: 'Cabinet Grotesk', sans-serif;
   font-weight: 900;
@@ -731,14 +737,14 @@ svg {
   align-items: center;
   gap: 8px;
   background: rgba(14, 32, 54, 0.85);
-  border: 1.5px solid rgba(56, 189, 248, 0.7);
+  border: 1.5px solid rgba(76, 144, 222, 0.7);
   border-top: 2px solid rgba(255, 255, 255, 0.6);
   padding: 8px 16px;
   border-radius: 14px;
   font-size: 13px;
   font-weight: 800;
   color: #ffffff;
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 15px rgba(76, 144, 222, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
   animation: slide-up-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
   backdrop-filter: blur(12px);
@@ -767,14 +773,14 @@ svg {
   max-width: 85vw;
   max-height: 85vw;
   border-radius: 9999px;
-  background: radial-gradient(circle at 38% 28%, #38bdf8 0%, #0284c7 35%, #035388 70%, #022642 100%);
+  background: radial-gradient(circle at 38% 28%, #FF853E 0%, #FC6123 35%, #E84F0B 70%, #D42900 100%);
   border: 7px solid #ffffff;
   box-shadow: 
-    0 0 0 4px rgba(56, 189, 248, 0.6),
-    0 0 35px rgba(56, 189, 248, 0.75),
+    0 0 0 4px rgba(252, 97, 35, 0.6),
+    0 0 35px rgba(255, 115, 38, 0.75),
     0 20px 45px rgba(1, 8, 20, 0.85),
     inset 0 4px 6px rgba(255, 255, 255, 0.95),
-    inset 0 -8px 16px rgba(1, 24, 44, 0.95);
+    inset 0 -8px 16px rgba(180, 40, 0, 0.95);
   color: #ffffff !important;
   font-family: 'Cabinet Grotesk', sans-serif;
   font-size: 26px;
@@ -811,18 +817,18 @@ svg {
 .buzzer-arcade-btn:active:not(:disabled) {
   transform: scale(0.92) translateY(8px) !important;
   box-shadow: 
-    0 0 0 3px rgba(56, 189, 248, 0.7),
-    0 0 20px rgba(56, 189, 248, 0.6),
+    0 0 0 3px rgba(252, 97, 35, 0.7),
+    0 0 20px rgba(252, 97, 35, 0.6),
     0 8px 16px rgba(0, 0, 0, 0.8),
     inset 0 2px 4px rgba(255, 255, 255, 0.8),
     inset 0 -4px 10px rgba(0, 0, 0, 0.9) !important;
 }
 
 .buzzer-arcade-btn:disabled {
-  background: radial-gradient(circle at 38% 28%, #475569 0%, #334155 45%, #1e293b 80%, #0f172a 100%) !important;
-  border: 6px solid #64748b !important;
+  background: radial-gradient(circle at 38% 28%, #3d5f82 0%, #2d4b6e 45%, #17345a 80%, #0C1B3D 100%) !important;
+  border: 6px solid #5a7a9f !important;
   box-shadow: 
-    0 0 0 3px rgba(100, 116, 139, 0.3),
+    0 0 0 3px rgba(90, 122, 159, 0.3),
     0 12px 25px rgba(0, 0, 0, 0.6),
     inset 0 3px 4px rgba(255, 255, 255, 0.35),
     inset 0 -6px 12px rgba(0, 0, 0, 0.85) !important;
@@ -832,12 +838,12 @@ svg {
 }
 
 .buzzer-arcade-btn:disabled #buzzerIconSlot {
-  color: #94a3b8 !important;
+  color: #8ba3c4 !important;
   filter: none;
 }
 
 .buzzer-arcade-btn:disabled span {
-  color: #cbd5e1 !important;
+  color: #b8cde0 !important;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9) !important;
 }
 
@@ -848,20 +854,20 @@ svg {
 @keyframes buzzer-glow-pulse {
   0% { 
     box-shadow: 
-      0 0 0 4px rgba(56, 189, 248, 0.5),
-      0 0 30px rgba(56, 189, 248, 0.65), 
+      0 0 0 4px rgba(252, 97, 35, 0.5),
+      0 0 30px rgba(252, 97, 35, 0.65), 
       0 16px 35px rgba(0, 0, 0, 0.8), 
       inset 0 4px 6px rgba(255, 255, 255, 0.9),
-      inset 0 -8px 16px rgba(1, 24, 44, 0.9);
+      inset 0 -8px 16px rgba(180, 40, 0, 0.9);
     transform: scale(1);
   }
   100% { 
     box-shadow: 
-      0 0 0 8px rgba(56, 189, 248, 0.85),
-      0 0 60px rgba(56, 189, 248, 1), 
+      0 0 0 8px rgba(255, 115, 38, 0.85),
+      0 0 60px rgba(255, 115, 38, 1), 
       0 24px 50px rgba(0, 0, 0, 0.9), 
       inset 0 4px 6px rgba(255, 255, 255, 1),
-      inset 0 -8px 16px rgba(1, 24, 44, 0.95);
+      inset 0 -8px 16px rgba(180, 40, 0, 0.95);
     transform: scale(1.035);
   }
 }
@@ -902,7 +908,7 @@ svg {
 .admin-header-round-badge {
   font-size: 11px;
   font-weight: 800;
-  color: #38bdf8;
+  color: #4C90DE;
   margin-top: 2px;
 }
 
@@ -917,8 +923,8 @@ svg {
   font-size: 11px;
   font-weight: 800;
   color: #ffffff;
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #17345a;
+  border: 1px solid #2d4b6e;
   padding: 6px 12px;
   border-radius: 9px;
   display: flex;
@@ -931,22 +937,22 @@ svg {
 }
 
 .admin-top-action-btn:hover {
-  background: #334155;
+  background: #2d4b6e;
 }
 
 .btn-reset-style {
-  color: #f87171 !important;
-  background: rgba(239, 68, 68, 0.15) !important;
-  border-color: #ef4444 !important;
+  color: #D42900 !important;
+  background: rgba(212, 41, 0, 0.15) !important;
+  border-color: #D42900 !important;
 }
 
 .btn-reset-style:hover {
-  background: rgba(239, 68, 68, 0.3) !important;
+  background: rgba(212, 41, 0, 0.3) !important;
 }
 
 .btn-logout-style {
-  color: #94a3b8 !important;
-  background: #0f172a !important;
+  color: #8ba3c4 !important;
+  background: #0C1B3D !important;
 }
 
 .admin-action-btn-grid {
@@ -970,15 +976,15 @@ svg {
 }
 
 .btn-pause-style {
-  background: #1e293b;
-  color: #fbbf24;
-  border: 1.5px solid #d97706;
+  background: #17345a;
+  color: #FF7326;
+  border: 1.5px solid #FC6123;
 }
 
 .btn-stop-style {
-  background: #1e293b;
-  color: #f87171;
-  border: 1.5px solid #ef4444;
+  background: #17345a;
+  color: #D42900;
+  border: 1.5px solid #D42900;
 }
 
 .admin-layout-grid {
@@ -1020,7 +1026,7 @@ svg {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #94a3b8;
+  color: #8ba3c4;
   margin-bottom: 14px;
   display: flex;
   align-items: center;
@@ -1046,7 +1052,7 @@ svg {
   font-size: 2.2rem;
   line-height: 1.4;
   color: #67e8f9 !important;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.4);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(76, 144, 222, 0.4);
 }
 
 .katex {
@@ -1213,4 +1219,31 @@ svg {
     height: min(200px, 62vw) !important;
     font-size: 22px !important;
   }
+}
+
+.liquid-glass {
+  border-radius: var(--liquid-glass-radius);
+  background: var(--liquid-glass-bg);
+  border: 1px solid var(--liquid-glass-border);
+  box-shadow: var(--liquid-glass-glow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+.liquid-glass:hover {
+  box-shadow: 0 0 0 1px rgba(76, 144, 222, 0.1), 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: rgba(76, 144, 222, 0.3);
+}
+.liquid-glass-rounded {
+  border-radius: 20px;
+  background: var(--liquid-glass-bg);
+  border: 1px solid var(--liquid-glass-border);
+  box-shadow: var(--liquid-glass-glow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+.liquid-glass-rounded:hover {
+  box-shadow: 0 0 0 1px rgba(76, 144, 222, 0.1), 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: rgba(76, 144, 222, 0.3);
 }
