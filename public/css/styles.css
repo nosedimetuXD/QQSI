@@ -69,17 +69,17 @@ select:focus-visible {
   }
 }
 
-/* --- Dynamic Ambient Gradient Mesh Canvas --- */
+/* --- High-Contrast Dynamic Ambient Gradient Canvas --- */
 body, body.gingham-pattern {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #f1f5f9;
+  color: #ffffff;
   background: 
-    radial-gradient(ellipse 80% 50% at 50% -15%, rgba(76, 144, 222, 0.35), transparent 70%),
-    radial-gradient(ellipse 65% 45% at 92% 92%, rgba(252, 97, 35, 0.2), transparent 60%),
-    radial-gradient(ellipse 50% 35% at 8% 85%, rgba(40, 110, 221, 0.24), transparent 60%),
-    linear-gradient(155deg, #07152f 0%, #0C1B3D 30%, #07225D 65%, #032D8D 100%);
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(76, 144, 222, 0.45), transparent 65%),
+    radial-gradient(ellipse 65% 45% at 92% 92%, rgba(252, 97, 35, 0.3), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 8% 85%, rgba(40, 110, 221, 0.32), transparent 55%),
+    linear-gradient(160deg, #020713 0%, #061126 30%, #091a38 65%, #032D8D 100%);
   background-attachment: fixed;
-  background-color: #0C1B3D;
+  background-color: #020713;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -90,11 +90,11 @@ body, body.gingham-pattern {
 /* --- Ambient Stage for Dark Control Displays & Moderation --- */
 body.dark-stage {
   background: 
-    radial-gradient(ellipse 75% 45% at 50% -10%, rgba(76, 144, 222, 0.25), transparent 70%),
-    radial-gradient(ellipse 55% 40% at 90% 90%, rgba(252, 97, 35, 0.15), transparent 60%),
-    linear-gradient(160deg, #050e1f 0%, #0C1B3D 45%, #07225D 100%) !important;
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(76, 144, 222, 0.35), transparent 65%),
+    radial-gradient(ellipse 55% 40% at 90% 90%, rgba(252, 97, 35, 0.22), transparent 55%),
+    linear-gradient(160deg, #02050e 0%, #061126 45%, #091c3d 100%) !important;
   background-attachment: fixed !important;
-  background-color: #0C1B3D !important;
+  background-color: #02050e !important;
   color: #ffffff !important;
 }
 
@@ -239,19 +239,19 @@ svg {
    LIQUID GLASS CARD ARCHITECTURE
    ========================================================================== */
 .denim-card {
-  background: linear-gradient(145deg, rgba(20, 48, 92, 0.88) 0%, rgba(12, 27, 61, 0.96) 45%, rgba(7, 34, 93, 0.94) 100%) !important;
-  backdrop-filter: blur(28px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
-  border: 1.5px solid rgba(108, 168, 228, 0.3) !important;
-  border-top: 2px solid rgba(255, 255, 255, 0.65) !important;
-  border-left: 1.5px solid rgba(108, 168, 228, 0.45) !important;
+  background: linear-gradient(145deg, rgba(32, 75, 145, 0.45) 0%, rgba(14, 38, 80, 0.85) 38%, rgba(6, 18, 42, 0.96) 100%) !important;
+  backdrop-filter: blur(28px) saturate(220%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(220%) !important;
+  border: 2px solid rgba(108, 168, 228, 0.6) !important;
+  border-top: 2.5px solid rgba(255, 255, 255, 0.95) !important;
+  border-left: 2px solid rgba(255, 255, 255, 0.75) !important;
   border-radius: var(--card-radius);
   box-shadow: 
-    0 25px 60px -10px rgba(2, 6, 18, 0.85),
-    0 0 35px rgba(76, 144, 222, 0.25),
-    0 0 70px rgba(252, 97, 35, 0.08),
-    inset 0 2px 3px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -2px 3px 0 rgba(0, 0, 0, 0.6) !important;
+    0 0 0 1px rgba(76, 144, 222, 0.35),
+    0 0 45px rgba(76, 144, 222, 0.3),
+    0 30px 70px -5px rgba(0, 0, 0, 0.95),
+    inset 0 2px 4px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.7) !important;
   color: #ffffff !important;
   padding: 40px 36px;
   position: relative;
@@ -260,7 +260,7 @@ svg {
   overflow: hidden;
 }
 
-/* Marco gráfico holográfico de cristal líquido con esquinas luminosas (reemplaza las viñetas/costuras) */
+/* Marco gráfico holográfico de cristal líquido con esquinas luminosas de alto contraste */
 .denim-card::before {
   content: '';
   position: absolute;
@@ -270,27 +270,28 @@ svg {
   bottom: 10px;
   border-radius: 20px;
   pointer-events: none;
-  border: 1px solid rgba(108, 168, 228, 0.24);
+  border: 1.5px solid rgba(108, 168, 228, 0.45);
   background: 
-    radial-gradient(circle at 0% 0%, rgba(76, 144, 222, 0.22) 0%, transparent 40%),
-    radial-gradient(circle at 100% 100%, rgba(252, 97, 35, 0.16) 0%, transparent 40%);
+    radial-gradient(circle at 0% 0%, rgba(76, 144, 222, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 100% 100%, rgba(252, 97, 35, 0.28) 0%, transparent 45%);
   box-shadow: 
-    inset 0 1px 2px rgba(255, 255, 255, 0.3),
-    inset 0 0 20px rgba(4, 55, 166, 0.15);
+    inset 0 1.5px 3px rgba(255, 255, 255, 0.45),
+    inset 0 0 25px rgba(4, 55, 166, 0.25);
 }
 
-/* Haz de luz de refracción especular superior */
+/* Haz de luz de refracción especular superior de alta luminosidad */
 .denim-card::after {
   content: '';
   position: absolute;
   top: 0;
-  left: 15%;
-  right: 15%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, rgba(76, 144, 222, 0.8) 25%, rgba(255, 115, 38, 0.9) 50%, rgba(76, 144, 222, 0.8) 75%, transparent 100%);
+  left: 12%;
+  right: 12%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, rgba(76, 144, 222, 0.95) 25%, #ffffff 50%, rgba(255, 115, 38, 0.95) 75%, transparent 100%);
   filter: blur(0.5px);
   pointer-events: none;
   border-radius: 9999px;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.9), 0 0 24px rgba(76, 144, 222, 0.8);
 }
 
 /* --- Header del Hub --- */
@@ -633,15 +634,16 @@ svg {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(2, 6, 14, 0.9);
-  border: 1.5px solid rgba(76, 144, 222, 0.45);
-  border-top: 2px solid rgba(255, 255, 255, 0.6);
+  background: rgba(3, 8, 20, 0.95);
+  border: 1.5px solid rgba(76, 144, 222, 0.65);
+  border-top: 2px solid rgba(255, 255, 255, 0.85);
   padding: 8px 20px;
   border-radius: 18px;
   box-shadow: 
-    0 0 20px rgba(76, 144, 222, 0.35), 
-    inset 0 1px 2px rgba(255, 255, 255, 0.3),
-    inset 0 0 12px rgba(1, 64, 185, 0.35);
+    0 0 25px rgba(76, 144, 222, 0.45), 
+    0 8px 20px rgba(0, 0, 0, 0.7),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4),
+    inset 0 0 14px rgba(1, 64, 185, 0.45);
   backdrop-filter: blur(16px);
 }
 
@@ -649,9 +651,9 @@ svg {
   font-family: 'JetBrains Mono', monospace;
   font-size: 32px;
   font-weight: 900;
-  color: #4C90DE;
+  color: #6CA8E4;
   letter-spacing: 0.05em;
-  text-shadow: 0 0 12px rgba(76, 144, 222, 0.8), 0 0 25px rgba(76, 144, 222, 0.5);
+  text-shadow: 0 0 14px rgba(76, 144, 222, 0.95), 0 0 28px rgba(76, 144, 222, 0.6);
 }
 
 .timer-led-box.urgent {
@@ -843,27 +845,28 @@ svg {
 }
 
 .buzzer-arcade-btn:disabled {
-  background: radial-gradient(circle at 35% 25%, #1d3557 0%, #12223b 40%, #0C1B3D 75%, #050d1e 100%) !important;
-  border: 6px solid rgba(108, 168, 228, 0.35) !important;
+  background: radial-gradient(circle at 35% 25%, #2a4e80 0%, #17335c 38%, #0a1b35 72%, #040d1c 100%) !important;
+  border: 7px solid rgba(108, 168, 228, 0.75) !important;
   box-shadow: 
-    0 0 0 3px rgba(76, 144, 222, 0.12),
-    0 16px 36px rgba(0, 0, 0, 0.7),
-    inset 0 3px 5px rgba(255, 255, 255, 0.2),
-    inset 0 -6px 14px rgba(0, 0, 0, 0.9) !important;
+    0 0 0 4px rgba(76, 144, 222, 0.35),
+    0 0 35px rgba(76, 144, 222, 0.35),
+    0 20px 45px rgba(0, 0, 0, 0.9),
+    inset 0 3px 6px rgba(255, 255, 255, 0.45),
+    inset 0 -6px 14px rgba(0, 0, 0, 0.95) !important;
   cursor: not-allowed;
-  opacity: 0.9;
+  opacity: 1 !important;
   transform: none !important;
 }
 
 .buzzer-arcade-btn:disabled #buzzerIconSlot {
   color: #6CA8E4 !important;
-  filter: none;
-  opacity: 0.75;
+  filter: drop-shadow(0 0 8px rgba(76, 144, 222, 0.8));
+  opacity: 1 !important;
 }
 
 .buzzer-arcade-btn:disabled span {
-  color: #b8cde0 !important;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9) !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95) !important;
 }
 
 .buzzer-arcade-btn.pulsing {
@@ -1026,16 +1029,17 @@ svg {
 }
 
 .admin-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(10, 24, 46, 0.75) 45%, rgba(3, 10, 22, 0.92) 100%) !important;
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-top: 1.5px solid rgba(255, 255, 255, 0.45);
+  background: linear-gradient(145deg, rgba(28, 62, 122, 0.5) 0%, rgba(12, 30, 68, 0.85) 45%, rgba(4, 12, 30, 0.95) 100%) !important;
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1.5px solid rgba(108, 168, 228, 0.45);
+  border-top: 2px solid rgba(255, 255, 255, 0.75);
   border-radius: 22px;
   padding: 22px;
   box-shadow: 
-    0 15px 40px rgba(0, 0, 0, 0.6),
-    inset 0 1px 1.5px rgba(255, 255, 255, 0.35);
+    0 15px 40px rgba(0, 0, 0, 0.75),
+    0 0 25px rgba(76, 144, 222, 0.18),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
   display: flex;
   flex-direction: column;
 }
@@ -1045,7 +1049,7 @@ svg {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #8ba3c4;
+  color: #6CA8E4;
   margin-bottom: 14px;
   display: flex;
   align-items: center;
