@@ -63,18 +63,15 @@ select:focus-visible {
   }
 }
 
-/* --- Liquid Glass Global Body & Ambient Backdrop --- */
-body {
+/* --- High-Contrast Liquid Glass Body & Vichy Backdrop --- */
+body, body.gingham-pattern {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #ffffff;
-  background-color: var(--liquid-deep-space);
+  color: #0f172a;
+  background-color: #f0f7ff;
   background-image: 
-    radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.18) 0%, transparent 40%),
-    radial-gradient(circle at 85% 20%, rgba(99, 102, 241, 0.16) 0%, transparent 45%),
-    radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
-    radial-gradient(rgba(56, 189, 248, 0.1) 1px, transparent 1px),
-    linear-gradient(180deg, #07152b 0%, #030a16 100%);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px, 100% 100%;
+    linear-gradient(90deg, rgba(147, 197, 253, 0.45) 50%, transparent 50%),
+    linear-gradient(rgba(147, 197, 253, 0.45) 50%, transparent 50%);
+  background-size: 32px 32px;
   background-attachment: fixed;
   min-height: 100vh;
   display: flex;
@@ -83,15 +80,16 @@ body {
   position: relative;
 }
 
-/* --- Ambient Stage for Dark Control Displays --- */
+/* --- Ambient Stage for Dark Control Displays & Moderation --- */
 body.dark-stage {
-  background-color: #02060f !important;
+  background-color: #020612 !important;
   background-image: 
-    radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 45%),
-    radial-gradient(rgba(56, 189, 248, 0.07) 1px, transparent 1px),
-    linear-gradient(180deg, #050d1a 0%, #01040a 100%) !important;
-  background-size: 100% 100%, 100% 100%, 24px 24px, 100% 100% !important;
+    radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.18) 0%, transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 45%),
+    radial-gradient(rgba(56, 189, 248, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, #07152b 0%, #020612 100%) !important;
+  background-size: 100% 100%, 100% 100%, 28px 28px, 100% 100% !important;
+  color: #ffffff !important;
 }
 
 /* --- SVG Global Resets & Crisp Bounds --- */
@@ -235,18 +233,18 @@ svg {
    LIQUID GLASS CARD ARCHITECTURE
    ========================================================================== */
 .denim-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(14, 34, 61, 0.65) 40%, rgba(4, 14, 28, 0.88) 100%) !important;
-  backdrop-filter: blur(28px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.6) !important;
-  border-left: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16) 0%, rgba(14, 34, 62, 0.94) 28%, rgba(5, 15, 30, 0.98) 100%) !important;
+  backdrop-filter: blur(28px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  border-top: 2px solid rgba(255, 255, 255, 0.75) !important;
+  border-left: 1.5px solid rgba(255, 255, 255, 0.5) !important;
   border-radius: var(--card-radius);
   box-shadow: 
-    0 30px 70px -15px rgba(1, 4, 10, 0.9),
-    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.5),
-    0 0 35px rgba(56, 189, 248, 0.15) !important;
+    0 25px 60px -10px rgba(2, 6, 18, 0.75),
+    0 0 25px rgba(56, 189, 248, 0.25),
+    inset 0 2px 3px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -2px 3px 0 rgba(0, 0, 0, 0.7) !important;
   color: #ffffff !important;
   padding: 40px 36px;
   position: relative;
@@ -262,10 +260,10 @@ svg {
   left: 12px;
   right: 12px;
   bottom: 12px;
-  border: 2px dashed rgba(255, 255, 255, 0.5);
+  border: 2px dashed rgba(255, 255, 255, 0.55);
   border-radius: 20px;
   pointer-events: none;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(56, 189, 248, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6), inset 0 0 12px rgba(56, 189, 248, 0.1);
 }
 
 /* --- Header del Hub --- */
@@ -695,84 +693,119 @@ svg {
 }
 
 /* ==========================================================================
-   PULSADOR ARCADE EN CRISTAL LÍQUIDO (TEAM SCREEN)
+   PULSADOR ARCADE EN CRISTAL LÍQUIDO 3D (TEAM SCREEN)
    ========================================================================== */
 .buzzer-arcade-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 32px auto;
+  margin: 28px auto 16px auto;
   width: 100%;
 }
 
 .buzzer-arcade-btn {
   width: 220px;
   height: 220px;
+  max-width: 85vw;
+  max-height: 85vw;
   border-radius: 9999px;
-  background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.7) 0%, rgba(56, 189, 248, 0.95) 25%, #0284c7 65%, #02365c 100%);
-  border: 6px solid rgba(255, 255, 255, 0.85);
+  background: radial-gradient(circle at 38% 28%, #38bdf8 0%, #0284c7 35%, #035388 70%, #022642 100%);
+  border: 7px solid #ffffff;
   box-shadow: 
-    0 0 45px rgba(56, 189, 248, 0.7),
-    0 20px 45px rgba(0, 0, 0, 0.8),
-    inset 0 2px 4px rgba(255, 255, 255, 0.9),
-    inset 0 -8px 15px rgba(1, 36, 64, 0.8);
-  color: #ffffff;
+    0 0 0 4px rgba(56, 189, 248, 0.6),
+    0 0 35px rgba(56, 189, 248, 0.75),
+    0 20px 45px rgba(1, 8, 20, 0.85),
+    inset 0 4px 6px rgba(255, 255, 255, 0.95),
+    inset 0 -8px 16px rgba(1, 24, 44, 0.95);
+  color: #ffffff !important;
   font-family: 'Cabinet Grotesk', sans-serif;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.12s ease;
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.12s ease, filter 0.12s ease;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   position: relative;
+  overflow: visible;
 }
 
-.buzzer-arcade-btn::after {
-  content: '';
-  position: absolute;
-  top: 14px;
-  left: 30px;
-  right: 30px;
-  height: 55px;
-  border-radius: 9999px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 100%);
-  pointer-events: none;
+.buzzer-arcade-btn #buzzerIconSlot {
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+.buzzer-arcade-btn span {
+  display: block;
+  line-height: 1.1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 .buzzer-arcade-btn:active:not(:disabled) {
-  transform: scale(0.93) translateY(8px);
+  transform: scale(0.92) translateY(8px) !important;
   box-shadow: 
-    0 0 20px rgba(56, 189, 248, 0.5), 
-    0 6px 15px rgba(0, 0, 0, 0.6),
-    inset 0 2px 3px rgba(255, 255, 255, 0.7);
+    0 0 0 3px rgba(56, 189, 248, 0.7),
+    0 0 20px rgba(56, 189, 248, 0.6),
+    0 8px 16px rgba(0, 0, 0, 0.8),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.9) !important;
 }
 
 .buzzer-arcade-btn:disabled {
-  background: radial-gradient(circle at 35% 25%, #475569 0%, #1e293b 70%, #0f172a 100%) !important;
-  border-color: #64748b !important;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5) !important;
+  background: radial-gradient(circle at 38% 28%, #475569 0%, #334155 45%, #1e293b 80%, #0f172a 100%) !important;
+  border: 6px solid #64748b !important;
+  box-shadow: 
+    0 0 0 3px rgba(100, 116, 139, 0.3),
+    0 12px 25px rgba(0, 0, 0, 0.6),
+    inset 0 3px 4px rgba(255, 255, 255, 0.35),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.85) !important;
   cursor: not-allowed;
-  opacity: 0.65;
+  opacity: 0.85;
+  transform: none !important;
+}
+
+.buzzer-arcade-btn:disabled #buzzerIconSlot {
+  color: #94a3b8 !important;
+  filter: none;
+}
+
+.buzzer-arcade-btn:disabled span {
+  color: #cbd5e1 !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9) !important;
 }
 
 .buzzer-arcade-btn.pulsing {
-  animation: buzzer-pulse 1.4s infinite alternate;
+  animation: buzzer-glow-pulse 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
 }
 
-@keyframes buzzer-pulse {
+@keyframes buzzer-glow-pulse {
   0% { 
-    box-shadow: 0 0 30px rgba(56, 189, 248, 0.6), 0 15px 35px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+    box-shadow: 
+      0 0 0 4px rgba(56, 189, 248, 0.5),
+      0 0 30px rgba(56, 189, 248, 0.65), 
+      0 16px 35px rgba(0, 0, 0, 0.8), 
+      inset 0 4px 6px rgba(255, 255, 255, 0.9),
+      inset 0 -8px 16px rgba(1, 24, 44, 0.9);
+    transform: scale(1);
   }
   100% { 
-    box-shadow: 0 0 60px rgba(56, 189, 248, 1), 0 20px 50px rgba(0, 0, 0, 0.85), inset 0 2px 4px rgba(255, 255, 255, 1);
+    box-shadow: 
+      0 0 0 8px rgba(56, 189, 248, 0.85),
+      0 0 60px rgba(56, 189, 248, 1), 
+      0 24px 50px rgba(0, 0, 0, 0.9), 
+      inset 0 4px 6px rgba(255, 255, 255, 1),
+      inset 0 -8px 16px rgba(1, 24, 44, 0.95);
+    transform: scale(1.035);
   }
 }
 
