@@ -63,16 +63,12 @@ select:focus-visible {
   }
 }
 
-/* --- High-Contrast Liquid Glass Body & Vichy Backdrop --- */
+/* --- Solid High-Contrast Canvas Backdrop (Un Solo Color, Sin Cuadrícula) --- */
 body, body.gingham-pattern {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #0f172a;
-  background-color: #f0f7ff;
-  background-image: 
-    linear-gradient(90deg, rgba(147, 197, 253, 0.45) 50%, transparent 50%),
-    linear-gradient(rgba(147, 197, 253, 0.45) 50%, transparent 50%);
-  background-size: 32px 32px;
-  background-attachment: fixed;
+  background-color: #dbeafe;
+  background-image: none !important;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -82,13 +78,8 @@ body, body.gingham-pattern {
 
 /* --- Ambient Stage for Dark Control Displays & Moderation --- */
 body.dark-stage {
-  background-color: #020612 !important;
-  background-image: 
-    radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.18) 0%, transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 45%),
-    radial-gradient(rgba(56, 189, 248, 0.08) 1px, transparent 1px),
-    linear-gradient(180deg, #07152b 0%, #020612 100%) !important;
-  background-size: 100% 100%, 100% 100%, 28px 28px, 100% 100% !important;
+  background-color: #030a16 !important;
+  background-image: none !important;
   color: #ffffff !important;
 }
 
