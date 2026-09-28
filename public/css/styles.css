@@ -414,8 +414,8 @@ svg {
 }
 
 .role-icon-blue { background: linear-gradient(135deg, #4C90DE 0%, #0437A6 100%); color: #ffffff; }
-.role-icon-green { background: linear-gradient(135deg, #286EDD 0%, #286EDD 100%); color: #ffffff; }
-.role-icon-amber { background: linear-gradient(135deg, #FF7326 0%, #E84F0B 100%); color: #ffffff; }
+.role-icon-green { background: linear-gradient(135deg, #4C90DE 0%, #032D8D 100%); color: #ffffff; }
+.role-icon-amber { background: linear-gradient(135deg, #FFBD3E 0%, #FC6123 100%); color: #ffffff; }
 
 /* ==========================================================================
    LIQUID GLASS BUTTONS & ACTION CONTROLS
@@ -466,7 +466,7 @@ svg {
 
 .btn-glow-green {
   background: linear-gradient(180deg, #286EDD 0%, #0437A6 60%, #032D8D 100%) !important;
-  color: #022013 !important;
+  color: #0C1B3D !important;
   box-shadow: 
     0 8px 20px rgba(40, 110, 221, 0.45), 
     inset 0 1.5px 1px rgba(255, 255, 255, 0.8),

@@ -334,9 +334,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
             <div style="display: flex; align-items: center; gap: 4px;">
               ${medalSvg}
-              <span style="font-size: 13px; font-weight: 900; color: #facc15; font-family: monospace;">#${idx + 1}</span>
+              <span style="font-size: 13px; font-weight: 900; color: #FFBD3E; font-family: monospace;">#${idx + 1}</span>
             </div>
-            <span style="font-size: 11px; color: #94a3b8; font-family: monospace;">${seconds}s</span>
+            <span style="font-size: 11px; color: #8ba3c4; font-family: monospace;">${seconds}s</span>
           </div>
 
           <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ${pointsBadge}
 
           <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 11px; font-weight: 700;">
-            <span style="color: #94a3b8;">Total Ronda:</span>
+            <span style="color: #8ba3c4;">Total Ronda:</span>
             <span style="color: #4C90DE; font-family: monospace; font-weight: 900;">${totalRoundPts} pts</span>
           </div>
         </div>

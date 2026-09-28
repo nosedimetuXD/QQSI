@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (submissions.length === 0) {
       submissionsQueueContainer.innerHTML = `
-        <span style="font-size: 12px; color: #64748b; font-style: italic; text-align: center; padding: 24px 0; display: block;">
+        <span style="font-size: 12px; color: #5a7a9f; font-style: italic; text-align: center; padding: 24px 0; display: block;">
           Esperando pulsaciones de los equipos...
         </span>
       `;
