@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>¿Quién quiere ser Ingeniero? — Pulsador de Equipo</title>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta name="theme-color" content="#020713"/>
+  <link rel="icon" type="image/png" href="/img/logo-ceis.png"/>
+  <title>QQSI — Pulsador Móvil de Equipos</title>
   
+  <!-- Google Fonts: Inter, Space Grotesk, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet"/>
+
   <!-- KaTeX for Math Formulas -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"/>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 
@@ -14,48 +21,1333 @@
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="/js/config.js"></script>
 
-  <!-- Native Styles & SVG Icons -->
-  <link rel="stylesheet" href="/css/styles.css">
-  <script src="/js/icons.js"></script>
+  <style>
+    :root {
+      --bg-base: #020713;
+      --card-bg: rgba(12, 27, 61, 0.65);
+      --card-border: rgba(108, 168, 228, 0.35);
+      --card-border-top: rgba(255, 255, 255, 0.85);
+      
+      --blue-accent: #286edd;
+      --cyan-glow: #4c90de;
+      --cyan-light: #6ca8e4;
+      --cyan-electric: #38bdf8;
+      
+      --status-green: #10b981;
+      --status-emerald: #059669;
+      --status-red: #ef4444;
+      --amber-accent: #ffb800;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    input, textarea { user-select: text; }
+
+    body {
+      background-color: var(--bg-base);
+      background-image: 
+        radial-gradient(circle at 50% 12%, rgba(40, 110, 221, 0.24) 0%, transparent 55%),
+        radial-gradient(circle at 50% 88%, rgba(7, 34, 93, 0.45) 0%, transparent 65%),
+        radial-gradient(rgba(108, 168, 228, 0.09) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 24px 24px;
+      color: #ffffff;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px 16px 10px 16px;
+      overflow-x: hidden;
+    }
+
+    /* TOP HEADER BAR */
+    .team-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(12, 27, 61, 0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(108, 168, 228, 0.25);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.7);
+      border-radius: 9999px;
+      padding: 7px 18px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .team-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .team-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--cyan-electric);
+      box-shadow: 0 0 10px var(--cyan-electric);
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .team-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 190px;
+    }
+
+    .team-sub-num {
+      font-size: 11px;
+      color: #A9BCD6;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .team-score-block {
+      text-align: right;
+    }
+
+    .score-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--cyan-light);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .score-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    /* ACTIVE ROUND & QUESTION CARD */
+    .round-card {
+      background: rgba(12, 27, 61, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(108, 168, 228, 0.25);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.6);
+      border-radius: 16px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .round-info-title {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--cyan-light);
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .round-info-sub {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 250px;
+    }
+
+    .timer-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(7, 34, 93, 0.85);
+      border: 1px solid rgba(108, 168, 228, 0.4);
+      padding: 4px 11px;
+      border-radius: 9999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--cyan-light);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+    }
+
+    /* TEAMS READINESS MICRO-BAR */
+    .teams-status-bar {
+      margin-top: 6px;
+      background: rgba(12, 27, 61, 0.45);
+      border: 1px solid rgba(108, 168, 228, 0.22);
+      border-radius: 12px;
+      padding: 7px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .teams-status-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      color: #38bdf8;
+      font-family: 'Space Grotesk', sans-serif;
+      white-space: nowrap;
+    }
+
+    .teams-status-chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .teams-status-chips::-webkit-scrollbar { display: none; }
+
+    .team-chip {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .team-chip.ready {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .team-chip.waiting {
+      background: rgba(255, 184, 0, 0.12);
+      color: #fcd34d;
+      border: 1px solid rgba(255, 184, 0, 0.3);
+    }
+
+    /* CENTRAL CONSOLE: BUZZER + ANSWERS */
+    .interactive-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 8px 0;
+      position: relative;
+      max-width: 680px;
+      width: 100%;
+      align-self: center;
+    }
+
+    /* BUZZER HOUSING */
+    .buzzer-housing {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 30%, #0d1e3d 0%, #051024 70%, #020713 100%);
+      border: 3.5px solid rgba(108, 168, 228, 0.35);
+      box-shadow: 
+        0 14px 34px rgba(0, 0, 0, 0.85), 
+        inset 0 2px 4px rgba(255, 255, 255, 0.6),
+        inset 0 -6px 16px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.15s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .buzzer-housing:hover {
+      border-color: rgba(56, 189, 248, 0.75);
+      box-shadow: 
+        0 18px 40px rgba(0, 0, 0, 0.9),
+        0 0 25px rgba(56, 189, 248, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .buzzer-housing:active {
+      transform: scale(0.95);
+    }
+
+    /* INNER SPHERE WITH OVERFLOW HIDDEN (CONFINED WAVES) */
+    .buzzer-lens {
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, #092147 0%, #04122c 75%, #020a1a 100%);
+      border: 1.5px solid rgba(108, 168, 228, 0.5);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.85);
+      text-align: center;
+      padding: 0 10px;
+      transition: all 0.3s ease;
+    }
+
+    /* GLASS SPECULAR HIGHLIGHT */
+    .lens-highlight {
+      position: absolute;
+      top: 0;
+      left: 15%;
+      right: 15%;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 100%);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* INTERNAL RADIAL WAVES */
+    .wave-radial-1 {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.45) 0%, rgba(40, 110, 221, 0.25) 50%, transparent 75%);
+      border: 1.5px solid rgba(108, 168, 228, 0.6);
+      transform: translate(-50%, -50%) scale(0.2);
+      animation: wave-expand 5.2s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .wave-radial-2 {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(108, 168, 228, 0.35) 0%, rgba(7, 34, 93, 0.2) 55%, transparent 80%);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      transform: translate(-50%, -50%) scale(0.2);
+      animation: wave-expand 5.2s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+      animation-delay: 2.6s;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    @keyframes wave-expand {
+      0% {
+        transform: translate(-50%, -50%) scale(0.2);
+        opacity: 0.95;
+      }
+      80% {
+        opacity: 0.45;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(4.8);
+        opacity: 0;
+      }
+    }
+
+    @keyframes radar-ping {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 0.15; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    @keyframes orbit-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes progress-slide {
+      0% { left: -45%; }
+      100% { left: 100%; }
+    }
+
+    /* CENTER CORE (GLOWING NUCLEUS) */
+    .buzzer-core {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #38bdf8 0%, #286edd 60%, #0437a6 100%);
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.75), inset 0 2px 3px rgba(255, 255, 255, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 4;
+      transition: all 0.25s ease;
+    }
+
+    .buzzer-label-main {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13.5px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+      position: relative;
+      z-index: 4;
+      transition: all 0.25s ease;
+      line-height: 1.2;
+    }
+
+    .buzzer-sub-tag {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--cyan-light);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      position: relative;
+      z-index: 4;
+      transition: all 0.25s ease;
+      max-width: 120px;
+      text-align: center;
+    }
+
+    .sub-tag-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--cyan-electric);
+      box-shadow: 0 0 5px var(--cyan-electric);
+      flex-shrink: 0;
+    }
+
+    /* BUZZER STATE: CHECK-IN CONFIRMED / LISTO */
+    .buzzer-housing.is-ready {
+      border-color: #34d399;
+      box-shadow: 
+        0 16px 36px rgba(0, 0, 0, 0.85),
+        0 0 28px rgba(16, 185, 129, 0.5),
+        inset 0 2px 4px rgba(255, 255, 255, 0.8);
+    }
+
+    .buzzer-housing.is-ready .buzzer-lens {
+      background: radial-gradient(circle at 50% 50%, #063d2c 0%, #03241b 75%, #01140e 100%);
+      border-color: #34d399;
+      box-shadow: inset 0 0 26px rgba(16, 185, 129, 0.4);
+    }
+
+    .buzzer-housing.is-ready .wave-radial-1,
+    .buzzer-housing.is-ready .wave-radial-2 {
+      animation: none !important;
+      opacity: 0.4 !important;
+      transform: translate(-50%, -50%) scale(2.8) !important;
+      border-color: rgba(52, 211, 153, 0.6) !important;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%) !important;
+    }
+
+    .buzzer-housing.is-ready .buzzer-core {
+      background: radial-gradient(circle at 35% 30%, #34d399 0%, #10b981 60%, #047857 100%);
+      box-shadow: 0 0 22px rgba(16, 185, 129, 0.85), inset 0 2px 3px #ffffff;
+    }
+
+    .buzzer-housing.is-ready .buzzer-label-main {
+      color: #34d399;
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+    }
+
+    .buzzer-housing.is-ready .sub-tag-dot {
+      background: #34d399;
+      box-shadow: 0 0 6px #34d399;
+    }
+
+    /* BUZZER STATE: COMPETITION ACTIVE (TURNO BLOQUEADO) */
+    .buzzer-housing.is-competition-buzzed {
+      box-shadow: 
+        0 0 45px rgba(56, 189, 248, 0.85), 
+        0 20px 45px rgba(0, 0, 0, 0.95),
+        inset 0 0 20px rgba(56, 189, 248, 0.6);
+      border-color: rgba(56, 189, 248, 0.95);
+    }
+
+    .buzzer-housing.is-competition-buzzed .buzzer-lens {
+      background: radial-gradient(circle at 50% 50%, #0c356a 0%, #061d3f 75%, #020a1a 100%);
+      box-shadow: inset 0 0 35px rgba(56, 189, 248, 0.65);
+      border-color: #38bdf8;
+    }
+
+    .buzzer-housing.is-competition-buzzed .wave-radial-1,
+    .buzzer-housing.is-competition-buzzed .wave-radial-2 {
+      animation: none !important;
+      opacity: 0.9 !important;
+      transform: translate(-50%, -50%) scale(3.2) !important;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.4) 0%, transparent 70%) !important;
+      border-color: rgba(56, 189, 248, 0.85) !important;
+    }
+
+    .buzzer-housing.is-competition-buzzed .buzzer-core {
+      background: radial-gradient(circle at 35% 30%, #ffffff 0%, #38bdf8 50%, #286edd 100%);
+      box-shadow: 0 0 30px rgba(56, 189, 248, 1), 0 0 60px rgba(40, 110, 221, 0.9);
+      transform: scale(1.08);
+    }
+
+    /* QUESTION BANNER COMPONENT */
+    .question-prompt {
+      width: 100%;
+      text-align: center;
+      padding: 10px 16px;
+      background: rgba(12, 27, 61, 0.4);
+      border-radius: 14px;
+      border: 1px solid rgba(108, 168, 228, 0.22);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .question-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--cyan-light);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .question-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #e2e8f0;
+      line-height: 1.4;
+    }
+
+    .math-container {
+      margin-top: 8px;
+      font-size: 1.25rem;
+      color: #38bdf8;
+      display: none;
+    }
+
+    /* ANSWERS CONTAINER WRAPPER FOR OVERLAY LOCKING */
+    .answers-container-rel {
+      position: relative;
+      width: 100%;
+    }
+
+    /* ANSWERS 2x2 SELECTION GRID */
+    .answers-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      width: 100%;
+      transition: filter 0.3s ease, opacity 0.3s ease;
+    }
+
+    /* LOCKED OVERLAY IN CHECK-IN / IDLE PHASE */
+    .answers-lock-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(4, 12, 32, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1.5px dashed rgba(108, 168, 228, 0.4);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      z-index: 10;
+      padding: 16px;
+      text-align: center;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .lock-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(7, 34, 93, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #38bdf8;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
+    }
+
+    .lock-text-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .lock-text-sub {
+      font-size: 11px;
+      color: rgba(223, 226, 239, 0.7);
+      max-width: 340px;
+    }
+
+    /* INDIVIDUAL ANSWER OPTION CARD */
+    .answer-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      background: rgba(12, 27, 61, 0.6);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1.5px solid rgba(108, 168, 228, 0.28);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.4);
+      border-radius: 16px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      min-height: 66px;
+    }
+
+    /* SPECULAR GLASS SHEEN OVERLAY */
+    .answer-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 45%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 100%);
+      pointer-events: none;
+      border-radius: 14px 14px 0 0;
+      opacity: 0.7;
+      transition: opacity 0.24s ease;
+    }
+
+    /* HOVER ENHANCEMENT */
+    .answer-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(56, 189, 248, 0.65);
+      border-top-color: rgba(255, 255, 255, 0.65);
+      background: rgba(16, 36, 80, 0.75);
+      box-shadow: 
+        0 12px 28px rgba(0, 0, 0, 0.5), 
+        0 0 20px rgba(56, 189, 248, 0.25);
+    }
+
+    .answer-card:hover .answer-badge {
+      transform: scale(1.08);
+      border-color: rgba(56, 189, 248, 0.9);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+    }
+
+    .answer-card:active {
+      transform: translateY(-1px) scale(0.99);
+    }
+
+    /* OPTION BADGE (A, B, C, D) */
+    .answer-badge {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 35% 30%, #15326a 0%, #07193d 100%);
+      border: 1.5px solid rgba(108, 168, 228, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--cyan-light);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0,0,0,0.3);
+      transition: all 0.22s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* OPTION TEXT */
+    .answer-body {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .answer-code {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .answer-desc {
+      font-size: 11px;
+      color: #A9BCD6;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+
+    /* CHECK MARK / STATUS ICON */
+    .answer-state-icon {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(108, 168, 228, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.4;
+      transition: all 0.22s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    .answer-state-icon svg {
+      opacity: 0;
+      transform: scale(0.6);
+      transition: all 0.2s ease;
+    }
+
+    /* SELECTED STATE - SAPPHIRE BLUE GLOW & ACCENT */
+    .answer-card.is-selected {
+      border: 1.8px solid #38bdf8;
+      border-top: 1.8px solid #ffffff;
+      background: radial-gradient(circle at 30% 20%, rgba(40, 110, 221, 0.45) 0%, rgba(9, 33, 71, 0.85) 100%);
+      box-shadow: 
+        0 14px 32px rgba(0, 0, 0, 0.6), 
+        0 0 25px rgba(56, 189, 248, 0.5),
+        inset 0 0 16px rgba(56, 189, 248, 0.25);
+      animation: select-pulse 1.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes select-pulse {
+      0% {
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.45), inset 0 0 14px rgba(56, 189, 248, 0.2);
+      }
+      100% {
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.6), 0 0 32px rgba(56, 189, 248, 0.75), inset 0 0 22px rgba(56, 189, 248, 0.4);
+      }
+    }
+
+    .answer-card.is-selected .answer-badge {
+      background: radial-gradient(circle at 30% 25%, #38bdf8 0%, #286edd 80%);
+      color: #ffffff;
+      border-color: #ffffff;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.85), inset 0 1px 2px #ffffff;
+      transform: scale(1.06);
+    }
+
+    .answer-card.is-selected .answer-code {
+      color: #38bdf8;
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+    }
+
+    .answer-card.is-selected .answer-desc {
+      color: #ffffff;
+    }
+
+    .answer-card.is-selected .answer-state-icon {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.2);
+      opacity: 1;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+    }
+
+    .answer-card.is-selected .answer-state-icon svg {
+      opacity: 1;
+      transform: scale(1);
+      stroke: #38bdf8;
+    }
+
+    /* CONFIRM / SUBMIT ACTION BAR */
+    .answer-action-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-submit-answer {
+      flex: 1;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #286edd 0%, #174ca2 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.6);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.7);
+      border-radius: 12px;
+      color: #ffffff;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(40, 110, 221, 0.35);
+      transition: all 0.2s ease;
+    }
+
+    .btn-submit-answer:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 26px rgba(56, 189, 248, 0.55);
+      border-color: #38bdf8;
+    }
+
+    .btn-submit-answer:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn-submit-answer:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+      border-color: rgba(108, 168, 228, 0.2);
+      background: rgba(12, 27, 61, 0.5);
+    }
+
+    .btn-clear-selection {
+      height: 44px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(12, 27, 61, 0.6);
+      border: 1px solid rgba(108, 168, 228, 0.3);
+      border-radius: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-clear-selection:hover:not(:disabled) {
+      background: rgba(20, 44, 94, 0.7);
+      color: #ffffff;
+      border-color: rgba(108, 168, 228, 0.5);
+    }
+
+    .btn-clear-selection:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* BOTTOM TELEMETRY STATUS CARD */
+    .telemetry-card {
+      background: rgba(12, 27, 61, 0.65);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(108, 168, 228, 0.25);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.7);
+      border-radius: 18px;
+      padding: 9px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 680px;
+      align-self: center;
+    }
+
+    .telemetry-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .telemetry-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--amber-accent);
+      box-shadow: 0 0 10px var(--amber-accent);
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .telemetry-msg-main {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .telemetry-msg-sub {
+      font-size: 12px;
+      color: #A9BCD6;
+    }
+
+    .telemetry-time-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--cyan-light);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    /* MOBILE NAVIGATION BAR */
+    .mobile-tab-bar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: #0b1429;
+      border: 1px solid #192b52;
+      border-radius: 9999px;
+      margin-top: 4px;
+      padding: 8px 16px;
+      width: 100%;
+      max-width: 680px;
+      align-self: center;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      min-width: 64px;
+      min-height: 48px;
+      padding: 4px 8px;
+      border-radius: 14px;
+      color: #7C94B8;
+      text-decoration: none;
+      font-size: 10.5px;
+      font-weight: 600;
+      transition: color 0.2s ease;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .tab-item.active {
+      color: var(--cyan-light);
+    }
+
+    .tab-item svg {
+      stroke: currentColor;
+    }
+
+    /* GLASS AUTH MODAL & TEAM SELECTION */
+    .auth-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 7, 19, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .auth-glass-card {
+      background: rgba(12, 27, 61, 0.88);
+      border: 1.5px solid rgba(108, 168, 228, 0.4);
+      border-top: 2px solid rgba(255, 255, 255, 0.85);
+      border-radius: 20px;
+      padding: 28px 22px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(40, 110, 221, 0.25);
+    }
+
+    /* OVERLAY SCREENS (SELECT / ELIMINATED / POSITIONS) */
+    .sub-screen-view {
+      width: 100%;
+      max-width: 680px;
+      align-self: center;
+      background: rgba(12, 27, 61, 0.65);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(108, 168, 228, 0.35);
+      border-top: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 24px 20px;
+      margin: 12px 0;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .team-select-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-radius: 14px;
+      cursor: pointer;
+      background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(10,24,46,0.7) 100%);
+      border: 1px solid rgba(108, 168, 228, 0.25);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.4);
+      transition: all 0.2s ease;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+
+    .team-select-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      border-color: #38bdf8;
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.25);
+    }
+
+    .team-select-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 480px) {
+      .answers-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .answer-card {
+        padding: 9px 12px;
+        min-height: 54px;
+      }
+      .buzzer-housing {
+        width: 130px;
+        height: 130px;
+      }
+      .buzzer-lens {
+        width: 114px;
+        height: 114px;
+      }
+      .buzzer-core {
+        width: 36px;
+        height: 36px;
+        margin-bottom: 2px;
+      }
+      .buzzer-core svg {
+        width: 18px;
+        height: 18px;
+      }
+      .buzzer-label-main {
+        font-size: 12px;
+      }
+      .buzzer-sub-tag {
+        font-size: 8px;
+      }
+    }
+
+    /* ===== MVP: estados, accesibilidad y pantallas auxiliares ===== */
+    :focus-visible {
+      outline: 2px solid #6CA8E4;
+      outline-offset: 3px;
+    }
+
+    button { font-family: inherit; color: inherit; touch-action: manipulation; }
+
+    /* Buzzer como <button> accesible */
+    button.buzzer-housing { padding: 0; font: inherit; color: #ffffff; }
+    button.buzzer-housing:disabled { cursor: not-allowed; opacity: 0.6; transform: none; }
+
+    /* PRD: al confirmar, la ola se congela y adopta el azul de la cresta #286EDD */
+    .buzzer-housing.is-ready {
+      border-color: #286EDD;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 28px rgba(40, 110, 221, 0.55), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+    }
+    .buzzer-housing.is-ready .buzzer-lens {
+      background: radial-gradient(circle at 50% 50%, #1b56b8 0%, #0e3a8a 70%, #07225D 100%);
+      border-color: #6CA8E4;
+      box-shadow: inset 0 0 26px rgba(40, 110, 221, 0.6);
+    }
+    .buzzer-housing.is-ready .wave-radial-1,
+    .buzzer-housing.is-ready .wave-radial-2 {
+      animation: none !important;
+      opacity: 0.55 !important;
+      transform: translate(-50%, -50%) scale(2.8) !important;
+      border-color: rgba(160, 205, 255, 0.7) !important;
+      background: radial-gradient(circle, rgba(40, 110, 221, 0.45) 0%, transparent 70%) !important;
+    }
+    .buzzer-housing.is-ready .buzzer-core {
+      background: radial-gradient(circle at 35% 30%, #6CA8E4 0%, #286EDD 60%, #0437A6 100%);
+      box-shadow: 0 0 22px rgba(40, 110, 221, 0.9), inset 0 2px 3px #ffffff;
+    }
+    .buzzer-housing.is-ready .buzzer-label-main { color: #ffffff; text-shadow: 0 0 10px rgba(40, 110, 221, 0.8); }
+    .buzzer-housing.is-ready .sub-tag-dot { background: #F4F8FF; box-shadow: 0 0 6px #6CA8E4; }
+    .buzzer-housing.is-ready .buzzer-sub-tag { color: #F4F8FF; }
+
+    /* Tarjetas de opción como <button> */
+    button.answer-card { width: 100%; text-align: left; font: inherit; color: inherit; }
+    button.answer-card:disabled { cursor: not-allowed; }
+    .answer-card.is-correct { border-color: #10B981 !important; background: rgba(16, 185, 129, 0.18) !important; animation: none !important; box-shadow: 0 0 22px rgba(16, 185, 129, 0.45) !important; }
+    .answer-card.is-correct .answer-badge { background: #10B981 !important; color: #032A1D !important; border-color: #10B981 !important; }
+    .answer-card.is-wrong { border-color: #EF4444 !important; background: rgba(239, 68, 68, 0.16) !important; animation: none !important; box-shadow: 0 0 22px rgba(239, 68, 68, 0.4) !important; }
+    .answer-card.is-wrong .answer-badge { background: #DC2626 !important; color: #ffffff !important; border-color: #DC2626 !important; }
+
+    .option-helper {
+      width: 100%;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #A9BCD6;
+      text-align: center;
+    }
+
+    .open-question-note {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px dashed rgba(108, 168, 228, 0.45);
+      background: rgba(12, 27, 61, 0.5);
+      text-align: center;
+      font-size: 13px;
+      color: #A9BCD6;
+    }
+    .open-question-note strong { color: #F4F8FF; }
+
+    /* Mensaje en línea (reemplaza alert) */
+    .inline-msg {
+      display: none;
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #FCA5A5;
+    }
+    .inline-msg.is-info { background: rgba(40, 110, 221, 0.14); border-color: rgba(76, 144, 222, 0.5); color: #BFDBFE; }
+    .inline-msg.is-visible { display: block; }
+
+    /* Resultado de la evaluación */
+    .result-banner {
+      display: none;
+      width: 100%;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 1.5px solid;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .result-banner.is-visible { display: flex; }
+    .result-banner .rb-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: grid; place-items: center; flex-shrink: 0;
+      font-size: 18px; font-weight: 800;
+    }
+    .result-banner .rb-title { font-size: 16px; font-weight: 800; }
+    .result-banner .rb-sub { font-family: 'Inter', sans-serif; font-size: 12.5px; color: #D7E3F4; margin-top: 1px; }
+    .result-banner.is-correct { border-color: #10B981; background: rgba(16, 185, 129, 0.16); }
+    .result-banner.is-correct .rb-icon { background: #10B981; color: #032A1D; }
+    .result-banner.is-correct .rb-title { color: #34D399; }
+    .result-banner.is-wrong { border-color: #EF4444; background: rgba(239, 68, 68, 0.14); }
+    .result-banner.is-wrong .rb-icon { background: #DC2626; color: #ffffff; }
+    .result-banner.is-wrong .rb-title { color: #FCA5A5; }
+    .result-banner.is-pending { border-color: rgba(76, 144, 222, 0.6); background: rgba(40, 110, 221, 0.12); }
+    .result-banner.is-pending .rb-icon { background: #286EDD; color: #ffffff; }
+    .result-banner.is-pending .rb-title { color: #BFDBFE; }
+
+    /* Pantallas Equipo / Ayuda / Posiciones */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(7, 18, 42, 0.6);
+      border: 1px solid rgba(108, 168, 228, 0.2);
+      font-size: 13.5px;
+    }
+    .info-row span:first-child { color: #A9BCD6; }
+    .info-row strong { color: #F4F8FF; text-align: right; }
+
+    .btn-secondary {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 9999px;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      background: rgba(239, 68, 68, 0.12);
+      color: #FCA5A5;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-secondary:hover { background: rgba(239, 68, 68, 0.22); }
+
+    .help-steps { display: flex; flex-direction: column; gap: 10px; counter-reset: step; }
+    .help-steps li {
+      list-style: none;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #D7E3F4;
+    }
+    .help-steps li::before {
+      counter-increment: step;
+      content: counter(step);
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(40, 110, 221, 0.2);
+      border: 1px solid rgba(76, 144, 222, 0.5);
+      color: #6CA8E4;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .help-steps strong { color: #F4F8FF; }
+
+    .pos-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      min-height: 48px; padding: 10px 14px; border-radius: 12px;
+      background: rgba(7, 18, 42, 0.6); border: 1px solid rgba(108, 168, 228, 0.2);
+    }
+    .pos-row.is-me { background: rgba(40, 110, 221, 0.22); border-color: #6CA8E4; }
+    .pos-row.is-out { opacity: 0.55; }
+    .pos-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .pos-rank { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; color: #6CA8E4; width: 28px; flex-shrink: 0; }
+    .pos-row.is-first .pos-rank { color: #FFBD3E; }
+    .pos-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .pos-name { font-size: 14px; font-weight: 700; color: #F4F8FF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pos-score { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; color: #F4F8FF; white-space: nowrap; }
+
+    .screen-title { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 800; color: #ffffff; }
+    .screen-eyebrow { font-size: 11px; font-weight: 800; color: #6CA8E4; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .team-identity { background: none; border: none; text-align: left; min-height: 44px; padding: 0; color: #ffffff; }
+    .tab-item.active { background: rgba(40, 110, 221, 0.16); }
+    .mobile-tab-bar { padding: 4px 8px; gap: 4px; }
+
+    .team-select-btn { min-height: 56px; }
+
+    /* Escritorio: cabecera y tarjetas alineadas con el escenario (680px) */
+    .team-top-bar, .round-card, .teams-status-bar { width: 100%; max-width: 680px; align-self: center; }
+
+    @media (max-width: 380px) {
+      body { padding: 10px 10px 8px; }
+      .round-info-sub { max-width: 170px; }
+      .team-name { max-width: 150px; }
+      .telemetry-card { padding: 9px 12px; }
+      .tab-item { min-width: 56px; font-size: 10px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
 </head>
-<body class="gingham-pattern text-slate-100 flex flex-col min-h-screen select-none relative">
+<body>
+
+  <!-- TOP BAR -->
+  <header class="team-top-bar">
+    <button type="button" class="team-identity" id="header-team-identity" aria-label="Ver información de mi equipo">
+      <span class="team-status-dot" id="header-status-dot" aria-hidden="true"></span>
+      <span>
+        <span class="team-name" id="teamHeaderName" style="display: block;">Seleccionar Carrera</span>
+        <span class="team-sub-num" id="teamHeaderTable" style="display: block;">CONCURSO INTERCARRERAS</span>
+      </span>
+    </button>
+    <div class="team-score-block">
+      <div class="score-lbl">PUNTAJE</div>
+      <div class="score-val" id="header-score-val">0 pts</div>
+    </div>
+  </header>
+
+  <!-- TEAM SELECTION SCREEN (STEP 1: WHEN NOT LOGGED IN) -->
+  <section id="teamSelectScreen" class="sub-screen-view" style="display: none;">
+    <div style="text-align: center; margin-bottom: 8px;">
+      <div style="font-size: 11px; font-weight: 800; color: #38bdf8; letter-spacing: 0.1em; text-transform: uppercase;">
+        Concurso Intercarreras
+      </div>
+      <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 800; color: #ffffff; margin-top: 2px;">
+        Identifica a tu Equipo
+      </h2>
+      <p style="font-size: 12px; color: #A9BCD6; margin-top: 4px;">
+        Selecciona tu carrera e ingresa la contraseña para participar:
+      </p>
+    </div>
+    <div id="teamsListContainer" style="display: flex; flex-direction: column; gap: 8px;">
+      <!-- Populated dynamically by team.js -->
+    </div>
+  </section>
 
   <!-- TEAM PASSWORD MODAL (OVERLAY) -->
   <div id="teamAuthModal" class="auth-modal-backdrop" style="display: none;">
-    <div class="denim-card denim-texture" style="max-width: 380px; width: 100%; padding: 32px 24px; text-align: center; border: 1.5px solid rgba(76, 144, 222, 0.4);">
-      <div class="logo-avatar-sm" style="margin: 0 auto 12px auto; width: 50px; height: 50px;">
-        <img src="/img/logo-ceis.png" alt="CEIS">
+    <div class="auth-glass-card">
+      <div style="display: inline-flex; padding: 6px 16px; border-radius: 9999px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); font-size: 11px; font-weight: 700; color: #38bdf8; margin-bottom: 8px;">
+        Acceso de Carrera
       </div>
-      <div class="ribbon-banner text-base" id="modalTeamBanner" style="font-size: 15px; margin-bottom: 8px; padding: 6px 24px;">
-        Clave de Carrera
-      </div>
-      <h3 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 22px; font-weight: 900; color: #ffffff; margin-bottom: 6px;" id="modalTeamName">
+      <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; color: #ffffff; margin-bottom: 4px;" id="modalTeamName">
         Ingeniería
       </h3>
-      <p style="font-size: 12px; color: #8ba3c4; margin-bottom: 20px;">
-        Ingresa la contraseña autorizada de tu carrera para participar:
+      <p style="font-size: 12px; color: #A9BCD6; margin-bottom: 18px;">
+        Ingresa la contraseña autorizada de tu mesa:
       </p>
 
-      <form id="teamAuthForm" style="display: flex; flex-direction: column; gap: 14px;">
-        <input 
-          type="password" 
-          id="inputTeamPassword" 
-          aria-label="Contraseña de la carrera"
+      <form id="teamAuthForm" style="display: flex; flex-direction: column; gap: 12px;">
+        <label for="inputTeamPassword" style="font-size: 13px; font-weight: 600; color: #A9BCD6; text-align: left;">Contraseña de la carrera</label>
+        <input
+          type="password"
+          id="inputTeamPassword"
           placeholder="Contraseña de Carrera..." 
-          style="width: 100%; background: rgba(7, 34, 93, 0.9); border: 1.5px solid #3d5f82; color: #ffffff; border-radius: 14px; padding: 12px 16px; font-size: 15px; text-align: center; font-family: monospace; font-weight: 700; outline: none;"
+          style="width: 100%; min-height: 48px; background: rgba(7, 34, 93, 0.85); border: 1.5px solid rgba(108, 168, 228, 0.4); color: #ffffff; border-radius: 12px; padding: 12px 14px; font-size: 14px; text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; outline: none;"
           required
           autocomplete="current-password"
-        >
+        />
 
-        <div id="teamAuthError" style="display: none; font-size: 12px; color: #FF853E; background: rgba(180, 40, 0, 0.5); border: 1px solid #D42900; padding: 10px; border-radius: 10px; font-weight: 700;">
+        <div id="teamAuthError" role="alert" style="display: none; font-size: 12.5px; color: #FCA5A5; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); padding: 8px; border-radius: 8px; font-weight: 600;">
           <!-- Error message -->
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px;">
-          <button type="button" id="btnCancelTeamAuth" style="padding: 12px; background: #17345a; color: #b8cde0; font-weight: 800; border-radius: 12px; font-size: 13px; border: none; cursor: pointer;">
+          <button type="button" id="btnCancelTeamAuth" style="min-height: 48px; padding: 11px; background: rgba(12, 27, 61, 0.8); color: #D7E3F4; font-weight: 700; border-radius: 10px; font-size: 13px; border: 1px solid rgba(108, 168, 228, 0.3); cursor: pointer;">
             Cancelar
           </button>
-          <button type="submit" id="btnSubmitTeamAuth" class="role-action-btn btn-glow-green" style="margin-top: 0; padding: 12px; cursor: pointer;">
+          <button type="submit" id="btnSubmitTeamAuth" class="btn-submit-answer" style="height: auto; min-height: 48px; padding: 11px; font-size: 13px;">
             Ingresar
           </button>
         </div>
@@ -63,125 +1355,322 @@
     </div>
   </div>
 
-  <!-- TOP TEAM MOBILE HEADER -->
-  <header style="width: 100%; padding: 12px 20px; background: linear-gradient(180deg, rgba(6, 16, 36, 0.98) 0%, rgba(2, 8, 20, 0.96) 100%); backdrop-filter: blur(16px); border-bottom: 1.5px solid rgba(108, 168, 228, 0.4); box-shadow: 0 6px 25px rgba(0, 0, 0, 0.7), 0 0 20px rgba(76, 144, 222, 0.15); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 30;">
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <div class="logo-avatar-sm" style="width: 36px; height: 36px;">
-        <img src="/img/logo-ceis.png" alt="CEIS">
-      </div>
+  <!-- ELIMINATED SCREEN -->
+  <section id="eliminatedScreen" class="sub-screen-view" style="display: none; text-align: center;">
+    <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); border: 2px solid #ef4444; color: #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto;">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </div>
+    <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; color: #ef4444; margin-bottom: 4px;">
+      Equipo Eliminado
+    </h2>
+    <p style="font-size: 12.5px; color: #A9BCD6; line-height: 1.45; max-width: 420px; margin: 0 auto;">
+      Tu equipo ha completado su participación en esta fase del concurso. ¡Gracias por competir con gran nivel técnico!
+    </p>
+  </section>
+
+  <!-- POSITIONS / STANDINGS SCREEN -->
+  <section id="positionsScreen" class="sub-screen-view" style="display: none;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 800; color: #ffffff;">
+        Tabla de Posiciones
+      </h3>
+      <span style="font-size: 11px; font-weight: 700; color: #38bdf8;" id="positionsRoundTag">En vivo</span>
+    </div>
+    <div id="positionsList" style="display: flex; flex-direction: column; gap: 8px;">
+      <!-- Rendered dynamically -->
+    </div>
+  </section>
+
+  <!-- TEAM INFO SCREEN (TAB EQUIPO) -->
+  <section id="teamInfoScreen" class="sub-screen-view" style="display: none;">
+    <div>
+      <div class="screen-eyebrow">Tu mesa</div>
+      <h2 class="screen-title" id="infoTeamName">Equipo</h2>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="info-row"><span>Mesa asignada</span><strong id="infoTable">#--</strong></div>
+      <div class="info-row"><span>Puntaje acumulado</span><strong id="infoScore">0 pts</strong></div>
+      <div class="info-row"><span>Check-in</span><strong id="infoReady">Pendiente</strong></div>
+      <div class="info-row"><span>Conexión</span><strong id="infoConn">Conectando…</strong></div>
+      <div class="info-row"><span>Ronda actual</span><strong id="infoRound">Ronda 1</strong></div>
+    </div>
+    <button type="button" class="btn-secondary" id="btnLogoutTeam">Cambiar de equipo / cerrar sesión</button>
+  </section>
+
+  <!-- HELP SCREEN (TAB AYUDA) -->
+  <section id="helpScreen" class="sub-screen-view" style="display: none;">
+    <div>
+      <div class="screen-eyebrow">Cómo se juega</div>
+      <h2 class="screen-title">Instrucciones para tu mesa</h2>
+    </div>
+    <ol class="help-steps">
+      <li><span><strong>Check-in:</strong> antes de la ronda, toca el botón central para avisar que tu mesa está lista. Puedes tocarlo de nuevo para deshacerlo.</span></li>
+      <li><span><strong>Espera la pregunta:</strong> cuando el moderador la lance, esta pantalla cambia sola a modo competencia.</span></li>
+      <li><span><strong>Pregunta con opciones:</strong> elige A, B, C o D y pulsa <strong>Enviar</strong> (o el botón central). Solo se acepta una respuesta por mesa.</span></li>
+      <li><span><strong>Pregunta abierta:</strong> pulsa el botón central para pedir la palabra y responde en voz alta.</span></li>
+      <li><span><strong>Resultado:</strong> verás en verde si fue correcta o en rojo si fue incorrecta. El bono de velocidad solo aplica a respuestas correctas.</span></li>
+      <li><span>Mantén la pantalla encendida. Si la página se recarga, tu estado se recupera solo.</span></li>
+    </ol>
+  </section>
+
+  <!-- MAIN DASHBOARD CONTENT WRAPPER -->
+  <div id="mainDashboardView" style="display: flex; flex-direction: column; width: 100%;">
+
+    <!-- ROUND INFO -->
+    <div class="round-card">
       <div>
-        <h1 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 15px; font-weight: 900; color: #ffffff; line-height: 1;">
-          QQSI
-        </h1>
-        <p style="font-size: 11px; font-weight: 800; color: #4C90DE; margin-top: 2px;" id="teamHeaderName">
-          Seleccionar Carrera
-        </p>
-      </div>
-    </div>
-
-    <!-- Live Timer Widget -->
-    <div class="timer-led-box" style="padding: 4px 12px; border-radius: 12px;" id="teamTimerBox">
-      <div id="teamTimerIconSlot" style="color: #4C90DE;"></div>
-      <span class="timer-led-digits" style="font-size: 18px;" id="teamTimerText">02:00</span>
-    </div>
-  </header>
-
-  <!-- MAIN CONTAINER -->
-  <main style="flex: 1; padding: 16px; max-width: 480px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 20;">
-
-    <!-- STEP 1: TEAM SELECTION SCREEN -->
-    <div id="teamSelectScreen" class="denim-card denim-texture" style="padding: 28px 20px;">
-      <div style="text-align: center; margin-bottom: 20px;">
-        <div class="ribbon-banner text-base" style="font-size: 14px; margin-bottom: 8px; padding: 6px 24px;">
-          Concurso Intercarreras
+        <div class="round-info-title" id="round-status-header">
+          <svg fill="none" height="13" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24" width="13">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span id="round-title-text">FASE DE PREPARACIÓN / CHECK-IN</span>
         </div>
-        <h2 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 24px; font-weight: 900; color: #ffffff;">
-          Identifica a tu Equipo
-        </h2>
-        <p style="font-size: 12px; color: #8ba3c4; margin-top: 4px;">
-          Selecciona tu carrera e ingresa la contraseña:
-        </p>
+        <div class="round-info-sub" id="round-subtitle-text">Confirmación de presencia y asignación de mesa</div>
       </div>
-
-      <div id="teamsListContainer" style="display: flex; flex-direction: column; gap: 10px;">
-        <!-- Populated by JS -->
+      <div class="timer-pill">
+        <svg fill="none" height="12" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24" width="12">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span id="round-timer">ESPERA</span>
       </div>
     </div>
 
-    <!-- STEP 2: ACTIVE TEAM GAME DASHBOARD -->
-    <div id="teamDashboardScreen" style="display: none; flex-direction: column; align-items: center; width: 100%;">
-      
-      <!-- Team Profile Card -->
-      <div style="width: 100%; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, rgba(28, 65, 128, 0.8) 0%, rgba(10, 26, 60, 0.95) 100%); backdrop-filter: blur(16px); padding: 14px 20px; border-radius: 18px; border: 1.5px solid rgba(108, 168, 228, 0.55); border-top: 2px solid rgba(255, 255, 255, 0.85); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 25px rgba(76, 144, 222, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.35);">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <div id="activeTeamColorDot" style="width: 14px; height: 14px; border-radius: 9999px; box-shadow: 0 0 10px rgba(76, 144, 222, 0.8);"></div>
-          <div>
-            <h3 id="activeTeamName" style="font-size: 15px; font-weight: 900; color: #ffffff; line-height: 1.1;">
-              Ingeniería
-            </h3>
-            <span id="activeTeamRoundBadge" style="font-size: 10px; font-weight: 800; color: #6CA8E4; text-transform: uppercase; letter-spacing: 0.05em;">
-              Ronda 1: Nivel Fácil
-            </span>
+    <!-- TEAMS READINESS MICRO-BAR -->
+    <div class="teams-status-bar" id="teams-readiness-bar">
+      <div class="teams-status-header">
+        <svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+        </svg>
+        <span id="teams-ready-count">0 Equipos Listos</span>
+      </div>
+      <div class="teams-status-chips" id="teams-chips-container">
+        <!-- Rendered dynamically from teams -->
+      </div>
+    </div>
+
+    <!-- INTERACTIVE CENTER AREA: BUZZER + ANSWERS SELECTION -->
+    <main class="interactive-stage">
+      <!-- BUZZER CENTRAL CONSOLE -->
+      <button type="button" class="buzzer-housing" id="main-buzzer" onclick="handleBuzzerClick()" aria-describedby="buzzer-sub-text">
+        <div class="buzzer-lens">
+          <!-- Lens highlight gloss -->
+          <div class="lens-highlight"></div>
+          <!-- CONFINED RADIAL WAVES -->
+          <div class="wave-radial-1" id="wave-1"></div>
+          <div class="wave-radial-2" id="wave-2"></div>
+          <!-- ICON CORE -->
+          <div class="buzzer-core" id="buzzer-core-icon">
+            <svg fill="none" height="22" id="buzzer-svg-glyph" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="22">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+          <div class="buzzer-label-main" id="buzzer-label">CONFIRMAR LISTO</div>
+          <div class="buzzer-sub-tag" id="buzzer-sub">
+            <span class="sub-tag-dot"></span>
+            <span id="buzzer-sub-text">Toca para confirmar que tu mesa está preparada</span>
           </div>
         </div>
-        <button id="btnChangeTeam" style="font-size: 11px; font-weight: 900; color: #ffffff; background: linear-gradient(180deg, #286EDD 0%, #0437A6 100%); border: 1px solid rgba(255, 255, 255, 0.4); padding: 7px 14px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 12px rgba(4, 55, 166, 0.5); text-transform: uppercase; letter-spacing: 0.05em;">
-          Cambiar
+      </button>
+
+      <!-- RESULT FEEDBACK -->
+      <div class="result-banner" id="result-banner" role="status" aria-live="polite">
+        <span class="rb-icon" id="rb-icon" aria-hidden="true">✓</span>
+        <div>
+          <div class="rb-title" id="rb-title">Resultado</div>
+          <div class="rb-sub" id="rb-sub"></div>
+        </div>
+      </div>
+
+      <!-- QUESTION TEXT PROMPT -->
+      <div class="question-prompt" id="question-banner">
+        <div class="question-label" id="question-badge">Fase de Chequeo Inicial</div>
+        <div class="question-title" id="question-title-text">Pulsa el botón superior para notificar al moderador que tu mesa está lista</div>
+        <div class="math-container" id="question-math"></div>
+      </div>
+
+      <!-- ANSWERS CONTAINER (CON OVERLAY EN MODO 1) -->
+      <div class="open-question-note" id="open-question-note" style="display: none;">
+        <strong>Pregunta abierta.</strong> Pulsa el botón central para pedir la palabra y responde en voz alta.
+      </div>
+
+      <div class="answers-container-rel" id="answers-container">
+        <!-- GLASS OVERLAY CUANDO LAS RESPUESTAS ESTÁN BLOQUEADAS -->
+        <div class="answers-lock-overlay" id="answers-lock-overlay" aria-hidden="true">
+          <!-- RADAR PULSING LOADER -->
+          <div style="position: relative; width: 68px; height: 68px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px;">
+            <div style="position: absolute; inset: 0; border-radius: 9999px; background: rgba(56, 189, 248, 0.12); border: 1.5px solid rgba(56, 189, 248, 0.35); animation: radar-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+            <div style="position: absolute; inset: 8px; border-radius: 9999px; border: 2px dashed rgba(56, 189, 248, 0.7); animation: orbit-spin 6s linear infinite;"></div>
+            <div style="width: 36px; height: 36px; border-radius: 9999px; background: #0c1a38; border: 1.5px solid #38bdf8; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);">
+              <svg fill="none" height="18" stroke="#38bdf8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="18">
+                <circle cx="12" cy="12" r="2"></circle>
+                <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="lock-badge" style="border-radius: 9999px; background: #0e1b38; border: 1px solid #23417a; padding: 5px 16px; margin-bottom: 4px;">
+            <span style="width: 7px; height: 7px; border-radius: 9999px; background: #38bdf8; box-shadow: 0 0 8px #38bdf8; display: inline-block; animation: radar-ping 1.5s infinite;"></span>
+            <span style="font-size: 11px; font-weight: 700; color: #7bd0ff; letter-spacing: 0.05em;" id="lock-badge-text">ESPERANDO INICIO DE RONDA</span>
+          </div>
+          <div class="lock-text-title" style="font-size: 15px; font-weight: 700; color: #ffffff; letter-spacing: 0.02em; margin-bottom: 2px;">
+            Sincronizando con la Consola del Moderador
+          </div>
+          <p class="lock-text-sub" style="font-size: 11.5px; color: #A9BCD6; max-width: 380px; line-height: 1.4; margin-bottom: 8px;">
+            Recibiendo señal del anfitrión. Las opciones se desbloquearán de forma instantánea al activar la pregunta.
+          </p>
+          <!-- ACTIVE LOADING SCAN BAR -->
+          <div style="width: 100%; max-width: 280px; height: 5px; border-radius: 9999px; background: #071126; overflow: hidden; position: relative; border: 1px solid #1b2f5c; margin-bottom: 8px;">
+            <div style="position: absolute; top: 0; bottom: 0; width: 45%; border-radius: 9999px; background: linear-gradient(90deg, transparent, #38bdf8, transparent); animation: progress-slide 1.8s ease-in-out infinite;"></div>
+          </div>
+          <!-- LIVE SOCKET TELEMETRY PILL -->
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: #071022; border: 1px solid #16274e; border-radius: 9999px; padding: 4px 14px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #38bdf8;">
+            <span style="display: inline-block; width: 6px; height: 6px; border-radius: 9999px; background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
+            <span id="overlay-socket-status">WSS ACTIVO</span>
+            <span style="color: #475569;">•</span>
+            <span style="color: #A9BCD6;" id="overlay-latency">LATENCIA: OK</span>
+            <span style="color: #475569;">•</span>
+            <span style="color: #cbd5e1;">ESCUCHANDO EVENTOS...</span>
+          </div>
+        </div>
+
+        <!-- ANSWERS 2x2 SELECTION PANEL -->
+        <div class="answers-grid" id="answers-panel" style="filter: blur(2px); opacity: 0.55; pointer-events: none;">
+          <!-- OPTION A -->
+          <button type="button" class="answer-card" id="option-A" data-letter="A" aria-pressed="false">
+            <span class="answer-badge">A</span>
+            <span class="answer-body">
+              <span class="answer-code" id="label-A">Opción A</span>
+              <span class="answer-desc" id="desc-A" style="display: none;"></span>
+            </span>
+            <span class="answer-state-icon" aria-hidden="true">
+              <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="14">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </span>
+          </button>
+          <!-- OPTION B -->
+          <button type="button" class="answer-card" id="option-B" data-letter="B" aria-pressed="false">
+            <span class="answer-badge">B</span>
+            <span class="answer-body">
+              <span class="answer-code" id="label-B">Opción B</span>
+              <span class="answer-desc" id="desc-B" style="display: none;"></span>
+            </span>
+            <span class="answer-state-icon" aria-hidden="true">
+              <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="14">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </span>
+          </button>
+          <!-- OPTION C -->
+          <button type="button" class="answer-card" id="option-C" data-letter="C" aria-pressed="false">
+            <span class="answer-badge">C</span>
+            <span class="answer-body">
+              <span class="answer-code" id="label-C">Opción C</span>
+              <span class="answer-desc" id="desc-C" style="display: none;"></span>
+            </span>
+            <span class="answer-state-icon" aria-hidden="true">
+              <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="14">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </span>
+          </button>
+          <!-- OPTION D -->
+          <button type="button" class="answer-card" id="option-D" data-letter="D" aria-pressed="false">
+            <span class="answer-badge">D</span>
+            <span class="answer-body">
+              <span class="answer-code" id="label-D">Opción D</span>
+              <span class="answer-desc" id="desc-D" style="display: none;"></span>
+            </span>
+            <span class="answer-state-icon" aria-hidden="true">
+              <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="14">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ACTION / CONFIRM BAR -->
+      <p class="option-helper" id="option-helper" style="display: none;">Elige una opción (A–D) para habilitar el envío.</p>
+
+      <div class="answer-action-bar" id="answer-action-bar">
+        <button class="btn-submit-answer" disabled="" id="btn-submit" onclick="submitAnswer()">
+          <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="16">
+            <path d="M22 2L11 13"></path>
+            <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
+          </svg>
+          <span id="btn-submit-text">ESPERANDO INICIO DE RONDA</span>
+        </button>
+        <button class="btn-clear-selection" disabled="" id="btn-clear" onclick="clearSelection()" aria-label="Quitar la opción seleccionada">
+          Limpiar
         </button>
       </div>
 
-      <!-- Main Action Card -->
-      <div class="denim-card denim-texture" style="width: 100%; padding: 24px 20px; display: flex; flex-direction: column; align-items: center; text-align: center;">
-        
-        <!-- Status Banner -->
-        <div class="ribbon-banner text-lg" id="teamQuestionBanner" style="font-size: 16px; padding: 6px 28px; margin-bottom: 14px;">
-          Pregunta Activa
-        </div>
+      <div class="inline-msg" id="inline-msg" role="alert"></div>
+    </main>
 
-        <!-- Question Statement Preview -->
-        <div style="width: 100%; background: linear-gradient(145deg, rgba(4, 14, 36, 0.92) 0%, rgba(10, 30, 68, 0.85) 100%); border-radius: 16px; padding: 16px 20px; margin-bottom: 22px; border: 1.5px solid rgba(108, 168, 228, 0.5); border-top: 2px solid rgba(255, 255, 255, 0.7); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(76, 144, 222, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.25);">
-          <p id="teamQuestionStatement" style="font-size: 15px; font-weight: 800; color: #ffffff; line-height: 1.45; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);">
-            Esperando que el moderador inicie la pregunta...
-          </p>
-          <div id="teamQuestionMath" class="math-display" style="font-size: 1.4rem; display: none; margin-top: 8px;"></div>
+    <!-- TELEMETRY FEEDBACK CARD -->
+    <section class="telemetry-card">
+      <div class="telemetry-status" role="status" aria-live="polite">
+        <div class="telemetry-indicator" id="status-indicator"></div>
+        <div>
+          <div class="telemetry-msg-main" id="status-msg">Check-in pendiente</div>
+          <div class="telemetry-msg-sub" id="status-sub">Mesa sin confirmar • Pulsa el botón para estar listo</div>
         </div>
-
-        <!-- GIANT ARCADE BUZZER BUTTON -->
-        <div class="buzzer-arcade-container">
-          <button id="btnSubmitAnswer" class="buzzer-arcade-btn pulsing" disabled>
-            <div id="buzzerIconSlot"></div>
-            <span>¡PULSAR!</span>
-            <span style="font-size: 10px; opacity: 0.8; font-weight: 700; font-family: sans-serif;">ENVIAR RESPUESTA</span>
-          </button>
-        </div>
-
-        <!-- Delivery Status Box -->
-        <div id="deliveryStatusBox" style="display: none; width: 100%; margin-top: 14px; padding: 14px; border-radius: 14px; background: rgba(40, 110, 221, 0.25); border: 1.5px solid #286EDD;">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #6CA8E4;">
-            <div id="checkIconSlot"></div>
-            <span id="deliveryOrderText" style="font-size: 15px; font-weight: 900;">¡Respuesta Entregada!</span>
-          </div>
-          <p id="deliveryTimeText" style="font-size: 12px; color: #6CA8E4; margin-top: 4px; font-family: monospace;">
-            Tiempo registrado: 0.0s
-          </p>
-        </div>
-
       </div>
+      <div class="telemetry-time-badge" id="telemetry-badge">
+        <svg fill="none" height="14" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24" width="14">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span id="telemetry-timer-val">STANDBY</span>
+      </div>
+    </section>
 
-    </div>
+  </div>
 
-    <!-- ELIMINATED NOTICE -->
-    <div id="eliminatedScreen" style="display: none; width: 100%;" class="denim-card denim-texture">
-      <div style="width: 56px; height: 56px; border-radius: 9999px; background: rgba(212, 41, 0, 0.2); border: 2px solid #D42900; color: #DF440C; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;" id="eliminatedIconSlot"></div>
-      <h2 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 22px; font-weight: 900; color: #D42900; margin-bottom: 6px;">
-        Equipo Eliminado
-      </h2>
-      <p style="font-size: 13px; color: #b8cde0; line-height: 1.4;">
-        Tu equipo ha completado su participación en esta fase del concurso. ¡Gracias por competir con gran nivel técnico!
-      </p>
-    </div>
+  <!-- BOTTOM TAB BAR -->
+  <nav class="mobile-tab-bar" id="mobile-tab-bar" aria-label="Secciones del pulsador">
+    <button type="button" class="tab-item active" aria-current="page" id="tab-btn-buzzer" onclick="switchMainTab('buzzer')">
+      <svg aria-hidden="true" fill="none" height="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+      </svg>
+      <span>Buzzer</span>
+    </button>
+    <button type="button" class="tab-item" id="tab-btn-standings" onclick="switchMainTab('positions')">
+      <svg aria-hidden="true" fill="none" height="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18">
+        <line x1="18" x2="18" y1="20" y2="10"></line>
+        <line x1="12" x2="12" y1="20" y2="4"></line>
+        <line x1="6" x2="6" y1="20" y2="14"></line>
+      </svg>
+      <span>Posiciones</span>
+    </button>
+    <button type="button" class="tab-item" id="tab-btn-team" onclick="switchMainTab('team')">
+      <svg aria-hidden="true" fill="none" height="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      </svg>
+      <span>Equipo</span>
+    </button>
+    <button type="button" class="tab-item" id="tab-btn-help" onclick="switchMainTab('help')">
+      <svg aria-hidden="true" fill="none" height="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+        <line x1="12" x2="12.01" y1="17" y2="17"></line>
+      </svg>
+      <span>Ayuda</span>
+    </button>
+  </nav>
 
-  </main>
-
+  <!-- External Script with full socket and UI orchestration -->
   <script src="/js/team.js"></script>
 </body>
 </html>

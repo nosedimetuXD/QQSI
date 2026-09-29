@@ -17,14 +17,14 @@
     }
   } catch (e) {}
 
-  // 2. Intelligent Fallback:
-  // If running on Vercel or resolvedUrl is empty, use Coolify production backend
+  // 2. Fallback:
+  // - En Vercel (solo estáticos) el backend de sockets vive en Coolify.
+  // - En cualquier otro host (localhost, IP de la LAN, Coolify) el mismo servidor
+  //   Node sirve páginas y sockets, así que se usa el mismo origen (modo LAN offline).
   if (!resolvedUrl) {
-    if (window.location.hostname.includes('vercel.app') || (!window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1'))) {
-      resolvedUrl = COOLIFY_BACKEND_URL;
-    } else {
-      resolvedUrl = window.location.origin;
-    }
+    resolvedUrl = window.location.hostname.endsWith('vercel.app')
+      ? COOLIFY_BACKEND_URL
+      : window.location.origin;
   }
 
   let socketInstance = null;

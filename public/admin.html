@@ -3,61 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#020713">
   <title>¿Quién quiere ser Ingeniero? — Panel de Moderador / Juez</title>
-  
+  <link rel="icon" type="image/png" href="/img/logo-ceis.png">
+
   <!-- KaTeX for Math Formulas -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 
-  <!-- Socket.IO & Questions Bank -->
+  <!-- Socket.IO (el banco de preguntas llega por socket solo a moderadores) -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="/js/config.js"></script>
-  <script src="/js/questions.js"></script>
 
   <!-- Native Styles & SVG Icons -->
   <link rel="stylesheet" href="/css/styles.css">
   <script src="/js/icons.js"></script>
 </head>
-<body class="dark-stage text-slate-100 flex flex-col min-h-screen">
+<body>
 
   <!-- ADMIN LOGIN MODAL -->
   <div id="adminLoginModal" class="auth-modal-backdrop">
-    <div class="denim-card denim-texture" style="max-width: 420px; width: 100%; padding: 36px 28px; text-align: center; border: 1.5px solid rgba(252, 97, 35, 0.4);">
-      <div class="logo-avatar-sm" style="margin: 0 auto 14px auto; width: 56px; height: 56px; border-color: #FF7326;">
+    <div class="denim-card auth-card">
+      <div class="logo-avatar" style="width: 64px; height: 64px; margin-bottom: 18px;">
         <img src="/img/logo-ceis.png" alt="CEIS">
       </div>
-      <div class="ribbon-banner text-lg" style="font-size: 16px; margin-bottom: 8px; padding: 6px 28px;">
-        Panel Restringido
-      </div>
-      <h2 style="font-family: 'Cabinet Grotesk', sans-serif; font-size: 24px; font-weight: 900; color: #ffffff; margin-bottom: 6px;">
-        Acceso de Moderador
-      </h2>
-      <p style="font-size: 12px; color: #8ba3c4; margin-bottom: 22px;">
-        Ingresa la contraseña maestra para controlar el concurso:
-      </p>
+      <span class="eyebrow" style="color: var(--podium);">Panel restringido</span>
+      <h2>Acceso de Moderador</h2>
+      <p>Ingresa la contraseña maestra para controlar el concurso.</p>
 
-      <form id="adminLoginForm" style="display: flex; flex-direction: column; gap: 14px;">
-        <input 
-          type="password" 
-          id="inputAdminPassword" 
-          aria-label="Contraseña de administrador"
-          placeholder="Contraseña de Administrador..." 
-          style="width: 100%; background: rgba(7, 34, 93, 0.9); border: 1.5px solid #3d5f82; color: #ffffff; border-radius: 14px; padding: 12px 16px; font-size: 15px; text-align: center; font-family: monospace; font-weight: 700; outline: none;"
+      <form id="adminLoginForm">
+        <label for="inputAdminPassword" class="field-label">Contraseña</label>
+        <input
+          type="password"
+          id="inputAdminPassword"
+          class="field"
+          placeholder="Contraseña de administrador"
           required
           autocomplete="current-password"
         >
 
-        <div id="adminLoginError" style="display: none; font-size: 12px; color: #FF853E; background: rgba(180, 40, 0, 0.5); border: 1px solid #D42900; padding: 10px; border-radius: 10px; font-weight: 700;">
+        <div id="adminLoginError" class="form-error" role="alert">
           <!-- Error message -->
         </div>
 
-        <button type="submit" id="btnSubmitAdminAuth" class="role-action-btn btn-glow-amber" style="padding: 13px; cursor: pointer;">
-          Ingresar al Panel
+        <button type="submit" id="btnSubmitAdminAuth" class="role-action-btn btn-glow-amber">
+          Ingresar al panel
         </button>
       </form>
     </div>
   </div>
+
+  <!-- EDITOR DE PREGUNTAS -->
+  <div id="questionEditorModal" class="auth-modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+    <form id="questionEditorForm" class="denim-card editor-card" novalidate>
+      <header class="editor-head">
+        <div>
+          <span class="eyebrow" id="editorEyebrow">Banco de preguntas</span>
+          <h2 id="editorTitle">Nueva pregunta</h2>
+        </div>
+        <button type="button" class="btn-icon" id="btnCloseEditor" aria-label="Cerrar editor">✕</button>
+      </header>
+
+      <div class="editor-body">
+        <div class="form-row" id="editorRoundRow">
+          <label for="editorRound" class="field-label">Ronda</label>
+          <select id="editorRound" class="field"></select>
+        </div>
+
+        <div class="form-row">
+          <label for="editorStatement" class="field-label">Enunciado <span class="req">*</span></label>
+          <textarea id="editorStatement" class="field" rows="3" maxlength="600" required placeholder="Ej.: ¿Cuál es la derivada de sen(x)?"></textarea>
+          <span class="field-help">Puedes usar fórmulas entre $…$ dentro del texto.</span>
+        </div>
+
+        <fieldset class="form-row">
+          <legend class="field-label">Tipo de respuesta</legend>
+          <div class="seg" role="radiogroup">
+            <label class="seg-opt"><input type="radio" name="editorKind" value="open" checked> <span>Respuesta abierta</span></label>
+            <label class="seg-opt"><input type="radio" name="editorKind" value="choice"> <span>Opción múltiple (A–D)</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="form-row" id="editorOptionsRow" hidden>
+          <legend class="field-label">Opciones <span class="req">*</span> <span class="field-help">— marca la correcta</span></legend>
+          <div class="opt-grid">
+            <div class="opt-row"><input type="radio" name="editorCorrect" value="A" id="editorCorrectA" aria-label="A es la correcta"><label for="editorOptA" class="opt-letter">A</label><input type="text" id="editorOptA" class="field" maxlength="200"></div>
+            <div class="opt-row"><input type="radio" name="editorCorrect" value="B" id="editorCorrectB" aria-label="B es la correcta"><label for="editorOptB" class="opt-letter">B</label><input type="text" id="editorOptB" class="field" maxlength="200"></div>
+            <div class="opt-row"><input type="radio" name="editorCorrect" value="C" id="editorCorrectC" aria-label="C es la correcta"><label for="editorOptC" class="opt-letter">C</label><input type="text" id="editorOptC" class="field" maxlength="200"></div>
+            <div class="opt-row"><input type="radio" name="editorCorrect" value="D" id="editorCorrectD" aria-label="D es la correcta"><label for="editorOptD" class="opt-letter">D</label><input type="text" id="editorOptD" class="field" maxlength="200"></div>
+          </div>
+        </fieldset>
+
+        <details class="form-row editor-extra" id="editorExtra">
+          <summary>Fórmula o código (opcional)</summary>
+          <div class="form-row">
+            <label for="editorMath" class="field-label">Fórmula destacada (LaTeX)</label>
+            <input type="text" id="editorMath" class="field mono" maxlength="400" placeholder="e^{\ln(x^2)} = 5x + 6">
+            <div id="editorMathPreview" class="editor-math-preview" aria-live="polite"></div>
+          </div>
+          <div class="form-row">
+            <label for="editorCode" class="field-label">Bloque de código (C++)</label>
+            <textarea id="editorCode" class="field mono" rows="5" maxlength="2000" spellcheck="false"></textarea>
+          </div>
+        </details>
+
+        <div class="form-row">
+          <label for="editorGuide" class="field-label">Guía de respuesta (solo juez) <span class="req" id="editorGuideReq">*</span></label>
+          <textarea id="editorGuide" class="field" rows="2" maxlength="800"></textarea>
+        </div>
+
+        <div id="editorError" class="form-error" role="alert"></div>
+      </div>
+
+      <footer class="editor-foot">
+        <button type="button" id="btnCancelEditor" class="admin-ctrl-btn">Cancelar</button>
+        <button type="submit" id="btnSaveQuestion" class="role-action-btn btn-glow-blue">Guardar pregunta</button>
+      </footer>
+    </form>
+  </div>
+
+  <!-- CONFIRMAR ELIMINACIÓN -->
+  <div id="deleteConfirmModal" class="auth-modal-backdrop" style="display: none;" role="alertdialog" aria-modal="true" aria-labelledby="deleteTitle" aria-describedby="deleteDesc">
+    <div class="denim-card confirm-card">
+      <h2 id="deleteTitle">¿Eliminar pregunta?</h2>
+      <p id="deleteDesc">Esta acción no se puede deshacer.</p>
+      <div id="deleteError" class="form-error" role="alert"></div>
+      <div class="editor-foot">
+        <button type="button" id="btnCancelDelete" class="admin-ctrl-btn">Cancelar</button>
+        <button type="button" id="btnConfirmDelete" class="role-action-btn btn-danger">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AVISOS -->
+  <div id="adminToast" class="toast" role="status" aria-live="polite"></div>
 
   <!-- TOP ADMIN BAR -->
   <header class="admin-header-bar">
@@ -66,16 +146,11 @@
         <img src="/img/logo-ceis.png" alt="CEIS">
       </div>
       <div>
-        <h1 class="admin-header-title">
-          QQSI — Panel de Moderador / Juez
-        </h1>
-        <p class="admin-header-round-badge" id="adminHeaderRound">
-          Ronda 1: Nivel Fácil (5 Equipos)
-        </p>
+        <h1 class="admin-header-title">Panel de Moderador</h1>
+        <p class="admin-header-round-badge" id="adminHeaderRound">Ronda 1: Nivel Fácil (5 Equipos)</p>
       </div>
     </div>
 
-    <!-- Quick Actions -->
     <div class="admin-header-actions">
       <a href="/display.html" target="_blank" class="admin-top-action-btn">
         <span id="screenIconSlot"></span>
@@ -87,7 +162,7 @@
       </a>
       <button id="btnResetGame" class="admin-top-action-btn btn-reset-style">
         <span id="resetIconSlot"></span>
-        <span>Reiniciar Todo</span>
+        <span>Reiniciar todo</span>
       </button>
       <button id="btnLogoutAdmin" class="admin-top-action-btn btn-logout-style">
         Salir
@@ -98,65 +173,65 @@
   <!-- MAIN ADMIN 3-COLUMN LAYOUT -->
   <main class="admin-layout-grid" id="adminMainContent">
 
-    <!-- COLUMN 1: ROUNDS & QUESTIONS LIST (Left) -->
-    <div class="admin-card">
+    <!-- COLUMN 1: ROUNDS & QUESTIONS -->
+    <section class="admin-card">
       <div class="admin-card-title">
         <span id="chevronIconSlot"></span>
-        <span>Rondas del Concurso</span>
+        <span>Rondas del concurso</span>
       </div>
-      
-      <!-- Round Tabs -->
-      <div id="roundTabsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px;">
+
+      <div id="roundTabsContainer" class="round-tabs">
         <!-- Populated by JS -->
       </div>
 
-      <div class="admin-card-title">
-        <span>Banco de Preguntas</span>
+      <div class="admin-row-head">
+        <div class="admin-card-title"><span>Banco de preguntas</span></div>
+        <span class="mono muted" style="font-size: 11px;" id="bankCount"></span>
       </div>
+      <button type="button" id="btnNewQuestion" class="btn-add">
+        <span id="plusIconSlot" aria-hidden="true"></span>
+        <span>Nueva pregunta</span>
+      </button>
 
-      <!-- Questions List -->
-      <div id="questionsListContainer" style="display: flex; flex-direction: column; gap: 6px; overflow-y: auto; max-height: calc(100vh - 310px); padding-right: 4px;">
+      <div id="questionsListContainer" class="questions-list">
         <!-- Populated by JS -->
       </div>
-    </div>
+    </section>
 
-    <!-- COLUMN 2: ACTIVE QUESTION PREVIEW & CONTROLS (Middle) -->
-    <div class="admin-card">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-        <span class="badge-pill badge-round" id="previewQNumber">Pregunta 1</span>
-        <span style="font-size: 12px; font-weight: 800; color: #8ba3c4; font-family: monospace;" id="previewQTime">120 segundos</span>
+    <!-- COLUMN 2: ACTIVE QUESTION & CONTROLS -->
+    <section class="admin-card">
+      <div class="admin-row-head" style="margin-bottom: 14px;">
+        <div class="preview-meta">
+          <span class="badge-pill badge-round" id="previewQNumber">Pregunta 1</span>
+          <span class="mono muted" style="font-size: 12px; font-weight: 700;" id="previewQTime">120 segundos</span>
+        </div>
+        <div class="preview-actions">
+          <button type="button" id="btnEditQuestion" class="btn-ghost"><span id="editIconSlot" aria-hidden="true"></span>Editar</button>
+          <button type="button" id="btnDeleteQuestion" class="btn-ghost is-danger"><span id="trashIconSlot" aria-hidden="true"></span>Eliminar</button>
+        </div>
       </div>
 
-      <!-- Question Preview Box -->
-      <div style="background: rgba(7, 34, 93, 0.85); border: 1.5px solid rgba(76, 144, 222, 0.25); border-radius: 16px; padding: 18px; margin-bottom: 18px;">
-        <h3 id="previewQStatement" style="font-size: 17px; font-weight: 800; color: #ffffff; line-height: 1.4; margin-bottom: 10px;">
+      <div class="panel-sunken">
+        <h2 id="previewQStatement" class="preview-statement">
           Selecciona una pregunta para ver su contenido
-        </h3>
-        <div id="previewQMath" class="math-display" style="font-size: 1.3rem; margin: 10px 0; display: none;"></div>
+        </h2>
+        <div id="previewQMath" class="math-display" style="font-size: 1.35rem; margin-top: 12px; display: none;"></div>
       </div>
 
-      <!-- Answer Guide (Judge Only) -->
-      <div style="background: rgba(40, 110, 221, 0.1); border: 1.5px solid rgba(40, 110, 221, 0.35); border-radius: 14px; padding: 14px 18px; margin-bottom: 20px;">
-        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #4C90DE; display: block; margin-bottom: 4px;">
-          Guía de Respuesta Correcta (Solo Juez):
-        </span>
-        <p id="previewQAnswer" style="font-size: 13px; font-weight: 700; color: #ffffff; line-height: 1.4;">
-          --
-        </p>
+      <div class="answer-guide">
+        <span class="eyebrow">Respuesta correcta · solo juez</span>
+        <p id="previewQAnswer">--</p>
       </div>
 
-      <!-- Master Timer & Action Controls -->
       <div style="margin-top: auto;">
-        <!-- Big Timer Clock -->
-        <div style="background: #0C1B3D; border: 2px solid rgba(76, 144, 222, 0.4); border-radius: 18px; padding: 16px; text-align: center; margin-bottom: 16px; box-shadow: 0 0 15px rgba(76, 144, 222, 0.2);">
-          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #8ba3c4; letter-spacing: 0.08em; display: block;">Estado del Cronómetro</span>
-          <span id="adminTimerClock" class="timer-led-digits" style="font-size: 44px; display: block; margin: 4px 0;">02:00</span>
-          <span id="adminTimerStatus" style="font-size: 13px; font-weight: 800; color: #4C90DE;">En espera</span>
+        <div class="admin-clock">
+          <span class="timer-label">Cronómetro</span>
+          <span id="adminTimerClock" class="timer-led-digits">02:00</span>
+          <span id="adminTimerStatus" class="admin-clock-status" role="status" aria-live="polite">En espera</span>
         </div>
 
-        <!-- Action Buttons -->
         <div class="admin-action-btn-grid">
-          <button id="btnLaunchQuestion" class="role-action-btn btn-glow-green" style="margin-top: 0; padding: 14px; font-size: 14px; cursor: pointer;">
+          <button id="btnLaunchQuestion" class="role-action-btn btn-glow-green">
             <span id="playIconSlot"></span>
             <span>Iniciar</span>
           </button>
@@ -170,60 +245,48 @@
           </button>
         </div>
 
-        <!-- Next Question Navigation Button -->
-        <button id="btnNextQuestion" class="role-action-btn btn-glow-blue" style="margin-top: 0; padding: 14px; font-size: 14px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
-          <span id="nextQuestionText">Avanzar a Siguiente Pregunta →</span>
+        <button id="btnNextQuestion" class="role-action-btn btn-glow-blue admin-next-btn">
+          <span id="nextQuestionText">Avanzar a siguiente pregunta →</span>
         </button>
       </div>
-    </div>
+    </section>
 
-    <!-- COLUMN 3: LIVE SUBMISSIONS & STANDINGS (Right) -->
-    <div class="admin-card">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-        <div class="admin-card-title" style="margin-bottom: 0;">
-          <span>Entregas de Equipos</span>
-        </div>
+    <!-- COLUMN 3: SUBMISSIONS & STANDINGS -->
+    <section class="admin-card">
+      <div class="admin-row-head">
+        <div class="admin-card-title"><span>Entregas de equipos</span></div>
         <span class="badge-pill badge-teams" id="submissionsCounter">0 / 5</span>
       </div>
 
-      <!-- Submissions Queue Table -->
-      <div style="background: rgba(7, 34, 93, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 10px; margin-bottom: 18px; min-height: 180px; max-height: 240px; overflow-y: auto; overflow-x: hidden;">
-        <div id="submissionsQueueContainer" style="display: flex; flex-direction: column; gap: 8px;">
-          <span style="font-size: 12px; color: #5a7a9f; font-style: italic; text-align: center; padding: 20px 0; display: block;">
-            Esperando respuestas de los equipos...
-          </span>
+      <div class="queue-box">
+        <div id="submissionsQueueContainer" class="queue-list" aria-live="polite">
+          <span class="empty-note">Esperando respuestas de los equipos…</span>
         </div>
       </div>
 
-      <!-- Live Standings Progress Bars -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-        <div class="admin-card-title" style="margin-bottom: 0;">
-          <span>Tabla de Puntuación</span>
-        </div>
-        <button id="btnToggleLeaderboard" style="padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; background: rgba(76, 144, 222, 0.15); border: 1px solid #4C90DE; color: #4C90DE;">
-          <span id="toggleLeaderboardText">Proyectar Ranking</span>
+      <div class="admin-row-head">
+        <div class="admin-card-title"><span>Tabla de puntuación</span></div>
+        <button id="btnToggleLeaderboard" class="btn-ghost">
+          <span id="toggleLeaderboardText">Proyectar ranking</span>
         </button>
       </div>
-      <div id="adminStandingsList" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;">
+      <div id="adminStandingsList" class="standings">
         <!-- Populated by JS -->
       </div>
 
-      <!-- Elimination & Round Transition -->
-      <div style="margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 14px;">
-        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-          <select id="selectTeamToEliminate" style="flex: 1; background: #0C1B3D; border: 1px solid #2d4b6e; color: #ffffff; border-radius: 10px; padding: 8px 12px; font-size: 12px; font-weight: 700; outline: none;">
-            <option value="">Seleccionar equipo a eliminar...</option>
+      <div class="admin-footer-controls">
+        <div class="elim-row">
+          <select id="selectTeamToEliminate" class="field" style="flex: 1;">
+            <option value="">Seleccionar equipo a eliminar…</option>
           </select>
-          <button id="btnConfirmElimination" style="background: rgba(212, 41, 0, 0.2); border: 1px solid #D42900; color: #DF440C; border-radius: 10px; padding: 8px 14px; font-size: 12px; font-weight: 800; cursor: pointer;">
-            Eliminar
-          </button>
+          <button id="btnConfirmElimination" class="btn-ghost is-danger">Eliminar</button>
         </div>
 
-        <button id="btnNextRound" class="role-action-btn btn-glow-blue" style="margin-top: 0; padding: 12px; font-size: 13px; cursor: pointer;">
-          <span>Avanzar a Siguiente Ronda →</span>
+        <button id="btnNextRound" class="role-action-btn btn-glow-blue admin-next-btn">
+          <span>Avanzar a siguiente ronda →</span>
         </button>
       </div>
-    </div>
+    </section>
 
   </main>
 

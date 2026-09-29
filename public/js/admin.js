@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('question_time_up', () => {
     adminTimerClock.textContent = "00:00";
     adminTimerStatus.textContent = "Tiempo Agotado";
-    adminTimerStatus.style.color = "#D42900";
+    adminTimerStatus.style.color = "var(--error)";
   });
 
   // Render Round Tabs
@@ -186,16 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentRoundIdx = currentState ? currentState.currentRoundIndex : 0;
 
     roundTabsContainer.innerHTML = questionsData.rounds.map((round, idx) => `
-      <button 
-        type="button"
-        onclick="window.selectAdminRound(${idx})"
-        style="padding: 10px 12px; border-radius: 14px; font-size: 11px; font-weight: 800; text-align: left; transition: transform var(--transition-liquid), box-shadow var(--transition-liquid), border-color var(--transition-liquid); display: flex; align-items: center; justify-content: space-between; cursor: pointer; ${
-          idx === currentRoundIdx
-            ? 'background: linear-gradient(135deg, #0437A6 0%, #032D8D 100%); border: 1.5px solid #6CA8E4; border-top: 1.5px solid #6CA8E4; color: #ffffff; box-shadow: 0 0 15px rgba(37,99,235,0.5), inset 0 1px 1px rgba(255,255,255,0.5);'
-            : 'background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(6,17,33,0.7) 100%); border: 1px solid rgba(255,255,255,0.12); border-top: 1px solid rgba(255,255,255,0.25); color: #8ba3c4;'
-        }">
+      <button type="button" onclick="window.selectAdminRound(${idx})" class="round-tab${idx === currentRoundIdx ? ' is-active' : ''}">
         <span>${round.name}</span>
-        <span style="font-size: 10px; opacity: 0.85; font-family: monospace;">${round.timeLimit}s</span>
+        <span class="mono">${round.timeLimit}s</span>
       </button>
     `).join('');
   }
@@ -210,24 +203,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentRound = questionsData.rounds[currentState.currentRoundIndex];
     if (!currentRound) return;
 
+    const bankCount = document.getElementById('bankCount');
+    if (bankCount) bankCount.textContent = `${currentRound.questions.length} preguntas`;
+    const locked = currentState.questionState === 'running' || currentState.questionState === 'paused';
+    const pencil = window.Icons ? Icons.pencil('w-4 h-4') : '✎';
+    const trash = window.Icons ? Icons.trash('w-4 h-4') : '✕';
+
     questionsListContainer.innerHTML = currentRound.questions.map((q, idx) => {
       const isSelected = idx === currentState.currentQuestionIndex;
+      const rowLocked = locked && isSelected;
+      const lockTitle = rowLocked ? ' (termina la pregunta en curso primero)' : '';
       return `
-        <button 
-          type="button"
-          onclick="window.selectAdminQuestion(${idx})"
-          style="width: 100%; text-align: left; padding: 10px 14px; border-radius: 14px; transition: transform var(--transition-liquid), border-color var(--transition-liquid), box-shadow var(--transition-liquid); cursor: pointer; display: flex; align-items: center; gap: 10px; ${
-            isSelected
-              ? 'background: linear-gradient(135deg, rgba(76, 144, 222, 0.25) 0%, rgba(14, 34, 61, 0.8) 100%); border: 1.5px solid #4C90DE; border-top: 1.5px solid rgba(255,255,255,0.7); color: #ffffff; box-shadow: 0 0 12px rgba(76, 144, 222, 0.3), inset 0 1px 1px rgba(255,255,255,0.4);'
-              : 'background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(12, 27, 61, 0.65) 100%); border: 1px solid rgba(255,255,255,0.1); border-top: 1px solid rgba(255,255,255,0.2); color: #8ba3c4;'
-          }">
-          <span style="width: 24px; height: 24px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; background: ${isSelected ? 'linear-gradient(180deg, #4C90DE, #0140B9)' : 'rgba(255,255,255,0.1)'}; color: ${isSelected ? '#031428' : '#b8cde0'}; font-family: monospace; flex-shrink: 0; box-shadow: ${isSelected ? '0 0 8px rgba(76, 144, 222, 0.5)' : 'none'};">
-            ${idx + 1}
-          </span>
-          <span style="font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">
-            ${q.statement}
-          </span>
-        </button>
+        <div class="q-row${isSelected ? ' is-active' : ''}">
+          <button type="button" onclick="window.selectAdminQuestion(${idx})" class="q-item${isSelected ? ' is-active' : ''}">
+            <span class="q-num">${idx + 1}</span>
+            <span class="q-label">${q.statement}</span>
+          </button>
+          <button type="button" class="q-act" onclick="window.adminEditQuestion(${idx})" ${rowLocked ? 'disabled' : ''} aria-label="Editar pregunta ${idx + 1}" title="Editar pregunta ${idx + 1}${lockTitle}">${pencil}</button>
+          <button type="button" class="q-act is-danger" onclick="window.adminDeleteQuestion(${idx})" ${rowLocked ? 'disabled' : ''} aria-label="Eliminar pregunta ${idx + 1}" title="Eliminar pregunta ${idx + 1}${lockTitle}">${trash}</button>
+        </div>
       `;
     }).join('');
   }
@@ -287,7 +281,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderAdminView(state) {
     const roundNames = ['Ronda 1: Nivel Fácil', 'Ronda 2: Nivel Normal', 'Ronda 3: Nivel Difícil', 'Ronda 4: Nivel Experto'];
     const activeTeams = (state.teams || []).filter(t => !t.eliminated);
-    adminHeaderRound.textContent = `${roundNames[state.currentRoundIndex]} (${activeTeams.length} Equipos Activos)`;
+    const readyCount = activeTeams.filter(t => (state.readyTeams || []).includes(t.id)).length;
+    adminHeaderRound.textContent = `${roundNames[state.currentRoundIndex]} · ${activeTeams.length} equipos · ${readyCount}/${activeTeams.length} con check-in`;
 
     renderRoundTabs();
     renderQuestionsList();
@@ -300,27 +295,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (state.questionState === 'running') {
       adminTimerStatus.textContent = "Pregunta en Curso";
-      adminTimerStatus.style.color = "#4C90DE";
+      adminTimerStatus.style.color = "var(--accent-led)";
       btnLaunchQuestion.disabled = true;
       btnPauseResume.disabled = false;
       pauseResumeText.textContent = "Pausar";
       btnStopQuestion.disabled = false;
     } else if (state.questionState === 'paused') {
       adminTimerStatus.textContent = "Pausado";
-      adminTimerStatus.style.color = "#FF7326";
+      adminTimerStatus.style.color = "var(--warning)";
       btnLaunchQuestion.disabled = true;
       btnPauseResume.disabled = false;
       pauseResumeText.textContent = "Reanudar";
       btnStopQuestion.disabled = false;
     } else if (state.questionState === 'ended') {
       adminTimerStatus.textContent = "Pregunta Finalizada";
-      adminTimerStatus.style.color = "#D42900";
+      adminTimerStatus.style.color = "var(--error)";
       btnLaunchQuestion.disabled = false;
       btnPauseResume.disabled = true;
       btnStopQuestion.disabled = true;
     } else {
       adminTimerStatus.textContent = "En Espera";
-      adminTimerStatus.style.color = "#4C90DE";
+      adminTimerStatus.style.color = "var(--accent-led)";
       btnLaunchQuestion.disabled = false;
       btnPauseResume.disabled = true;
       btnStopQuestion.disabled = true;
@@ -341,13 +336,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isLastQuestion) {
         nextQuestionText.textContent = 'Última Pregunta de la Ronda';
         btnNextQuestion.disabled = true;
-        btnNextQuestion.style.opacity = '0.5';
-        btnNextQuestion.style.cursor = 'not-allowed';
       } else {
         nextQuestionText.textContent = `Avanzar a Siguiente Pregunta (${(state.currentQuestionIndex || 0) + 2}/${totalQuestionsInRound}) →`;
         btnNextQuestion.disabled = false;
-        btnNextQuestion.style.opacity = '1';
-        btnNextQuestion.style.cursor = 'pointer';
       }
     }
 
@@ -355,29 +346,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleLeaderboardText && btnToggleLeaderboard) {
       if (state.showLeaderboard) {
         toggleLeaderboardText.textContent = 'Ocultar Ranking';
-        btnToggleLeaderboard.style.background = 'rgba(212, 41, 0, 0.2)';
-        btnToggleLeaderboard.style.borderColor = '#D42900';
-        btnToggleLeaderboard.style.color = '#DF440C';
+        btnToggleLeaderboard.classList.add('is-danger');
       } else {
         toggleLeaderboardText.textContent = 'Proyectar Ranking';
-        btnToggleLeaderboard.style.background = 'rgba(76, 144, 222, 0.15)';
-        btnToggleLeaderboard.style.borderColor = '#4C90DE';
-        btnToggleLeaderboard.style.color = '#4C90DE';
+        btnToggleLeaderboard.classList.remove('is-danger');
       }
     }
   }
 
   function renderSubmissionsQueue(state) {
+    // La clave viene del banco privado del moderador (el estado público no la incluye)
+    const bankRound = questionsData && questionsData.rounds[state.currentRoundIndex];
+    const q = bankRound ? bankRound.questions[state.currentQuestionIndex] : null;
+    const correctOption = q && q.correctOption ? String(q.correctOption).toUpperCase() : null;
     const submissions = state.submissions || [];
     const activeTeams = (state.teams || []).filter(t => !t.eliminated);
     submissionsCounter.textContent = `${submissions.length} / ${activeTeams.length}`;
 
     if (submissions.length === 0) {
-      submissionsQueueContainer.innerHTML = `
-        <span style="font-size: 12px; color: #5a7a9f; font-style: italic; text-align: center; padding: 24px 0; display: block;">
-          Esperando pulsaciones de los equipos...
-        </span>
-      `;
+      submissionsQueueContainer.innerHTML = `<span class="empty-note">Esperando pulsaciones de los equipos…</span>`;
       return;
     }
 
@@ -387,41 +374,25 @@ document.addEventListener('DOMContentLoaded', () => {
       const isEvaluated = sub.correct !== null;
       const isCorrect = sub.correct === true;
       const isWrong = sub.correct === false;
+      const matches = correctOption && sub.option ? sub.option === correctOption : null;
+      const matchClass = matches === true ? ' is-match' : (matches === false ? ' is-miss' : '');
+      const matchLabel = matches === true ? ' · coincide ✓' : (matches === false ? ` · clave ${correctOption}` : '');
 
       return `
-        <div style="background: rgba(12, 27, 61, 0.95); border: 1.5px solid ${isCorrect ? '#286EDD' : isWrong ? '#D42900' : 'rgba(255,255,255,0.15)'}; border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box; width: 100%;">
-          <div style="min-width: 0; flex: 1;">
-            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-              <span style="font-size: 11px; font-weight: 900; color: #4C90DE; font-family: monospace;">#${order}</span>
-              <span style="font-size: 12px; font-weight: 800; color: #ffffff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sub.teamName}</span>
-              <span style="font-size: 10px; color: #8ba3c4; font-family: monospace;">(${seconds}s)</span>
+        <div class="sub-row${isCorrect ? ' is-correct' : isWrong ? ' is-wrong' : ''}">
+          <div class="sub-info">
+            <div class="sub-line">
+              <span class="sub-order">#${order}</span>
+              <span class="sub-name">${sub.teamName}</span>
+              <span class="sub-secs">${seconds}s</span>
+              ${sub.option ? `<span class="sub-option${matchClass}" title="Opción elegida por el equipo">Opción ${sub.option}${matchLabel}</span>` : ''}
             </div>
-            ${isCorrect ? `<span style="font-size: 10px; font-weight: 800; color: #4C90DE; display: block; margin-top: 2px;">+${sub.totalPoints} pts (+${sub.bonusPoints} bono)</span>` : ''}
+            ${isCorrect ? `<span class="sub-pts">✓ +${sub.totalPoints} pts (+${sub.bonusPoints} bono)</span>` : ''}
+            ${isWrong ? `<span class="sub-bad">✕ Incorrecta · 0 pts</span>` : ''}
           </div>
-
-          <div style="display: flex; gap: 4px; flex-shrink: 0;">
-            <button 
-              type="button" 
-              onclick="window.gradeAnswer(${idx}, true)"
-              title="Calificar como Correcto"
-              style="padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; border: none; white-space: nowrap; ${
-                isCorrect 
-                  ? 'background: #286EDD; color: #ffffff;' 
-                  : 'background: rgba(40, 110, 221, 0.2); color: #4C90DE; border: 1px solid #286EDD;'
-              }">
-              ✓ Correcto
-            </button>
-            <button 
-              type="button" 
-              onclick="window.gradeAnswer(${idx}, false)"
-              title="Calificar como Incorrecto"
-              style="padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; border: none; white-space: nowrap; ${
-                isWrong 
-                  ? 'background: #D42900; color: #ffffff;' 
-                  : 'background: rgba(212, 41, 0, 0.2); color: #DF440C; border: 1px solid #D42900;'
-              }">
-              ✗ Incorrecto
-            </button>
+          <div class="sub-actions">
+            <button type="button" onclick="window.gradeAnswer(${idx}, true)" title="Calificar como correcto" class="eval-btn ok${isCorrect ? ' is-on' : ''}" aria-pressed="${isCorrect}">✓ Correcto</button>
+            <button type="button" onclick="window.gradeAnswer(${idx}, false)" title="Calificar como incorrecto" class="eval-btn ko${isWrong ? ' is-on' : ''}" aria-pressed="${isWrong}">✕ Incorrecto</button>
           </div>
         </div>
       `;
@@ -453,12 +424,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const pct = Math.round(((team.score || 0) / maxScore) * 100);
         return `
           <div>
-            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: #ffffff; margin-bottom: 2px;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 10px; height: 10px; border-radius: 9999px; background-color: ${team.color};"></div>
+            <div class="standing-head">
+              <div>
+                <span class="team-dot" style="background-color: ${team.color};"></span>
                 <span>${team.shortName}</span>
               </div>
-              <span style="font-family: monospace; color: #4C90DE;">${team.score || 0} pts</span>
+              <span class="mono">${team.score || 0} pts</span>
             </div>
             <div class="team-progress-bar">
               <div class="team-progress-fill" style="width: ${pct}%; background-color: ${team.color};"></div>
@@ -470,16 +441,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (eliminatedTeams.length > 0) {
       html += `
-        <div style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed rgba(255, 255, 255, 0.15);">
-          <span style="font-size: 10px; font-weight: 800; color: #8ba3c4; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Eliminados:</span>
+        <div class="standings-out">
+          <span class="eyebrow">Eliminados</span>
           ${eliminatedTeams.map(team => `
-            <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #8ba3c4; margin-bottom: 4px; opacity: 0.7;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <div style="width: 8px; height: 8px; border-radius: 9999px; background-color: ${team.color};"></div>
+            <div class="standing-out-row">
+              <div>
+                <span class="team-dot" style="width: 8px; height: 8px; background-color: ${team.color};"></span>
                 <span>${team.shortName}</span>
-                <span style="color: #D42900; font-size: 9px; font-weight: 800;">(Eliminado)</span>
+                <span class="tag-out">Eliminado</span>
               </div>
-              <span style="font-family: monospace;">${team.score || 0} pts</span>
+              <span class="mono">${team.score || 0} pts</span>
             </div>
           `).join('')}
         </div>
@@ -489,8 +460,11 @@ document.addEventListener('DOMContentLoaded', () => {
     adminStandingsList.innerHTML = html;
 
     // Update elimination dropdown
-    selectTeamToEliminate.innerHTML = '<option value="">Seleccionar equipo a eliminar...</option>' + 
+    // Conservar la selección del moderador entre actualizaciones de estado
+    const previousSelection = selectTeamToEliminate.value;
+    selectTeamToEliminate.innerHTML = '<option value="">Seleccionar equipo a eliminar...</option>' +
       activeTeams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    if (activeTeams.some(t => t.id === previousSelection)) selectTeamToEliminate.value = previousSelection;
   }
 
   // Button Handlers
@@ -518,23 +492,332 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  btnConfirmElimination.addEventListener('click', () => {
+  // Confirmaciones con el modal del panel (sin diálogos nativos del navegador)
+  btnConfirmElimination.addEventListener('click', async () => {
     const teamId = selectTeamToEliminate.value;
     if (!teamId) return;
-    if (confirm(`¿Estás seguro de eliminar a este equipo?`)) {
-      socket.emit('admin_eliminate_team', { teamId, adminPassword: currentAdminPassword });
-    }
+    const team = (currentState.teams || []).find(t => t.id === teamId);
+    const ok = await appConfirm({
+      title: '¿Eliminar equipo?',
+      message: `${team ? team.name : 'El equipo'} quedará fuera del concurso y ya no podrá responder.`,
+      confirmLabel: 'Sí, eliminar equipo'
+    });
+    if (ok) socket.emit('admin_eliminate_team', { teamId, adminPassword: currentAdminPassword });
   });
 
-  btnNextRound.addEventListener('click', () => {
-    if (confirm('¿Deseas avanzar a la siguiente ronda del concurso?')) {
-      socket.emit('admin_next_round', { adminPassword: currentAdminPassword });
-    }
+  btnNextRound.addEventListener('click', async () => {
+    const ok = await appConfirm({
+      title: '¿Avanzar a la siguiente ronda?',
+      message: 'Se cierra la ronda actual y los equipos pasan a la siguiente con sus puntos acumulados.',
+      confirmLabel: 'Sí, avanzar',
+      danger: false
+    });
+    if (ok) socket.emit('admin_next_round', { adminPassword: currentAdminPassword });
   });
 
-  btnResetGame.addEventListener('click', () => {
-    if (confirm('¿ATENCIÓN: Deseas reiniciar todo el concurso y restablecer los 5 equipos?')) {
-      socket.emit('admin_reset_game', { adminPassword: currentAdminPassword });
-    }
+  btnResetGame.addEventListener('click', async () => {
+    const ok = await appConfirm({
+      title: '¿Reiniciar todo el concurso?',
+      message: 'Se borran puntajes, entregas, check-ins y eliminaciones de los 6 equipos. Esta acción no se puede deshacer.',
+      confirmLabel: 'Sí, reiniciar todo'
+    });
+    if (ok) socket.emit('admin_reset_game', { adminPassword: currentAdminPassword });
   });
+
+  // ==========================================================================
+  // EDITOR DEL BANCO DE PREGUNTAS (crear / editar / eliminar)
+  // ==========================================================================
+  const LETTERS = ['A', 'B', 'C', 'D'];
+  const ROUND_LABELS = ['Ronda 1: Nivel Fácil', 'Ronda 2: Nivel Normal', 'Ronda 3: Nivel Difícil', 'Ronda 4: Nivel Experto'];
+  const $ = (id) => document.getElementById(id);
+
+  const editorModal = $('questionEditorModal');
+  const editorForm = $('questionEditorForm');
+  const editorTitle = $('editorTitle');
+  const editorEyebrow = $('editorEyebrow');
+  const editorRound = $('editorRound');
+  const editorStatement = $('editorStatement');
+  const editorOptionsRow = $('editorOptionsRow');
+  const editorExtra = $('editorExtra');
+  const editorMath = $('editorMath');
+  const editorMathPreview = $('editorMathPreview');
+  const editorCode = $('editorCode');
+  const editorGuide = $('editorGuide');
+  const editorGuideReq = $('editorGuideReq');
+  const editorError = $('editorError');
+  const btnSaveQuestion = $('btnSaveQuestion');
+  const deleteModal = $('deleteConfirmModal');
+  const deleteDesc = $('deleteDesc');
+  const deleteError = $('deleteError');
+  const btnConfirmDelete = $('btnConfirmDelete');
+  const adminToast = $('adminToast');
+
+  let editing = null; // { roundIndex, questionIndex|null }
+  let lastFocus = null;
+  let toastTimer = null;
+
+  function showToast(message, isWarning) {
+    adminToast.textContent = message;
+    adminToast.classList.toggle('is-warning', !!isWarning);
+    adminToast.classList.add('is-visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => adminToast.classList.remove('is-visible'), 3500);
+  }
+
+  function openModal(modal, focusEl) {
+    lastFocus = document.activeElement;
+    modal.style.display = 'flex';
+    setTimeout(() => focusEl && focusEl.focus(), 30);
+  }
+
+  function closeModal(modal) {
+    modal.style.display = 'none';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function selectedKind() {
+    const el = editorForm.querySelector('input[name="editorKind"]:checked');
+    return el ? el.value : 'open';
+  }
+
+  function applyKind() {
+    const isChoice = selectedKind() === 'choice';
+    editorOptionsRow.hidden = !isChoice;
+    editorGuideReq.style.display = isChoice ? 'none' : '';
+  }
+
+  function renderMathPreview() {
+    const tex = editorMath.value.trim();
+    if (!tex) { editorMathPreview.innerHTML = ''; return; }
+    try {
+      if (window.katex) katex.render(tex, editorMathPreview, { displayMode: true, throwOnError: false });
+      else editorMathPreview.textContent = tex;
+    } catch (e) {
+      editorMathPreview.textContent = tex;
+    }
+  }
+
+  function setEditorError(message, field) {
+    editorForm.querySelectorAll('[aria-invalid="true"]').forEach(el => el.removeAttribute('aria-invalid'));
+    editorError.textContent = message || '';
+    editorError.style.display = message ? 'block' : 'none';
+    if (field) {
+      field.setAttribute('aria-invalid', 'true');
+      field.focus();
+    }
+  }
+
+  function isCurrentLocked(roundIndex, questionIndex) {
+    return currentState &&
+      currentState.currentRoundIndex === roundIndex &&
+      currentState.currentQuestionIndex === questionIndex &&
+      (currentState.questionState === 'running' || currentState.questionState === 'paused');
+  }
+
+  function openEditor(roundIndex, questionIndex) {
+    if (!questionsData) return;
+    const isNew = questionIndex === null;
+    const q = isNew ? null : questionsData.rounds[roundIndex].questions[questionIndex];
+    editing = { roundIndex, questionIndex };
+
+    editorRound.innerHTML = questionsData.rounds.map((r, i) =>
+      `<option value="${i}">${ROUND_LABELS[i] || r.name}</option>`).join('');
+    editorRound.value = String(roundIndex);
+    editorRound.disabled = !isNew;
+
+    editorTitle.textContent = isNew ? 'Nueva pregunta' : `Editar ${q.title || 'pregunta'}`;
+    editorEyebrow.textContent = isNew ? 'Banco de preguntas' : (ROUND_LABELS[roundIndex] || 'Banco de preguntas');
+
+    editorStatement.value = q ? (q.statement || '') : '';
+    editorMath.value = q ? (q.math || '') : '';
+    editorCode.value = q ? (q.code || '') : '';
+    editorGuide.value = q ? (q.answerGuide || '') : '';
+
+    const hasOptions = !!(q && Array.isArray(q.options) && q.options.length);
+    editorForm.querySelector(`input[name="editorKind"][value="${hasOptions ? 'choice' : 'open'}"]`).checked = true;
+    LETTERS.forEach((letter, idx) => {
+      $('editorOpt' + letter).value = hasOptions ? (q.options[idx] || '').replace(/^[A-D]\)\s*/, '') : '';
+      $('editorCorrect' + letter).checked = hasOptions && String(q.correctOption || '').toUpperCase() === letter;
+    });
+
+    editorExtra.open = !!(editorMath.value || editorCode.value);
+    applyKind();
+    renderMathPreview();
+    setEditorError('');
+    btnSaveQuestion.disabled = false;
+    btnSaveQuestion.textContent = isNew ? 'Crear pregunta' : 'Guardar cambios';
+    openModal(editorModal, editorStatement);
+  }
+
+  function collectQuestion() {
+    const isChoice = selectedKind() === 'choice';
+    const question = {
+      statement: editorStatement.value.trim(),
+      math: editorMath.value.trim(),
+      code: editorCode.value.replace(/\s+$/, ''),
+      answerGuide: editorGuide.value.trim()
+    };
+    if (question.code) question.codeLang = 'cpp';
+
+    if (question.statement.length < 3) return { error: 'Escribe el enunciado (mínimo 3 caracteres).', field: editorStatement };
+
+    if (isChoice) {
+      question.options = LETTERS.map(l => $('editorOpt' + l).value.trim());
+      const emptyIdx = question.options.findIndex(o => !o);
+      if (emptyIdx >= 0) return { error: `Completa la opción ${LETTERS[emptyIdx]}.`, field: $('editorOpt' + LETTERS[emptyIdx]) };
+      const checked = editorForm.querySelector('input[name="editorCorrect"]:checked');
+      if (!checked) return { error: 'Marca cuál opción es la correcta.', field: $('editorCorrectA') };
+      question.correctOption = checked.value;
+    } else {
+      if (!question.answerGuide) return { error: 'Escribe la guía de respuesta para el juez.', field: editorGuide };
+      const inlineMath = /\$[^$]+\$|\\\(|\\\[/.test(question.statement);
+      question.type = question.code ? 'code' : ((question.math || inlineMath) ? 'math' : 'text');
+    }
+    return { question };
+  }
+
+  editorForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!editing) return;
+    const result = collectQuestion();
+    if (result.error) return setEditorError(result.error, result.field);
+    setEditorError('');
+
+    const isNew = editing.questionIndex === null;
+    const roundIndex = isNew ? Number(editorRound.value) : editing.roundIndex;
+    btnSaveQuestion.disabled = true;
+    btnSaveQuestion.textContent = 'Guardando…';
+
+    socket.timeout(6000).emit('admin_question_save', {
+      adminPassword: currentAdminPassword,
+      roundIndex,
+      questionIndex: isNew ? null : editing.questionIndex,
+      question: result.question
+    }, (err, res) => {
+      btnSaveQuestion.disabled = false;
+      btnSaveQuestion.textContent = isNew ? 'Crear pregunta' : 'Guardar cambios';
+      if (err) return setEditorError('El servidor no respondió. Revisa la conexión e inténtalo de nuevo.');
+      if (!res || !res.ok) return setEditorError((res && res.error) || 'No se pudo guardar la pregunta.');
+      closeModal(editorModal);
+      editing = null;
+      showToast(res.warning || (isNew ? `Pregunta creada en ${ROUND_LABELS[roundIndex] || 'la ronda'}.` : 'Cambios guardados.'), !!res.warning);
+    });
+  });
+
+  editorForm.querySelectorAll('input[name="editorKind"]').forEach(el => el.addEventListener('change', applyKind));
+  editorMath.addEventListener('input', renderMathPreview);
+  $('btnCloseEditor').addEventListener('click', () => closeModal(editorModal));
+  $('btnCancelEditor').addEventListener('click', () => closeModal(editorModal));
+
+  $('btnNewQuestion').addEventListener('click', () => {
+    openEditor(currentState ? currentState.currentRoundIndex : 0, null);
+  });
+
+  function editQuestionAt(i) {
+    if (!questionsData || !currentState) return;
+    const r = currentState.currentRoundIndex;
+    if (!questionsData.rounds[r] || !questionsData.rounds[r].questions[i]) return;
+    if (isCurrentLocked(r, i)) return showToast('Termina la pregunta en curso antes de editarla.', true);
+    openEditor(r, i);
+  }
+
+  window.adminEditQuestion = editQuestionAt;
+  window.adminDeleteQuestion = (i) => deleteQuestionAt(i);
+  $('btnEditQuestion').addEventListener('click', () => currentState && editQuestionAt(currentState.currentQuestionIndex));
+  $('btnDeleteQuestion').addEventListener('click', () => currentState && deleteQuestionAt(currentState.currentQuestionIndex));
+
+  function deleteQuestionAt(i) {
+    if (!questionsData || !currentState) return;
+    const r = currentState.currentRoundIndex;
+    const q = questionsData.rounds[r] && questionsData.rounds[r].questions[i];
+    if (!q) return;
+    if (isCurrentLocked(r, i)) return showToast('Termina la pregunta en curso antes de eliminarla.', true);
+    editing = { roundIndex: r, questionIndex: i };
+    const preview = q.statement.length > 90 ? q.statement.slice(0, 90) + '…' : q.statement;
+    if (confirmResolver) settleConfirm(false);
+    $('deleteTitle').textContent = '¿Eliminar pregunta?';
+    btnConfirmDelete.textContent = 'Sí, eliminar';
+    btnConfirmDelete.classList.add('btn-danger');
+    btnConfirmDelete.classList.remove('btn-glow-blue');
+    deleteDesc.textContent = `${q.title} de ${ROUND_LABELS[r] || 'la ronda'}: "${preview}". Esta acción no se puede deshacer.`;
+    deleteError.style.display = 'none';
+    btnConfirmDelete.disabled = false;
+    openModal(deleteModal, $('btnCancelDelete'));
+  }
+
+  // Confirmación genérica reutilizando el modal de borrado
+  let confirmResolver = null;
+  function appConfirm({ title, message, confirmLabel, danger = true }) {
+    if (confirmResolver) confirmResolver(false);
+    $('deleteTitle').textContent = title;
+    deleteDesc.textContent = message;
+    btnConfirmDelete.textContent = confirmLabel;
+    btnConfirmDelete.classList.toggle('btn-danger', danger);
+    btnConfirmDelete.classList.toggle('btn-glow-blue', !danger);
+    btnConfirmDelete.disabled = false;
+    deleteError.style.display = 'none';
+    openModal(deleteModal, $('btnCancelDelete'));
+    return new Promise(resolve => { confirmResolver = resolve; });
+  }
+
+  function settleConfirm(result) {
+    if (!confirmResolver) return false;
+    const resolve = confirmResolver;
+    confirmResolver = null;
+    closeModal(deleteModal);
+    resolve(result);
+    return true;
+  }
+
+  $('btnCancelDelete').addEventListener('click', () => {
+    if (!settleConfirm(false)) closeModal(deleteModal);
+  });
+
+  btnConfirmDelete.addEventListener('click', () => {
+    if (settleConfirm(true)) return;
+    if (!editing) return;
+    btnConfirmDelete.disabled = true;
+    socket.timeout(6000).emit('admin_question_delete', {
+      adminPassword: currentAdminPassword,
+      roundIndex: editing.roundIndex,
+      questionIndex: editing.questionIndex
+    }, (err, res) => {
+      btnConfirmDelete.disabled = false;
+      if (err || !res || !res.ok) {
+        deleteError.textContent = err ? 'El servidor no respondió. Inténtalo de nuevo.' : ((res && res.error) || 'No se pudo eliminar.');
+        deleteError.style.display = 'block';
+        return;
+      }
+      closeModal(deleteModal);
+      editing = null;
+      showToast(res.warning || 'Pregunta eliminada.', !!res.warning);
+    });
+  });
+
+  // Escape cierra el modal abierto
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (deleteModal.style.display === 'flex') { if (!settleConfirm(false)) closeModal(deleteModal); }
+    else if (editorModal.style.display === 'flex') closeModal(editorModal);
+  });
+
+  // Solo con la pregunta seleccionada fuera de curso se puede editar/eliminar
+  if (window.Icons) {
+    $('plusIconSlot').innerHTML = Icons.plus('w-4 h-4');
+    $('editIconSlot').innerHTML = Icons.pencil('w-4 h-4');
+    $('trashIconSlot').innerHTML = Icons.trash('w-4 h-4');
+  }
+  const btnEditQuestion = $('btnEditQuestion');
+  const btnDeleteQuestion = $('btnDeleteQuestion');
+  function syncEditorButtons(state) {
+    const locked = isCurrentLocked(state.currentRoundIndex, state.currentQuestionIndex);
+    btnEditQuestion.disabled = locked || !questionsData;
+    btnDeleteQuestion.disabled = locked || !questionsData;
+    const title = locked ? 'Termina la pregunta en curso para modificarla' : '';
+    btnEditQuestion.title = title;
+    btnDeleteQuestion.title = title;
+  }
+  socket.on('state_update', syncEditorButtons);
+  socket.on('questions_data', () => syncEditorButtons(currentState));
+  syncEditorButtons(currentState);
 });
