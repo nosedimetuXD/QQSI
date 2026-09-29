@@ -5,7 +5,7 @@
       "number": 1,
       "name": "Nivel Fácil",
       "timeLimit": 120,
-      "description": "Tiempo por pregunta: 2:00 minutos. 5 Equipos en competencia.",
+      "description": "Tiempo por pregunta: 2:00 minutos. 6 Equipos en competencia.",
       "questions": [
         {
           "id": "f-1",
@@ -30,8 +30,8 @@
           "number": 3,
           "title": "Pregunta 3",
           "type": "text",
-          "statement": "¿A cuántos mililitros equivale un litro y cuántos gramos hay en un kilogramo?",
-          "answerGuide": "1 Litro = 1,000 mL y 1 Kilogramo = 1,000 g."
+          "statement": "Determine el siguiente término de la sucesión:\n$$3, \\; 8, \\; 15, \\; 24, \\; 35, \\; ?$$",
+          "answerGuide": "Respuesta: 48. Explicación: La regla de la sucesión es n^2 - 1 (para n = 2, 3, 4, 5, 6, 7 => 7^2 - 1 = 48) o sumando números impares consecutivos (+5, +7, +9, +11, +13 => 35 + 13 = 48)."
         },
         {
           "id": "f-4",
@@ -40,7 +40,7 @@
           "type": "multiple_choice",
           "statement": "¿Cuál de los siguientes elementos o sustancias es considerado un contaminante común de los cuerpos de agua?",
           "options": [
-            "A) Oxígeno Disuelto Puro",
+            "A) Oxígeno disuelto puro",
             "B) Agua de lluvia natural",
             "C) Sales minerales inofensivas",
             "D) Plástico de un solo uso"
@@ -51,17 +51,18 @@
           "id": "f-5",
           "number": 5,
           "title": "Pregunta 5",
-          "type": "text",
-          "statement": "¿Cuáles son los porcentajes en la nota definitiva de teoría y laboratorio en las materias que llevan ambas?",
-          "answerGuide": "Teoría 70% y Laboratorio 30% (o según reglamento: 70/30 o 75/25)."
+          "type": "math",
+          "statement": "Calcule la siguiente integral definida:",
+          "math": "\\int_0^3 (2x^2 - 4x + 5) \\, dx",
+          "answerGuide": "Respuesta: 15. Desarrollo: \\left[ \\frac{2}{3}x^3 - 2x^2 + 5x \\right]_0^3 = \\left(\\frac{2}{3}(27) - 2(9) + 5(3)\\right) - 0 = 18 - 18 + 15 = 15."
         },
         {
           "id": "f-6",
           "number": 6,
           "title": "Pregunta 6",
           "type": "text",
-          "statement": "¿Cuál es el estado de la materia que se caracteriza por tener una forma fija y un volumen constante debido a la fuerte cohesión de sus partículas?",
-          "answerGuide": "Estado Sólido."
+          "statement": "¿A cuántos grados Celsius (°C) hierve el agua pura a una presión atmosférica estándar (1 atm), y cuál es la escala de temperatura absoluta en el Sistema Internacional (SI)?",
+          "answerGuide": "Hierve a 100 °C y la escala de temperatura absoluta es el Kelvin (K), donde 100 °C equivalen a 373.15 K."
         },
         {
           "id": "f-7",
@@ -69,31 +70,31 @@
           "title": "Pregunta 7",
           "type": "text",
           "statement": "¿Qué ley de la física establece que «con toda acción ocurre siempre una reacción igual y contraria»?",
-          "answerGuide": "Tercera Ley de Newton (Ley de Acción y Reacción)."
+          "answerGuide": "Tercera Ley de Newton (o principio de acción y reacción)."
         },
         {
           "id": "f-8",
           "number": 8,
           "title": "Pregunta 8",
           "type": "text",
-          "statement": "¿Cuáles son los 6 tipos de cuentas en contabilidad?",
-          "answerGuide": "1. Activos, 2. Pasivos, 3. Patrimonio / Capital, 4. Ingresos, 5. Gastos, 6. Costos (de ventas / producción)."
+          "statement": "¿A cuántos mililitros (mL) equivale un litro (1 L) y cuántos gramos (g) hay en un kilogramo (1 kg)?",
+          "answerGuide": "1 L = 1,000 mL y 1 kg = 1,000 g."
         },
         {
           "id": "f-9",
           "number": 9,
           "title": "Pregunta 9",
           "type": "text",
-          "statement": "¿Cómo se denomina genéricamente a una estructura de control iterativa que permite repetir un bloque de instrucciones de manera automatizada?",
-          "answerGuide": "Bucle / Ciclo (Loop) — for, while, do-while."
+          "statement": "Dentro de los lenguajes de programación, ¿para qué sirven las instrucciones «While», «For» y «Do-While»?",
+          "answerGuide": "Para crear ciclos, bucles o estructuras de control iterativas que repiten un bloque de código."
         },
         {
           "id": "f-10",
           "number": 10,
           "title": "Pregunta 10",
           "type": "text",
-          "statement": "¿A qué temperatura hierve el agua? Escríbalo en el Sistema Internacional",
-          "answerGuide": "373.15 K (o 100 °C = 373.15 Kelvin en el SI)."
+          "statement": "¿Cuál es el estado de la materia que se caracteriza por tener una forma fija y un volumen constante debido a la fuerte cohesión de sus partículas?",
+          "answerGuide": "El estado sólido."
         }
       ]
     },
@@ -109,16 +110,16 @@
           "number": 1,
           "title": "Pregunta 1",
           "type": "text",
-          "statement": "En una encuesta a 100 estudiantes, 60 leen la revista A, 40 la B y 20 ambas. ¿Cuántos estudiantes no leen ninguna de las dos revistas?",
-          "answerGuide": "|A ∪ B| = 60 + 40 - 20 = 80. No leen ninguna = 100 - 80 = 20 estudiantes."
+          "statement": "En una encuesta a 100 estudiantes, 60 leen la revista A, 40 leen la revista B, y 20 leen ambas revistas. ¿Cuántos estudiantes no leen ninguna de las dos revistas?",
+          "answerGuide": "Respuesta: 20 estudiantes. Explicación: |A ∪ B| = 60 + 40 - 20 = 80. No leen ninguna = 100 - 80 = 20."
         },
         {
           "id": "n-2",
           "number": 2,
           "title": "Pregunta 2",
           "type": "text",
-          "statement": "Escriba 3 conjuntos de reglas para la presentación de un trabajo escrito",
-          "answerGuide": "Ejemplos válidos: Normas APA, Normas IEEE, Normas ICONTEC, Normas Vancouver, Normas Chicago/MLA."
+          "statement": "Escriba 3 normas de citación para un trabajo formal escrito:",
+          "answerGuide": "Ejemplos válidos: Normas APA, Normas Vancouver, Normas ICONTEC, Normas IEEE, Normas Chicago o MLA."
         },
         {
           "id": "n-3",
@@ -126,39 +127,39 @@
           "title": "Pregunta 3",
           "type": "text",
           "statement": "¿Qué es WWW?",
-          "answerGuide": "World Wide Web (Red Informática Mundial / Sistema de distribución de documentos web interconectados a través de Internet)."
+          "answerGuide": "World Wide Web (Red Informática Mundial)."
         },
         {
           "id": "n-4",
           "number": 4,
           "title": "Pregunta 4",
           "type": "text",
-          "statement": "En un control de calidad se analizan 5 muestras con los siguientes valores numéricos: 10, 12, 10, 14, 19. ¿Cuál es la mediana de este conjunto de datos?",
-          "answerGuide": "Ordenados: [10, 10, 12, 14, 19]. La mediana (valor central) es 12."
+          "statement": "En un control de calidad (aplicable a software, estructuras civiles, reacciones químicas o líneas de producción de alimentos), se analizan cinco muestras con los siguientes valores numéricos: 10, 12, 10, 14 y 19. ¿Cuál es la mediana de este conjunto de datos?",
+          "answerGuide": "La mediana es 12. Explicación: Al ordenar los datos (10, 10, 12, 14, 19), el valor central es 12."
         },
         {
           "id": "n-5",
           "number": 5,
           "title": "Pregunta 5",
           "type": "text",
-          "statement": "Si se lanza un dado legal de 6 caras una sola vez. ¿Cuál es la probabilidad matemática de obtener un número par?",
-          "answerGuide": "Casos favorables: {2, 4, 6} (3 de 6). P = 3/6 = 1/2 = 0.5 (50%)."
+          "statement": "Si se lanza un dado legal de 6 caras una sola vez, ¿cuál es la probabilidad matemática (en fracción o porcentaje) de obtener un número par?",
+          "answerGuide": "Respuesta: 3/6, que simplificado es 1/2 (o 50%). Casos favorables: {2, 4, 6}."
         },
         {
           "id": "n-6",
           "number": 6,
           "title": "Pregunta 6",
           "type": "text",
-          "statement": "¿Cuánto trabajo mecánico en Joules realiza una fuerza constante de 15 N al desplazar un objeto a lo largo de una línea recta una distancia de 4 metros en la misma dirección de la fuerza?",
-          "answerGuide": "W = F · d = 15 N · 4 m = 60 Joules (J)."
+          "statement": "¿Cuánto trabajo mecánico (en Joules) realiza una fuerza constante de 15 N al desplazar un objeto a lo largo de una línea recta una distancia de 4 metros en la misma dirección de la fuerza?",
+          "answerGuide": "Respuesta: 60 Joules (W = F · d = 15 N × 4 m = 60 J)."
         },
         {
           "id": "n-7",
           "number": 7,
           "title": "Pregunta 7",
           "type": "text",
-          "statement": "Una bomba industrial traslada un volumen total de 1,200 litros de líquido en un tiempo de 4 horas. ¿Cuál es el caudal promedio de transferencia expresado en litros por minuto?",
-          "answerGuide": "4 horas = 240 minutos. Q = 1,200 L / 240 min = 5 Litros por minuto (5 L/min)."
+          "statement": "Una bomba industrial (o sistema de transferencia) traslada un volumen total de 1,200 litros de líquido en un tiempo de 4 horas. ¿Cuál es el caudal promedio de transferencia expresado en litros por minuto (L/min)?",
+          "answerGuide": "Respuesta: 5 L/min. Explicación: 4 horas = 240 minutos. Caudal Q = 1,200 L / 240 min = 5 L/min."
         }
       ]
     },
@@ -173,44 +174,42 @@
           "id": "d-1",
           "number": 1,
           "title": "Pregunta 1",
-          "type": "code",
-          "statement": "Encuentra el error en el siguiente código en C++:",
-          "code": "#include <iostream>\nusing namespace std;\n\nint sumarElementos(int vector[], int n) {\n    int suma = 0;\n    for (int i = 0; i < n; n++) {  // <-- ERROR AQUÍ\n        suma += vector[i];\n    }\n    return suma;\n}\n\nint main() {\n    int numeros[] = {10, 20, 30, 40, 50};\n    int resultado = sumarElementos(numeros, 5);\n    cout << \"La suma total es: \" << resultado << endl;\n    return 0;\n}",
-          "codeLang": "cpp",
-          "answerGuide": "El bucle for incrementa 'n' en lugar de 'i' (`n++` en vez de `i++`), lo que provoca un bucle infinito y desbordamiento de memoria."
+          "type": "math",
+          "statement": "Sean los conjuntos $A = \\{x \\in \\mathbb{R} : x^2 < 16\\}$ y $B = \\{x \\in \\mathbb{R} : x \\ge 2\\}$. Determine la intersección $A \\cap B$:",
+          "answerGuide": "Respuesta: [2, 4) o {x ∈ ℝ : 2 ≤ x < 4}. Explicación: x^2 < 16 => -4 < x < 4, es decir A = (-4, 4). B = [2, ∞). Por tanto, A ∩ B = [2, 4)."
         },
         {
           "id": "d-2",
           "number": 2,
           "title": "Pregunta 2",
           "type": "math",
-          "statement": "Resolver sistema de ecuaciones 3x3:",
+          "statement": "Resolver el siguiente sistema de ecuaciones 3x3:",
           "math": "\\begin{cases} 3x + 3y + 5z = 1 \\\\ 3x + 5y + 9z = 2 \\\\ 5x + 9y + 17z = 4 \\end{cases}",
-          "answerGuide": "Solución: x = 1, y = 1, z = -1 (Comprobación: 3(1)+3(1)+5(-1) = 1; 3+5-9 = -1... compatible determinado resolviendo por Gauss/Cramer)."
+          "answerGuide": "Solución exacta: x = 0, y = -0.5 (-1/2), z = 0.5 (1/2). Comprobación: 3(0) + 3(-0.5) + 5(0.5) = -1.5 + 2.5 = 1; 3(0) + 5(-0.5) + 9(0.5) = -2.5 + 4.5 = 2; 5(0) + 9(-0.5) + 17(0.5) = -4.5 + 8.5 = 4."
         },
         {
           "id": "d-3",
           "number": 3,
           "title": "Pregunta 3",
           "type": "math",
-          "statement": "Una planta industrial busca optimizar sus costos en reactivos químicos. Si la función de costos totales está modelada por la ecuación cuadrática:\n$$C(x) = x^2 - 8x + 30$$\nDonde $x$ representa el número de lotes producidos. ¿Cuántos lotes se deben procesar para minimizar el costo total, y cuál es el valor de ese costo mínimo?",
-          "answerGuide": "Vértice: x = -b/(2a) = 8/(2) = 4 lotes. Costo mínimo: C(4) = 4^2 - 8(4) + 30 = 16 - 32 + 30 = 14 unidades monetarias."
+          "statement": "Una planta industrial busca optimizar sus costos operativos (ya sea en procesamiento de datos, uso de materiales de construcción, reactivos químicos o materias primas alimentarias). Si la función de costos totales está modelada por la ecuación cuadrática:\n$$C(x) = x^2 - 8x + 30$$\nDonde $x$ representa el número de lotes producidos, ¿cuántos lotes se deben procesar para minimizar el costo total, y cuál es el valor de ese costo mínimo?",
+          "answerGuide": "Respuesta: Se deben producir 4 lotes, y el costo mínimo resultante es de 14 unidades.\nExplicación: C'(x) = 2x - 8 = 0 => x = 4. Evaluación: C(4) = 4^2 - 8(4) + 30 = 16 - 32 + 30 = 14."
         },
         {
           "id": "d-4",
           "number": 4,
           "title": "Pregunta 4",
           "type": "math",
-          "statement": "La ley de enfriamiento de Newton establece que la tasa de cambio de la temperatura (T) de un cuerpo respecto al tiempo (t) es proporcional a la diferencia entre su temperatura y la del medio ambiente (T_m), modelada por la ecuación diferencial:\n$$\\frac{dT}{dt} = -k(T - T_m)$$\nDonde $k > 0$ es una constante. Resuelva esta ecuación por separación de variables para encontrar la función general de la temperatura $T(t)$",
-          "answerGuide": "\\frac{dT}{T - T_m} = -k\\,dt \\implies \\ln|T - T_m| = -kt + C \\implies T(t) = T_m + C e^{-kt}."
+          "statement": "La ley de enfriamiento de Newton establece que la tasa de cambio de la temperatura $T$ de un cuerpo respecto al tiempo $t$ es proporcional a la diferencia entre su temperatura y la del medio ambiente $T_m$, modelada por la ecuación diferencial:\n$$\\frac{dT}{dt} = -k(T - T_m)$$\nDonde $k > 0$ es una constante. Resuelva esta ecuación por separación de variables para encontrar la función general de la temperatura $T(t)$.",
+          "answerGuide": "Respuesta: T(t) = T_m + C e^{-kt} (donde C es la constante de integración).\nDesarrollo: \\frac{dT}{T - T_m} = -k\\,dt \\implies \\ln|T - T_m| = -kt + c_1 \\implies T - T_m = C e^{-kt} \\implies T(t) = T_m + C e^{-kt}."
         },
         {
           "id": "d-5",
           "number": 5,
           "title": "Pregunta 5",
           "type": "math",
-          "statement": "La tasa de flujo instantánea de un flujo másico en un reactor está modelada por la función:\n$$f(t) = 3t^2 + 2t$$\nCalcula la cantidad total que ingresa al sistema desde el instante inicial ($t = 0$) hasta $t = 3$ segundos",
-          "answerGuide": "M = \\int_0^3 (3t^2 + 2t)\\,dt = [t^3 + t^2]_0^3 = (3^3 + 3^2) - 0 = 27 + 9 = 36 unidades de masa."
+          "statement": "La tasa de flujo instantánea de entrada (ya sea de datos en una red, caudal de llenado o flujo másico en un reactor) está modelada en función del tiempo $t$ (en segundos) por la función:\n$$f(t) = 3t^2 + 2t$$\nCalcule la cantidad total acumulada que ingresa al sistema desde el instante inicial $t = 0$ hasta $t = 3$ segundos.",
+          "answerGuide": "Respuesta: La cantidad total acumulada es de 36 unidades.\nDesarrollo: \\int_0^3 (3t^2 + 2t)\\,dt = [t^3 + t^2]_0^3 = (3^3 + 3^2) - 0 = 27 + 9 = 36."
         }
       ]
     },
@@ -226,26 +225,26 @@
           "number": 1,
           "title": "Pregunta 1",
           "type": "math",
-          "statement": "Por transformada de Laplace, resolver:",
-          "math": "\\frac{dy}{dt} + 3y = 13\\sin(2t), \\quad \\text{con } y(0) = 6",
-          "answerGuide": "\\mathcal{L}\\{y' + 3y\\} = sY(s) - 6 + 3Y(s) = \\frac{26}{s^2 + 4} \\implies Y(s) = \\frac{6}{s+3} + \\frac{26}{(s+3)(s^2+4)}. Descomponiendo en fracciones parciales: y(t) = 8e^{-3t} - 2\\cos(2t) + 3\\sin(2t)."
+          "statement": "Resolver la siguiente ecuación diferencial lineal homogénea de segundo orden:",
+          "math": "\\frac{d^2y}{dx^2} - 5\\frac{dy}{dx} - 6y = 0",
+          "answerGuide": "Respuesta: y(x) = C_1 e^{6x} + C_2 e^{-x}.\nDesarrollo: Ecuación característica r^2 - 5r - 6 = 0 \\implies (r - 6)(r + 1) = 0 \\implies r_1 = 6, r_2 = -1. Por lo tanto, la solución general es y(x) = C_1 e^{6x} + C_2 e^{-x}."
         },
         {
           "id": "e-2",
           "number": 2,
           "title": "Pregunta 2",
           "type": "text",
-          "statement": "Escriba las 4 leyes de Maxwell tanto en forma integral como en forma diferencial",
-          "answerGuide": "1. Ley de Gauss eléctrica (∇·E = ρ/ε₀), 2. Ley de Gauss magnética (∇·B = 0), 3. Ley de Faraday (∇×E = -∂B/∂t), 4. Ley de Ampère-Maxwell (∇×B = μ₀J + μ₀ε₀∂E/∂t) y sus correspondientes formas integrales de flujo y circulación."
+          "statement": "Escriba las 4 leyes de Maxwell en forma diferencial:",
+          "answerGuide": "1. Ley de Gauss eléctrica: ∇·E = ρ / ε₀\n2. Ley de Gauss magnética: ∇·B = 0\n3. Ley de Faraday: ∇×E = -∂B/∂t\n4. Ley de Ampère-Maxwell: ∇×B = μ₀J + μ₀ε₀(∂E/∂t)"
         },
         {
           "id": "e-3",
           "number": 3,
           "title": "Pregunta 3",
           "type": "math",
-          "statement": "Resolver:",
+          "statement": "Resolver la siguiente integral impropia (Integral Gaussiana):",
           "math": "\\int_{-\\infty}^{\\infty} e^{-x^2} \\, dx",
-          "answerGuide": "I = \\sqrt{\\pi}. (Demostración mediante I^2 = \\int_{-\\infty}^\\infty \\int_{-\\infty}^\\infty e^{-(x^2+y^2)} dx dy = \\int_0^{2\\pi} d\\theta \\int_0^\\infty r e^{-r^2} dr = 2\\pi \\cdot \\frac{1}{2} = \\pi \\implies I = \\sqrt{\\pi})."
+          "answerGuide": "Respuesta: \\sqrt{\\pi}.\nDemostración: I^2 = \\int_{-\\infty}^\\infty \\int_{-\\infty}^\\infty e^{-(x^2+y^2)} \\, dx \\, dy = \\int_0^{2\\pi} d\\theta \\int_0^\\infty r e^{-r^2} \\, dr = 2\\pi \\cdot \\frac{1}{2} = \\pi \\implies I = \\sqrt{\\pi}."
         }
       ]
     }
