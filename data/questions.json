@@ -40,11 +40,12 @@
           "type": "multiple_choice",
           "statement": "¿Cuál de los siguientes elementos o sustancias es considerado un contaminante común de los cuerpos de agua?",
           "options": [
-            "A) Oxígeno disuelto puro",
-            "B) Agua de lluvia natural",
-            "C) Sales minerales inofensivas",
-            "D) Plástico de un solo uso"
+            "Oxígeno disuelto puro",
+            "Agua de lluvia natural",
+            "Sales minerales inofensivas",
+            "Plástico de un solo uso"
           ],
+          "correctOption": "D",
           "answerGuide": "Opción D: Plástico de un solo uso."
         },
         {

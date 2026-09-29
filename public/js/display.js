@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultsScreen = document.getElementById('resultsScreen');
   
   const lobbyTeamsGrid = document.getElementById('lobbyTeamsGrid');
+  const lobbyQuorum = document.getElementById('lobbyQuorum');
   const questionRibbon = document.getElementById('questionRibbon');
   const questionStatement = document.getElementById('questionStatement');
   const questionMathArea = document.getElementById('questionMathArea');
@@ -116,8 +117,20 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDisplay();
   });
 
+  // Anillo circular del cronómetro
+  const timerArc = document.getElementById('timerArc');
+  const RING_LENGTH = 2 * Math.PI * 27;
+  let timerDuration = 0;
+
+  function updateTimerRing(remaining) {
+    if (!timerArc) return;
+    const ratio = timerDuration > 0 ? Math.max(0, Math.min(1, remaining / timerDuration)) : 1;
+    timerArc.style.strokeDashoffset = String(RING_LENGTH * (1 - ratio));
+  }
+
   socket.on('timer_tick', ({ remaining }) => {
     timerText.textContent = formatTime(remaining);
+    updateTimerRing(remaining);
     if (remaining <= 10 && remaining > 0) {
       timerContainer.classList.add('urgent');
       SoundFX.urgentTick();
@@ -151,9 +164,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (state.timer) {
       timerText.textContent = formatTime(state.timer.remaining);
+      timerDuration = state.timer.duration || timerDuration || state.timer.remaining;
+      updateTimerRing(state.timer.remaining);
     }
 
-    renderLobbyTeams(teams);
+    renderLobbyTeams(teams, state.readyTeams || []);
     renderFooterSubmissions(state);
 
     if (state.showLeaderboard === true || state.questionState === 'evaluated') {
@@ -173,20 +188,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function renderLobbyTeams(teams) {
+  function renderLobbyTeams(teams, readyTeams) {
+    const activeCount = teams.filter(t => !t.eliminated).length;
+    const readyCount = teams.filter(t => !t.eliminated && readyTeams.includes(t.id)).length;
+    if (lobbyQuorum) {
+      lobbyQuorum.textContent = `${readyCount} / ${activeCount} listos`;
+      lobbyQuorum.dataset.full = String(activeCount > 0 && readyCount === activeCount);
+    }
+    // Filas equilibradas: hasta 6 en una fila, si no dos filas parejas
+    const cols = teams.length <= 6 ? teams.length : Math.ceil(teams.length / 2);
+    lobbyTeamsGrid.style.setProperty('--cols', Math.max(cols, 1));
     lobbyTeamsGrid.innerHTML = teams.map(team => {
       const isEliminated = team.eliminated;
+      const isReady = !isEliminated && readyTeams.includes(team.id);
+      const stateLabel = isEliminated ? 'Eliminado' : (isReady ? 'Listo ✓' : 'Esperando');
       return `
-        <div style="padding: 12px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; ${
-          isEliminated 
-            ? 'background: rgba(12, 27, 61, 0.4); opacity: 0.4; border: 1px solid rgba(255,255,255,0.08);' 
-            : 'background: rgba(12, 27, 61, 0.9); border: 1.5px solid rgba(76, 144, 222, 0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.4);'
-        }">
-          <div style="width: 40px; height: 40px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: #fff; margin-bottom: 8px; background-color: ${team.color}; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">
+        <div class="team-chip${isEliminated ? ' is-out' : ''}${isReady ? ' is-ready' : ''}">
+          <div class="team-chip-avatar" style="background-color: ${team.color};">
             ${isEliminated && window.Icons ? Icons.cross("w-5 h-5") : (window.Icons ? Icons.users("w-5 h-5") : '')}
           </div>
-          <span style="font-size: 13px; font-weight: 800; color: #ffffff; line-height: 1.2;">${team.shortName}</span>
-          ${isEliminated ? '<span style="font-size: 10px; color: #D42900; font-weight: 800; text-transform: uppercase; margin-top: 4px;">Eliminado</span>' : ''}
+          <div>
+            <span class="team-chip-name">${team.shortName}</span>
+            <span class="team-chip-state">${stateLabel}</span>
+          </div>
         </div>
       `;
     }).join('');
@@ -246,12 +270,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if (q.options && q.options.length > 0) {
       questionOptionsGrid.style.display = 'grid';
       const letters = ['A', 'B', 'C', 'D'];
-      questionOptionsGrid.innerHTML = q.options.map((opt, idx) => `
-        <div class="option-card">
-          <div class="option-letter">${letters[idx] || (idx + 1)}</div>
-          <span>${opt.replace(/^[A-D]\)\s*/, '')}</span>
-        </div>
-      `).join('');
+      // Revelación semántica: solo tras calificar (no se filtra la elección durante la pregunta)
+      // Solo al terminar la pregunta, para no dar pistas a los equipos que aún no responden
+      const questionEnded = state.questionState === 'ended';
+      const evaluated = questionEnded ? (state.submissions || []).filter(sub => sub.correct !== null && sub.option) : [];
+      const correctSet = new Set(evaluated.filter(sub => sub.correct === true).map(sub => sub.option));
+      const wrongSet = new Set(evaluated.filter(sub => sub.correct === false).map(sub => sub.option));
+      const revealAnswer = questionEnded && q.correctOption;
+      if (revealAnswer) correctSet.add(String(q.correctOption).toUpperCase());
+
+      questionOptionsGrid.innerHTML = q.options.map((opt, idx) => {
+        const letter = letters[idx] || String(idx + 1);
+        const isCorrect = correctSet.has(letter);
+        const isWrong = !isCorrect && wrongSet.has(letter);
+        const tag = isCorrect ? '<span class="option-tag">✓ Correcta</span>' : (isWrong ? '<span class="option-tag">✕ Incorrecta</span>' : '');
+        return `
+          <div class="option-card${isCorrect ? ' is-correct' : ''}${isWrong ? ' is-wrong' : ''}">
+            <div class="option-letter">${letter}</div>
+            <span class="option-text">${opt.replace(/^[A-D]\)\s*/, '')}</span>
+            ${tag}
+          </div>
+        `;
+      }).join('');
     } else {
       questionOptionsGrid.style.display = 'none';
     }
@@ -262,15 +302,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (state.questionState === 'running') {
       questionStatusIndicator.textContent = "Pregunta en curso — Equipos respondiendo con el pulsador";
-      questionStatusIndicator.style.color = "#4C90DE";
+      questionStatusIndicator.dataset.tone = "active";
       if (questionResultsBreakdown) questionResultsBreakdown.style.display = 'none';
     } else if (state.questionState === 'paused') {
       questionStatusIndicator.textContent = "Tiempo en pausa";
-      questionStatusIndicator.style.color = "#FF7326";
+      questionStatusIndicator.dataset.tone = "warning";
       if (questionResultsBreakdown) questionResultsBreakdown.style.display = 'none';
     } else if (state.questionState === 'ended' || hasEvaluated) {
-      questionStatusIndicator.textContent = hasEvaluated ? "¡Pregunta Calificada! Puntos asignados:" : "Tiempo agotado — Calificando respuestas";
-      questionStatusIndicator.style.color = "#4C90DE";
+      questionStatusIndicator.textContent = hasEvaluated ? "¡Pregunta calificada! Puntos asignados" : "Tiempo agotado — Calificando respuestas";
+      questionStatusIndicator.dataset.tone = hasEvaluated ? "success" : "neutral";
 
       if (questionResultsBreakdown && (submissions.length > 0 || hasEvaluated)) {
         questionResultsBreakdown.style.display = 'block';
@@ -300,55 +340,43 @@ document.addEventListener('DOMContentLoaded', () => {
       const seconds = (sub.elapsedMs / 1000).toFixed(1);
       const totalRoundPts = roundScores[sub.teamId] !== undefined ? roundScores[sub.teamId] : (team.score || 0);
 
+      // Medalla solo para los 3 primeros aciertos; la etiqueta muestra el orden de llegada
       let medalSvg = '';
-      if (idx === 0 && window.Icons) medalSvg = Icons.medal1("w-4 h-4");
-      else if (idx === 1 && window.Icons) medalSvg = Icons.medal2("w-4 h-4");
-      else if (idx === 2 && window.Icons) medalSvg = Icons.medal3("w-4 h-4");
+      if (isCorrect && idx === 0 && window.Icons) medalSvg = Icons.medal1("w-4 h-4");
+      else if (isCorrect && idx === 1 && window.Icons) medalSvg = Icons.medal2("w-4 h-4");
+      else if (isCorrect && idx === 2 && window.Icons) medalSvg = Icons.medal3("w-4 h-4");
 
-      let cardBorder = 'rgba(76, 144, 222, 0.4)';
-      let cardBg = 'rgba(12, 27, 61, 0.95)';
-      let pointsBadge = `<span style="color: #8ba3c4; font-size: 11px;">Pendiente de juez</span>`;
-
+      let stateClass = '';
+      let pointsHtml = `<span class="result-note">Pendiente de juez</span>`;
       if (isCorrect) {
-        cardBorder = '#286EDD';
-        cardBg = 'rgba(40, 110, 221, 0.2)';
-        pointsBadge = `
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
-            <span style="font-size: 15px; font-weight: 900; color: #4C90DE; font-family: monospace;">+${sub.totalPoints || 10} pts</span>
-            <span style="font-size: 10px; font-weight: 700; color: #6CA8E4;">(10 + ${sub.bonusPoints || 0} bono)</span>
-          </div>
+        stateClass = ' is-correct';
+        pointsHtml = `
+          <span class="result-points">+${sub.totalPoints || 10} pts</span>
+          <span class="result-note">10 + ${sub.bonusPoints || 0} bono</span>
         `;
       } else if (isWrong) {
-        cardBorder = '#D42900';
-        cardBg = 'rgba(212, 41, 0, 0.15)';
-        pointsBadge = `
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
-            <span style="font-size: 14px; font-weight: 900; color: #DF440C; font-family: monospace;">0 pts</span>
-            <span style="font-size: 10px; font-weight: 700; color: #FF853E;">(Incorrecto)</span>
-          </div>
+        stateClass = ' is-wrong';
+        pointsHtml = `
+          <span class="result-points">0 pts</span>
+          <span class="result-note">Incorrecta</span>
         `;
       }
 
       return `
-        <div style="background: ${cardBg}; border: 1.5px solid ${cardBorder}; border-radius: 14px; padding: 12px 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-            <div style="display: flex; align-items: center; gap: 4px;">
-              ${medalSvg}
-              <span style="font-size: 13px; font-weight: 900; color: #FFBD3E; font-family: monospace;">#${idx + 1}</span>
-            </div>
-            <span style="font-size: 11px; color: #8ba3c4; font-family: monospace;">${seconds}s</span>
+        <div class="result-card${stateClass}">
+          <div class="result-top">
+            <span class="result-rank">${medalSvg}Llegó ${sub.order || idx + 1}.º</span>
+            <span class="result-time">${seconds}s</span>
           </div>
-
-          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-            <div style="width: 10px; height: 10px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0;"></div>
-            <span style="font-size: 14px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${sub.teamName}</span>
+          <div class="result-team">
+            <span class="team-dot" style="background-color: ${team.color};"></span>
+            <span>${sub.teamName}</span>
+            ${sub.option && sub.correct !== null ? `<span class="result-option">${sub.option}</span>` : ''}
           </div>
-
-          ${pointsBadge}
-
-          <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 11px; font-weight: 700;">
-            <span style="color: #8ba3c4;">Total Ronda:</span>
-            <span style="color: #4C90DE; font-family: monospace; font-weight: 900;">${totalRoundPts} pts</span>
+          <div class="result-top">${pointsHtml}</div>
+          <div class="result-foot">
+            <span>Total ronda</span>
+            <strong>${totalRoundPts} pts</strong>
           </div>
         </div>
       `;
@@ -358,31 +386,33 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderFooterSubmissions(state) {
     const submissions = state.submissions || [];
     if (submissions.length === 0) {
-      liveSubmissionsList.innerHTML = '<span style="font-size: 12px; color: #5a7a9f; font-style: italic;">Esperando pulsaciones...</span>';
+      liveSubmissionsList.innerHTML = '<span class="muted" style="font-size: 13px;">Esperando pulsaciones…</span>';
       return;
     }
 
+    // Con muchas entregas se omiten los segundos para que quepan todas en la barra
+    const compact = submissions.length > 4;
     liveSubmissionsList.innerHTML = submissions.map((sub, idx) => {
       const order = idx + 1;
       const seconds = (sub.elapsedMs / 1000).toFixed(1);
       const isCorrect = sub.correct === true;
       const isWrong = sub.correct === false;
-      
-      let badgeStyle = 'background: rgba(12, 27, 61, 0.9); border: 1.5px solid #4C90DE; color: #ffffff;';
-      let iconHtml = `#${order}`;
+
+      let stateClass = '';
+      let orderLabel = `${order}.º`;
       if (isCorrect) {
-        badgeStyle = 'background: rgba(40, 110, 221, 0.4); border: 1.5px solid #286EDD; color: #6CA8E4;';
-        iconHtml = `#${order} (+${sub.totalPoints || 10})`;
+        stateClass = ' is-correct';
+        orderLabel = `${order}.º +${sub.totalPoints || 10}`;
       } else if (isWrong) {
-        badgeStyle = 'background: rgba(212, 41, 0, 0.3); border: 1.5px solid #D42900; color: #FF853E;';
-        iconHtml = `#${order} (0)`;
+        stateClass = ' is-wrong';
+        orderLabel = `${order}.º ✕`;
       }
 
       return `
-        <div class="submission-pill" style="${badgeStyle}">
-          <span style="font-weight: 900; font-family: monospace;">${iconHtml}</span>
-          <span style="font-weight: 800;">${sub.teamName}</span>
-          <span style="font-size: 11px; opacity: 0.8; font-family: monospace;">${seconds}s</span>
+        <div class="submission-pill${stateClass}">
+          <span class="order">${orderLabel}</span>
+          <span>${sub.teamName}</span>
+          ${compact ? '' : `<span class="secs">${seconds}s</span>`}
         </div>
       `;
     }).join('');
@@ -400,54 +430,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (activeTeams.length > 0) {
       html += activeTeams.map((team, idx) => {
+        // Empates comparten puesto (1, 2, 2, 4…)
+        const score = team.score || 0;
+        const place = 1 + activeTeams.filter(t => (t.score || 0) > score).length;
+        const tied = activeTeams.filter(t => (t.score || 0) === score).length > 1;
         let medalSvg = '';
-        if (idx === 0 && window.Icons) medalSvg = Icons.medal1("w-6 h-6");
-        else if (idx === 1 && window.Icons) medalSvg = Icons.medal2("w-6 h-6");
-        else if (idx === 2 && window.Icons) medalSvg = Icons.medal3("w-6 h-6");
+        if (place === 1 && window.Icons) medalSvg = Icons.medal1("w-6 h-6");
+        else if (place === 2 && window.Icons) medalSvg = Icons.medal2("w-6 h-6");
+        else if (place === 3 && window.Icons) medalSvg = Icons.medal3("w-6 h-6");
 
-        const isChampion = activeTeams.length === 1 || (state.currentRoundIndex === 3 && idx === 0);
-        const placeLabel = isChampion ? '¡Ganador!' : `${idx + 1}º Lugar`;
+        const isChampion = !tied && place === 1 && (activeTeams.length === 1 || state.currentRoundIndex === 3);
+        const placeLabel = isChampion ? '¡Ganador!' : `${place}.º lugar${tied ? ' (empate)' : ''}`;
 
         return `
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-radius: 14px; background: rgba(12, 27, 61, 0.9); border: 1.5px solid ${idx === 0 ? '#FFBD3E' : 'rgba(255, 255, 255, 0.15)'}; box-shadow: ${idx === 0 ? '0 0 15px rgba(255, 189, 62, 0.3)' : 'none'};">
-            <div style="display: flex; align-items: center; gap: 14px;">
-              <div style="display: flex; align-items: center; gap: 6px; min-width: 100px;">
-                ${medalSvg}
-                <span style="font-size: 16px; font-weight: 900; color: ${idx === 0 ? '#FFBD3E' : '#4C90DE'}; font-family: monospace;">${placeLabel}</span>
-              </div>
-              <div style="width: 14px; height: 14px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0;"></div>
-              <span style="font-size: 16px; font-weight: 800; color: #ffffff;">${team.name}</span>
-            </div>
-            <span style="font-size: 22px; font-weight: 900; color: #4C90DE; font-family: monospace;">${team.score || 0} pts</span>
+          <div class="lb-row${place === 1 ? ' is-first' : ''}" style="--i: ${idx};">
+            <span class="lb-place">${medalSvg}${placeLabel}</span>
+            <span class="lb-team">
+              <span class="team-dot" style="width: 14px; height: 14px; background-color: ${team.color};"></span>
+              <span>${team.name}</span>
+            </span>
+            <span class="lb-score">${team.score || 0}<small>pts</small></span>
           </div>
         `;
       }).join('');
     } else {
-      html += `
-        <div style="text-align: center; color: #8ba3c4; padding: 16px;">
-          No hay equipos activos en esta ronda.
-        </div>
-      `;
+      html += `<span class="empty-note">No hay equipos activos en esta ronda.</span>`;
     }
 
     if (eliminatedTeams.length > 0) {
       html += `
-        <div style="margin-top: 20px; padding-top: 14px; border-top: 1px dashed rgba(255, 255, 255, 0.2);">
-          <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #8ba3c4; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-            <span>Equipos Eliminados:</span>
-          </div>
-          <div style="display: flex; flex-direction: column; gap: 8px;">
-            ${eliminatedTeams.map(team => `
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-radius: 10px; background: rgba(12, 27, 61, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); opacity: 0.65;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <div style="width: 10px; height: 10px; border-radius: 9999px; background-color: ${team.color}; flex-shrink: 0;"></div>
-                  <span style="font-size: 13px; font-weight: 700; color: #b8cde0;">${team.name}</span>
-                  <span style="font-size: 10px; font-weight: 800; color: #D42900; background: rgba(212, 41, 0, 0.2); padding: 2px 6px; border-radius: 6px;">Eliminado</span>
-                </div>
-                <span style="font-size: 14px; font-weight: 800; color: #8ba3c4; font-family: monospace;">${team.score || 0} pts</span>
+        <div class="lb-out">
+          <span class="eyebrow">Equipos eliminados</span>
+          ${eliminatedTeams.map(team => `
+            <div class="lb-out-row">
+              <div>
+                <span class="team-dot" style="background-color: ${team.color};"></span>
+                <span>${team.name}</span>
+                <span class="tag-out">Eliminado</span>
               </div>
-            `).join('')}
-          </div>
+              <span class="mono muted">${team.score || 0} pts</span>
+            </div>
+          `).join('')}
         </div>
       `;
     }

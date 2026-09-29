@@ -60,9 +60,29 @@ app.use((req, res, next) => {
   next();
 });
 
+// Páginas HTML con versión en los JS/CSS locales (?v=...): cada arranque del servidor
+// cambia la versión, así ningún navegador reutiliza archivos viejos tras una actualización.
+const ASSET_VERSION = Date.now().toString(36);
+const PAGE_ROUTES = { '/': 'index.html', '/index.html': 'index.html', '/admin.html': 'admin.html', '/display.html': 'display.html', '/team.html': 'team.html' };
+app.get(Object.keys(PAGE_ROUTES), (req, res, next) => {
+  fs.readFile(path.join(__dirname, 'public', PAGE_ROUTES[req.path]), 'utf8', (err, html) => {
+    if (err) return next();
+    const versioned = html.replace(/((?:src|href)=")(\/(?:js|css)\/[^"?#]+\.(?:js|css))"/g, `$1$2?v=${ASSET_VERSION}"`);
+    res.setHeader('Cache-Control', 'no-cache');
+    res.type('html').send(versioned);
+  });
+});
+
 // Serve Static Assets with Cache Control
+// HTML/JS/CSS siempre se revalidan (ETag) para que una actualización se vea al recargar;
+// solo las imágenes y fuentes se guardan en caché.
 app.use(express.static(path.join(__dirname, 'public'), {
-  maxAge: NODE_ENV === 'production' ? '1h' : '0'
+  maxAge: NODE_ENV === 'production' ? '1h' : '0',
+  setHeaders: (res, filePath) => {
+    if (/\.(html|js|css|json)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
 }));
 app.use(express.json({ limit: '100kb' }));
 
@@ -75,14 +95,105 @@ app.get('/api/config', (req, res) => {
 });
 
 // Load Questions Bank with Error Handling
+// QUESTIONS_FILE permite apuntar a otro archivo (las pruebas usan una copia temporal)
+const QUESTIONS_FILE = process.env.QUESTIONS_FILE
+  ? path.resolve(process.env.QUESTIONS_FILE)
+  : path.join(__dirname, 'data', 'questions.json');
+
 let questionsData = { rounds: [] };
 try {
-  const qPath = path.join(__dirname, 'data', 'questions.json');
-  if (fs.existsSync(qPath)) {
-    questionsData = JSON.parse(fs.readFileSync(qPath, 'utf8'));
+  // Volumen persistente vacío (p. ej. Coolify): se siembra con el banco incluido en la imagen
+  const bundledFile = path.join(__dirname, 'data', 'questions.json');
+  if (!fs.existsSync(QUESTIONS_FILE) && QUESTIONS_FILE !== bundledFile && fs.existsSync(bundledFile)) {
+    fs.mkdirSync(path.dirname(QUESTIONS_FILE), { recursive: true });
+    fs.copyFileSync(bundledFile, QUESTIONS_FILE);
+    console.log(`[QQSI Server] Banco inicial copiado a ${QUESTIONS_FILE}`);
+  }
+  if (fs.existsSync(QUESTIONS_FILE)) {
+    questionsData = JSON.parse(fs.readFileSync(QUESTIONS_FILE, 'utf8'));
   }
 } catch (err) {
-  console.error('[QQSI Server] Error cargando data/questions.json:', err.message);
+  console.error('[QQSI Server] Error cargando banco de preguntas:', err.message);
+}
+
+// Guardado atómico del banco (escribe a un temporal y lo renombra)
+function saveQuestions() {
+  try {
+    const tmp = QUESTIONS_FILE + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(questionsData, null, 2) + '\n', 'utf8');
+    fs.renameSync(tmp, QUESTIONS_FILE);
+    return true;
+  } catch (err) {
+    console.error('[QQSI Server] Error guardando banco de preguntas:', err.message);
+    return false;
+  }
+}
+
+// Texto multilínea: conserva saltos de línea y tabulaciones (código), quita otros controles
+function cleanText(value, maxLen) {
+  if (typeof value !== 'string') return '';
+  return value
+    .replace(/\r\n?/g, '\n')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+    .trim()
+    .slice(0, maxLen);
+}
+
+const QUESTION_TYPES = ['text', 'math', 'code', 'multiple_choice'];
+
+// Valida y normaliza una pregunta enviada desde el editor del moderador
+function sanitizeQuestion(raw) {
+  if (!raw || typeof raw !== 'object') return { error: 'Datos de pregunta inválidos.' };
+
+  const statement = cleanText(raw.statement, 600);
+  if (statement.length < 3) return { error: 'El enunciado es obligatorio (mínimo 3 caracteres).' };
+
+  const q = { statement };
+  const math = cleanText(raw.math, 400);
+  const code = cleanText(raw.code, 2000);
+  const answerGuide = cleanText(raw.answerGuide, 800);
+  if (math) q.math = math;
+  if (code) {
+    q.code = code;
+    q.codeLang = /^[a-z+#]{1,12}$/i.test(raw.codeLang || '') ? String(raw.codeLang).toLowerCase() : 'cpp';
+  }
+
+  // Sin prefijo "A) ": la letra la pone cada pantalla
+  const rawOptions = Array.isArray(raw.options) ? raw.options.slice(0, 4).map(o => cleanText(o, 200).replace(/^[A-D]\)\s*/, '')) : [];
+  const hasOptions = rawOptions.some(Boolean);
+  if (hasOptions) {
+    if (rawOptions.length !== 4 || rawOptions.some(o => !o)) {
+      return { error: 'Las preguntas de opción múltiple necesitan las 4 opciones (A, B, C y D).' };
+    }
+    const correct = normalizeOption(raw.correctOption);
+    if (!correct) return { error: 'Marca cuál opción es la correcta.' };
+    q.options = rawOptions;
+    q.correctOption = correct;
+  }
+
+  if (!answerGuide && !hasOptions) {
+    return { error: 'Escribe la guía de respuesta para el juez.' };
+  }
+  q.answerGuide = answerGuide || `Opción ${q.correctOption}: ${q.options[q.correctOption.charCodeAt(0) - 65]}`;
+
+  const requested = QUESTION_TYPES.includes(raw.type) && raw.type !== 'multiple_choice' ? raw.type : null;
+  q.type = hasOptions ? 'multiple_choice' : (requested || (code ? 'code' : (math ? 'math' : 'text')));
+  return { question: q };
+}
+
+// Numeración secuencial "Pregunta N" dentro de una ronda
+function renumberRound(round) {
+  round.questions.forEach((q, i) => {
+    q.number = i + 1;
+    q.title = `Pregunta ${i + 1}`;
+  });
+}
+
+// La pregunta en curso (o en pausa) no se puede modificar ni eliminar
+function isQuestionLocked(roundIndex, questionIndex) {
+  return gameState.currentRoundIndex === roundIndex &&
+    gameState.currentQuestionIndex === questionIndex &&
+    (gameState.questionState === 'running' || gameState.questionState === 'paused');
 }
 
 // Validation Helpers
@@ -126,8 +237,17 @@ let gameState = {
   submissions: [], // Array of { teamId, teamName, submittedAt, elapsedMs, correct: boolean | null, basePoints: 0, bonusPoints: 0, totalPoints: 0 }
   roundScores: {},
   history: [],
-  roundSummary: null
+  roundSummary: null,
+  readyTeams: [], // IDs de equipos que confirmaron presencia (check-in)
+  showLeaderboard: false
 };
+
+// Normaliza la opción enviada por un equipo ('A'-'D') o null si no es válida
+function normalizeOption(opt) {
+  if (typeof opt !== 'string') return null;
+  const letter = opt.trim().toUpperCase();
+  return ['A', 'B', 'C', 'D'].includes(letter) ? letter : null;
+}
 
 function initRoundScores() {
   gameState.roundScores = {};
@@ -143,12 +263,20 @@ initRoundScores();
 // Timer Logic
 let timerInterval = null;
 
-function broadcastState() {
+// Estado público: sin pregunta en idle y sin respuestas hasta que la pregunta termina
+function publicState() {
   const payload = JSON.parse(JSON.stringify(gameState));
   if (payload.questionState === 'idle') {
     payload.currentQuestion = null;
+  } else if (payload.currentQuestion && payload.questionState !== 'ended') {
+    delete payload.currentQuestion.correctOption;
+    delete payload.currentQuestion.answerGuide;
   }
-  io.emit('state_update', payload);
+  return payload;
+}
+
+function broadcastState() {
+  io.emit('state_update', publicState());
 }
 
 function startTimer(durationSeconds) {
@@ -221,6 +349,8 @@ function stopTimer() {
   }
   gameState.timer.isRunning = false;
   gameState.questionState = 'ended';
+  // Sincronizar a todos los clientes con el tiempo restante congelado
+  io.emit('timer_tick', { remaining: gameState.timer.remaining });
   broadcastState();
 }
 
@@ -303,12 +433,8 @@ function recalculateScores() {
 io.on('connection', (socket) => {
   const clientIp = socket.handshake.address;
 
-  // Send Initial Snapshot (Sanitized when question is idle)
-  const initialPayload = JSON.parse(JSON.stringify(gameState));
-  if (initialPayload.questionState === 'idle') {
-    initialPayload.currentQuestion = null;
-  }
-  socket.emit('state_update', initialPayload);
+  // Send Initial Snapshot (sin respuestas)
+  socket.emit('state_update', publicState());
 
   // 1. Admin Authentication with Rate Limiting
   socket.on('admin_login', (data) => {
@@ -318,6 +444,8 @@ io.on('connection', (socket) => {
     const clean = validator.sanitizePayload(data);
     if (isValidAdminPassword(clean.password)) {
       socket.emit('admin_login_success', { ok: true });
+      // El banco completo (con respuestas) solo viaja a moderadores autenticados
+      socket.join('admins');
       socket.emit('questions_data', questionsData);
     } else {
       socket.emit('admin_login_error', { error: 'Contraseña de administrador incorrecta.' });
@@ -336,6 +464,23 @@ io.on('connection', (socket) => {
     } else {
       socket.emit('team_login_error', { error: 'Contraseña de carrera incorrecta.' });
     }
+  });
+
+  // 2.1 Check-in de Equipos (Quórum de Preparación)
+  socket.on('team_ready', (data) => {
+    const clean = validator.sanitizePayload(data);
+    if (!validator.isValidTeamId(clean.teamId)) return;
+    const teamId = clean.teamId.toLowerCase().trim();
+    const team = gameState.teams.find(t => t.id === teamId);
+    if (!team || team.eliminated) return;
+
+    const isReady = gameState.readyTeams.includes(teamId);
+    if (clean.ready === true && !isReady) {
+      gameState.readyTeams.push(teamId);
+    } else if (clean.ready === false && isReady) {
+      gameState.readyTeams = gameState.readyTeams.filter(id => id !== teamId);
+    }
+    broadcastState();
   });
 
   // 3. Admin Round Selection
@@ -474,6 +619,7 @@ io.on('connection', (socket) => {
       teamName: team.shortName || team.name,
       submittedAt: Date.now(),
       elapsedMs: Math.max(0, elapsedMs),
+      option: normalizeOption(clean.option),
       correct: null,
       basePoints: 0,
       bonusPoints: 0,
@@ -492,6 +638,7 @@ io.on('connection', (socket) => {
     io.emit('new_submission', {
       teamId: team.id,
       teamName: team.shortName,
+      option: submission.option,
       order: submission.order,
       elapsedMs: submission.elapsedMs
     });
@@ -526,6 +673,102 @@ io.on('connection', (socket) => {
     broadcastState();
   });
 
+  // 7.2 Banco de preguntas: crear / editar
+  socket.on('admin_question_save', (data, ack) => {
+    const reply = typeof ack === 'function' ? ack : () => {};
+    if (!data || !isValidAdminPassword(data.adminPassword)) return reply({ ok: false, error: 'No autorizado.' });
+
+    const roundIndex = data.roundIndex;
+    if (!validator.isValidNumber(roundIndex, 0, questionsData.rounds.length - 1)) {
+      return reply({ ok: false, error: 'Ronda inválida.' });
+    }
+    const round = questionsData.rounds[roundIndex];
+    const isNew = data.questionIndex === null || data.questionIndex === undefined;
+    if (!isNew && !validator.isValidNumber(data.questionIndex, 0, round.questions.length - 1)) {
+      return reply({ ok: false, error: 'La pregunta ya no existe.' });
+    }
+    if (!isNew && isQuestionLocked(roundIndex, data.questionIndex)) {
+      return reply({ ok: false, error: 'No puedes editar la pregunta mientras está en curso. Termínala primero.' });
+    }
+    if (isNew && round.questions.length >= 50) {
+      return reply({ ok: false, error: 'Esta ronda ya tiene el máximo de 50 preguntas.' });
+    }
+
+    const result = sanitizeQuestion(data.question);
+    if (result.error) return reply({ ok: false, error: result.error });
+
+    let questionIndex;
+    if (isNew) {
+      result.question.id = `${round.id}-${Date.now().toString(36)}`;
+      round.questions.push(result.question);
+      questionIndex = round.questions.length - 1;
+    } else {
+      questionIndex = data.questionIndex;
+      result.question.id = round.questions[questionIndex].id;
+      round.questions[questionIndex] = result.question;
+    }
+    renumberRound(round);
+
+    if (gameState.currentRoundIndex === roundIndex && gameState.currentQuestionIndex === questionIndex && gameState.currentQuestion) {
+      gameState.currentQuestion = round.questions[questionIndex];
+    }
+
+    const saved = saveQuestions();
+    io.to('admins').emit('questions_data', questionsData);
+    broadcastState();
+    reply({ ok: true, questionIndex, saved, warning: saved ? null : 'Guardado solo en memoria: no se pudo escribir el archivo.' });
+  });
+
+  // 7.3 Banco de preguntas: eliminar
+  socket.on('admin_question_delete', (data, ack) => {
+    const reply = typeof ack === 'function' ? ack : () => {};
+    if (!data || !isValidAdminPassword(data.adminPassword)) return reply({ ok: false, error: 'No autorizado.' });
+
+    const { roundIndex, questionIndex } = data;
+    if (!validator.isValidNumber(roundIndex, 0, questionsData.rounds.length - 1)) {
+      return reply({ ok: false, error: 'Ronda inválida.' });
+    }
+    const round = questionsData.rounds[roundIndex];
+    if (!validator.isValidNumber(questionIndex, 0, round.questions.length - 1)) {
+      return reply({ ok: false, error: 'La pregunta ya no existe.' });
+    }
+    if (round.questions.length <= 1) {
+      return reply({ ok: false, error: 'Cada ronda necesita al menos una pregunta.' });
+    }
+    if (isQuestionLocked(roundIndex, questionIndex)) {
+      return reply({ ok: false, error: 'No puedes eliminar la pregunta mientras está en curso. Termínala primero.' });
+    }
+
+    round.questions.splice(questionIndex, 1);
+    renumberRound(round);
+
+    // Reindexar el historial de entregas de esa ronda
+    gameState.history = gameState.history
+      .filter(h => !(h.roundIndex === roundIndex && h.questionIndex === questionIndex))
+      .map(h => (h.roundIndex === roundIndex && h.questionIndex > questionIndex)
+        ? Object.assign({}, h, { questionIndex: h.questionIndex - 1 })
+        : h);
+
+    if (gameState.currentRoundIndex === roundIndex) {
+      if (gameState.currentQuestionIndex === questionIndex) {
+        const nextIdx = Math.min(questionIndex, round.questions.length - 1);
+        gameState.currentQuestionIndex = nextIdx;
+        gameState.questionState = 'idle';
+        const savedSubs = gameState.history.find(h => h.roundIndex === roundIndex && h.questionIndex === nextIdx);
+        gameState.submissions = savedSubs ? JSON.parse(JSON.stringify(savedSubs.submissions)) : [];
+        gameState.currentQuestion = round.questions[nextIdx];
+      } else if (gameState.currentQuestionIndex > questionIndex) {
+        gameState.currentQuestionIndex--;
+      }
+      recalculateScores();
+    }
+
+    const saved = saveQuestions();
+    io.to('admins').emit('questions_data', questionsData);
+    broadcastState();
+    reply({ ok: true, saved, warning: saved ? null : 'Eliminada solo en memoria: no se pudo escribir el archivo.' });
+  });
+
   // 8. Admin Elimination Management
   socket.on('admin_eliminate_team', (data) => {
     const clean = validator.sanitizePayload(data);
@@ -536,6 +779,7 @@ io.on('connection', (socket) => {
     if (team) {
       team.eliminated = true;
       team.eliminatedInRound = gameState.currentRoundIndex + 1;
+      gameState.readyTeams = gameState.readyTeams.filter(id => id !== team.id);
       broadcastState();
       io.emit('team_eliminated', {
         teamId: team.id,
@@ -561,6 +805,7 @@ io.on('connection', (socket) => {
         gameState.timer.remaining = nextRound.timeLimit;
         gameState.currentQuestion = nextRound.questions[0];
       }
+      gameState.readyTeams = [];
       initRoundScores();
       broadcastState();
     }
@@ -576,6 +821,8 @@ io.on('connection', (socket) => {
     gameState.questionState = 'idle';
     gameState.submissions = [];
     gameState.history = [];
+    gameState.readyTeams = [];
+    gameState.showLeaderboard = false;
     const firstRound = questionsData.rounds[0];
     if (firstRound) {
       gameState.timer.duration = firstRound.timeLimit;

@@ -44,7 +44,6 @@ c:\Daniel\QQSI\
 │   │   ├── config.js             # Gestor dinámico de conexión WebSocket (Vercel <-> Coolify)
 │   │   ├── display.js            # Controlador de la pantalla gigante y animaciones de podio
 │   │   ├── icons.js              # Biblioteca de iconos vectoriales SVG limpios (cero emojis)
-│   │   ├── questions.js          # Fallback y carga del banco de preguntas del cliente
 │   │   └── team.js               # Controlador del pulsador arcade de los equipos
 │   │
 │   └── img/                      # Activos gráficos vectoriales y de marca
@@ -128,7 +127,6 @@ flowchart TD
 - [`public/js/display.js`](file:///c:/Daniel/QQSI/public/js/display.js): Gestiona los estados visuales del auditorio: sala de espera (lobby), pregunta activa, revelación de alternativas correctas, asignación de bonos y podio de eliminación de rondas.
 - [`public/js/team.js`](file:///c:/Daniel/QQSI/public/js/team.js): Gestiona la sesión del equipo en `localStorage`, la validación de contraseña de carrera, el estado pulsado/bloqueado del botón arcade y el acuse de recibo de entrega con el tiempo exacto en milisegundos.
 - [`public/js/admin.js`](file:///c:/Daniel/QQSI/public/js/admin.js): Controla el flujo del concurso: lanzamiento de preguntas, inicio/pausa/reanudación del temporizador, calificación con botones Correcto/Incorrecto, proyección del ranking y eliminación manual o automática.
-- [`public/js/questions.js`](file:///c:/Daniel/QQSI/public/js/questions.js): Provee una copia estática estructurada de las preguntas para renderizado offline o inmediato en el panel de juez.
 
 ---
 

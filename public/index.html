@@ -3,120 +3,809 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#020713">
   <title>¿Quién quiere ser Ingeniero? — Hub Principal</title>
-  
-  <!-- Socket.IO CDN & Safe Dynamic Config -->
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <script src="/js/config.js"></script>
+  <link rel="icon" type="image/png" href="/img/logo-ceis.png">
 
-  <!-- Custom Native Styles & SVG Icons -->
-  <link rel="stylesheet" href="/css/styles.css">
+  <!-- Google Fonts: Inter, Space Grotesk, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
   <script src="/js/icons.js"></script>
+
+  <style>
+    :root {
+      --surface-base: #020713;
+      --surface-card: #0C1B3D;
+      --surface-card-2: #0D1933;
+      --surface-border: #1E335E;
+      --accent-primary: #286EDD;
+      --accent-deep: #0437A6;
+      --accent-glow: #4C90DE;
+      --accent-led: #6CA8E4;
+      --success: #10B981;
+      --error: #EF4444;
+      --podium: #FFBD3E;
+      --text: #F4F8FF;
+      --text-dim: #A9BCD6;
+      --text-mute: #7C94B8;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--surface-base);
+      background-image:
+        radial-gradient(ellipse 70% 50% at 78% 38%, rgba(40, 110, 221, 0.22), transparent 70%),
+        radial-gradient(ellipse 60% 40% at 10% 100%, rgba(4, 55, 166, 0.28), transparent 70%),
+        radial-gradient(rgba(40, 110, 221, 0.15) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 22px 22px;
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    :focus-visible {
+      outline: 2px solid var(--accent-led);
+      outline-offset: 3px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    /* ---------- Top bar ---------- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-top: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #fff;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 3px rgba(40, 110, 221, 0.25);
+    }
+
+    .brand-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+    .brand-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-mute);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      background: var(--surface-card-2);
+      border: 1px solid var(--surface-border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-mute);
+      flex-shrink: 0;
+      transition: background 300ms, box-shadow 300ms;
+    }
+
+    .status-pill[data-state="online"] .status-dot { background: var(--success); box-shadow: 0 0 10px var(--success); }
+    .status-pill[data-state="offline"] .status-dot { background: var(--error); box-shadow: 0 0 10px var(--error); }
+    .status-pill[data-state="online"] { color: #CFF5E6; }
+
+    .status-sep { color: var(--surface-border); }
+
+    .clock { color: var(--accent-led); font-variant-numeric: tabular-nums; }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      align-items: center;
+      gap: 40px;
+      padding: 56px 0 44px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      border: 1px solid var(--surface-border);
+      background: rgba(12, 27, 61, 0.6);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent-led);
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: clamp(38px, 5.2vw, 68px);
+      line-height: 0.98;
+      letter-spacing: -0.035em;
+    }
+
+    .hero h1 .q { color: var(--text-mute); font-weight: 500; }
+
+    .hero h1 .accent {
+      display: block;
+      color: var(--accent-primary);
+      background: linear-gradient(90deg, #4C90DE 0%, #286EDD 55%, #6CA8E4 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .lede {
+      margin-top: 22px;
+      max-width: 520px;
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+
+    .facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 28px;
+      margin-top: 32px;
+    }
+
+    .fact-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .fact-lbl {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-mute);
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+
+    /* ---------- Buzzer orb (hero art) ---------- */
+    .orb-stage {
+      position: relative;
+      width: min(100%, 400px);
+      aspect-ratio: 1;
+      margin-left: auto;
+    }
+
+    .orb-ring {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .orb-ring .ticks { stroke: var(--surface-border); }
+    .orb-ring .track { stroke: rgba(30, 51, 94, 0.6); }
+    .orb-ring .arc {
+      stroke: var(--accent-glow);
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 6px rgba(76, 144, 222, 0.7));
+      animation: arc-run 12s linear infinite;
+    }
+
+    @keyframes arc-run {
+      from { stroke-dashoffset: 0; }
+      to   { stroke-dashoffset: -1131; }
+    }
+
+    .team-node {
+      fill: var(--surface-card);
+      stroke: var(--surface-border);
+      stroke-width: 2;
+      animation: node-ready 10s var(--ease) infinite;
+    }
+
+    .team-node:nth-of-type(1) { animation-delay: 0s; }
+    .team-node:nth-of-type(2) { animation-delay: 0.9s; }
+    .team-node:nth-of-type(3) { animation-delay: 1.8s; }
+    .team-node:nth-of-type(4) { animation-delay: 2.7s; }
+    .team-node:nth-of-type(5) { animation-delay: 3.6s; }
+
+    @keyframes node-ready {
+      0%, 8%   { fill: var(--surface-card); stroke: var(--surface-border); }
+      14%, 70% { fill: var(--success); stroke: #6EE7B7; }
+      82%, 100% { fill: var(--surface-card); stroke: var(--surface-border); }
+    }
+
+    .orb {
+      position: absolute;
+      inset: 17%;
+      border-radius: 50%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 36% 30%, #3B7FE6 0%, #1C56C4 38%, #0A2F86 72%, #071E57 100%);
+      box-shadow:
+        0 30px 60px -20px rgba(4, 55, 166, 0.9),
+        0 0 0 10px rgba(12, 27, 61, 0.9),
+        0 0 0 11px var(--surface-border),
+        inset 0 -18px 40px rgba(2, 7, 19, 0.55),
+        inset 0 10px 24px rgba(140, 190, 255, 0.25);
+    }
+
+    .wave {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 100%;
+      height: 100%;
+      margin: -50% 0 0 -50%;
+      border-radius: 50%;
+      border: 2px solid rgba(160, 205, 255, 0.55);
+      transform: scale(0);
+      opacity: 0;
+      animation: wave 5.2s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+      will-change: transform, opacity;
+    }
+
+    .wave:nth-child(2) { animation-delay: 1.73s; }
+    .wave:nth-child(3) { animation-delay: 3.46s; }
+
+    @keyframes wave {
+      0%   { transform: scale(0.05); opacity: 0; }
+      12%  { opacity: 0.9; }
+      100% { transform: scale(1.05); opacity: 0; }
+    }
+
+    .orb-core {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+    }
+
+    .orb-core .big {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: clamp(44px, 6vw, 64px);
+      line-height: 1;
+      text-shadow: 0 4px 18px rgba(2, 7, 19, 0.6);
+    }
+
+    .orb-core .small {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: rgba(220, 235, 255, 0.85);
+    }
+
+    /* ---------- Role cards ---------- */
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .section-head h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--text-mute);
+    }
+
+    kbd {
+      display: inline-grid;
+      place-items: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      border-radius: 7px;
+      border: 1px solid var(--surface-border);
+      border-bottom-width: 2px;
+      background: var(--surface-card-2);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-led);
+    }
+
+    .roles {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 18px;
+      padding-bottom: 40px;
+    }
+
+    .role {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 280px;
+      padding: 26px;
+      border-radius: 30px;
+      background: linear-gradient(180deg, var(--surface-card) 0%, var(--surface-card-2) 100%);
+      border: 1px solid var(--surface-border);
+      box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.9);
+      transition: transform 260ms var(--ease), border-color 260ms var(--ease), box-shadow 260ms var(--ease);
+    }
+
+    .role:hover {
+      transform: translateY(-4px);
+      border-color: rgba(76, 144, 222, 0.55);
+      box-shadow: 0 28px 50px -24px rgba(4, 55, 166, 0.8), 0 0 0 4px rgba(40, 110, 221, 0.08);
+    }
+
+    .role--primary {
+      background: linear-gradient(160deg, #3479E6 0%, #286EDD 35%, #0A3FB0 100%);
+      border-color: rgba(160, 205, 255, 0.35);
+      box-shadow: 0 30px 60px -28px rgba(40, 110, 221, 0.9);
+    }
+
+    .role--primary:hover {
+      border-color: rgba(200, 225, 255, 0.6);
+      box-shadow: 0 34px 64px -26px rgba(40, 110, 221, 1), 0 0 0 4px rgba(76, 144, 222, 0.18);
+    }
+
+    .role-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: auto;
+    }
+
+    .role-icon {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: rgba(40, 110, 221, 0.14);
+      border: 1px solid rgba(76, 144, 222, 0.3);
+      color: var(--accent-led);
+    }
+
+    .role-icon svg { width: 24px; height: 24px; }
+
+    .role--primary .role-icon {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #fff;
+    }
+
+    .role--gold .role-icon {
+      background: rgba(255, 189, 62, 0.12);
+      border-color: rgba(255, 189, 62, 0.35);
+      color: var(--podium);
+    }
+
+    .role--primary kbd {
+      background: rgba(2, 7, 19, 0.25);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #fff;
+    }
+
+    .role-tag {
+      display: inline-block;
+      margin-top: 28px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-mute);
+    }
+
+    .role--primary .role-tag { color: rgba(230, 240, 255, 0.8); }
+
+    .role h3 {
+      margin-top: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .role p {
+      margin-top: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+
+    .role--primary p { color: rgba(235, 243, 255, 0.88); }
+
+    .role-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 22px;
+      padding: 13px 14px 13px 20px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      background: rgba(40, 110, 221, 0.12);
+      border: 1px solid rgba(76, 144, 222, 0.35);
+      color: var(--text);
+      transition: background 200ms, border-color 200ms, transform 120ms;
+    }
+
+    .role-cta .arrow {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      color: #fff;
+      transition: transform 260ms var(--ease);
+    }
+
+    .role-cta .arrow svg { width: 16px; height: 16px; }
+
+    .role:hover .role-cta { background: rgba(40, 110, 221, 0.22); border-color: rgba(108, 168, 228, 0.6); }
+    .role:hover .role-cta .arrow { transform: translateX(3px); }
+    .role-cta:active { transform: scale(0.98); }
+
+    .role--primary .role-cta {
+      background: #fff;
+      border-color: #fff;
+      color: #0A2F86;
+    }
+
+    .role--primary:hover .role-cta { background: #EAF2FF; border-color: #EAF2FF; }
+
+    .role--gold .role-cta .arrow { background: var(--podium); color: #2A1A00; }
+
+    /* Whole card is clickable via the CTA link */
+    .role-cta::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+    }
+
+    /* ---------- Footer ---------- */
+    .footer {
+      margin-top: auto;
+      border-top: 1px solid rgba(30, 51, 94, 0.6);
+    }
+
+    .footer .shell {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px 20px;
+      padding-top: 18px;
+      padding-bottom: 22px;
+      font-size: 12px;
+      color: var(--text-mute);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .legend span { display: inline-flex; align-items: center; gap: 7px; }
+
+    .legend i {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* ---------- Entrance ---------- */
+    .rise {
+      animation: rise 800ms var(--ease) both;
+      animation-delay: calc(var(--i, 0) * 80ms);
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 960px) {
+      .hero { grid-template-columns: 1fr; padding-top: 36px; gap: 28px; }
+      .orb-stage { width: min(72vw, 300px); margin: 0 auto; grid-row: 1; }
+      .roles { grid-template-columns: 1fr 1fr; }
+      .role--primary { grid-column: 1 / -1; min-height: 0; }
+    }
+
+    @media (max-width: 640px) {
+      .shell { padding: 0 16px; }
+      .topbar { padding-top: 14px; }
+      .brand-sub, .status-sep, .clock { display: none; }
+      .hero { padding: 24px 0 28px; }
+      .orb-stage { width: min(62vw, 240px); }
+      .lede { font-size: 15px; }
+      .facts { gap: 20px; margin-top: 24px; }
+      .fact-num { font-size: 22px; }
+      .roles { grid-template-columns: 1fr; gap: 14px; }
+      .role { min-height: 0; padding: 22px; border-radius: 26px; }
+      .role h3 { font-size: 22px; }
+      .role-tag { margin-top: 20px; }
+      .hint, .role kbd { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .wave { display: none; }
+    }
+  </style>
 </head>
-<body class="gingham-pattern text-slate-100 flex flex-col min-h-screen relative select-none">
+<body>
 
-  <!-- Origami Stars (Top-Left Decor) -->
-  <div class="decor-stars">
-    <img src="/img/origami-stars.svg" alt="Estrellas Decorativas" style="width: 100%; height: 100%;">
-  </div>
-
-  <!-- Origami Boat (Bottom-Right Decor) -->
-  <div class="decor-boat">
-    <img src="/img/origami-boat.svg" alt="Barco Origami" style="width: 100%; height: 100%;">
-  </div>
-
-  <!-- Bottom Waves Trim -->
-  <div class="decor-waves">
-    <img src="/img/waves.svg" alt="Olas" style="width: 100%; height: 100%; object-fit: cover;">
-  </div>
-
-  <!-- MAIN CONTAINER -->
-  <main class="hub-container my-auto">
-    
-    <div class="denim-card denim-texture w-full shadow-2xl relative">
-      
-      <!-- Centered Header Area -->
-      <div class="hub-header">
-        <!-- Top Official CEIS Monogram -->
-        <div class="logo-avatar">
-          <img src="/img/logo-ceis.png" alt="Logo Oficial CEIS">
-        </div>
-
-        <!-- Main Title Ribbon -->
-        <div class="ribbon-banner text-2xl md:text-3xl">
-          ¿Quién quiere ser Ingeniero?
-        </div>
-        
-        <p class="hub-subtitle">
-          Sistema de concurso intercarreras en tiempo real
-        </p>
+  <header class="shell topbar rise">
+    <div class="brand">
+      <div class="brand-logo"><img src="/img/logo-ceis.png" alt="Logo CEIS"></div>
+      <div>
+        <div class="brand-name">QQSI</div>
+        <div class="brand-sub">CEIS · Concurso intercarreras</div>
       </div>
-
-      <!-- Roles Grid with Luminous Action Cards -->
-      <div class="roles-grid">
-        
-        <!-- 1. DISPLAY / PROYECCION -->
-        <div class="role-card-box">
-          <div>
-            <div class="role-icon-box role-icon-blue" id="hubScreenIcon"></div>
-            <h3 class="text-lg font-black text-white mb-1.5 font-display" style="font-size: 18px;">Pantalla de Proyección</h3>
-            <p class="text-xs text-slate-300 font-medium leading-relaxed" style="font-size: 12px; color: #b8cde0;">
-              Vista en vivo para el auditorio con cronómetro digital, fórmulas KaTeX y código C++.
-            </p>
-          </div>
-          <a href="/display.html" class="role-action-btn btn-glow-blue">
-            <span>Lanzar Pantalla</span>
-            <span id="hubArrow1"></span>
-          </a>
-        </div>
-
-        <!-- 2. TEAMS / EQUIPOS -->
-        <div class="role-card-box">
-          <div>
-            <div class="role-icon-box role-icon-green" id="hubPhoneIcon"></div>
-            <h3 class="text-lg font-black text-white mb-1.5 font-display" style="font-size: 18px;">Pulsador de Equipos</h3>
-            <p class="text-xs text-slate-300 font-medium leading-relaxed" style="font-size: 12px; color: #b8cde0;">
-              Acceso móvil para los 5 equipos. Envío de respuestas con pulsador sincronizado.
-            </p>
-          </div>
-          <a href="/team.html" class="role-action-btn btn-glow-green">
-            <span>Ingresar como Equipo</span>
-            <span id="hubArrow2"></span>
-          </a>
-        </div>
-
-        <!-- 3. ADMIN / JUEZ -->
-        <div class="role-card-box">
-          <div>
-            <div class="role-icon-box role-icon-amber" id="hubShieldIcon"></div>
-            <h3 class="text-lg font-black text-white mb-1.5 font-display" style="font-size: 18px;">Panel de Moderador</h3>
-            <p class="text-xs text-slate-300 font-medium leading-relaxed" style="font-size: 12px; color: #b8cde0;">
-              Control maestro de rondas, banco de preguntas, cronómetro y puntuaciones en vivo.
-            </p>
-          </div>
-          <a href="/admin.html" class="role-action-btn btn-glow-amber">
-            <span>Abrir Panel</span>
-            <span id="hubArrow3"></span>
-          </a>
-        </div>
-
-      </div>
-
     </div>
+    <div class="status-pill" id="statusPill" data-state="checking" role="status" aria-live="polite">
+      <span class="status-dot"></span>
+      <span id="statusText">Conectando…</span>
+      <span class="status-sep">|</span>
+      <span class="clock" id="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <main class="shell">
+
+    <section class="hero">
+      <div>
+        <span class="eyebrow rise" style="--i: 1;">Concurso en vivo · Tiempo real</span>
+        <h1 class="rise" style="--i: 2;">
+          <span class="q">¿</span>Quién quiere ser
+          <span class="accent">Ingeniero?</span>
+        </h1>
+        <p class="lede rise" style="--i: 3;">
+          Proyección para el auditorio, pulsadores sincronizados para cada mesa y consola del moderador, todo en una misma sala.
+        </p>
+        <div class="facts rise" style="--i: 4;">
+          <div><div class="fact-num">05</div><div class="fact-lbl">Mesas en competencia</div></div>
+          <div><div class="fact-num">A–D</div><div class="fact-lbl">Opciones por pregunta</div></div>
+          <div><div class="fact-num">+5</div><div class="fact-lbl">Bono por velocidad</div></div>
+        </div>
+      </div>
+
+      <div class="orb-stage rise" style="--i: 3;" aria-hidden="true">
+        <svg class="orb-ring" viewBox="0 0 400 400">
+          <circle class="ticks" cx="200" cy="200" r="192" fill="none" stroke-width="6" stroke-dasharray="1.5 18.6"></circle>
+          <circle class="track" cx="200" cy="200" r="180" fill="none" stroke-width="3"></circle>
+          <circle class="arc" cx="200" cy="200" r="180" fill="none" stroke-width="3" stroke-dasharray="180 951"></circle>
+          <g id="teamNodes"></g>
+        </svg>
+        <div class="orb">
+          <span class="wave"></span>
+          <span class="wave"></span>
+          <span class="wave"></span>
+          <div class="orb-core">
+            <span class="big">¿?</span>
+            <span class="small">LISTOS</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="rolesTitle">
+      <div class="section-head rise" style="--i: 5;">
+        <h2 id="rolesTitle">Elige tu rol</h2>
+        <span class="hint">Atajos de teclado <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></span>
+      </div>
+
+      <div class="roles">
+        <article class="role role--primary rise" style="--i: 6;">
+          <div class="role-top">
+            <span class="role-icon" data-icon="smartphone"></span>
+            <kbd>1</kbd>
+          </div>
+          <span class="role-tag">Mesas · Móvil</span>
+          <h3>Pulsador de Equipos</h3>
+          <p>Confirma la presencia de tu mesa, espera la pregunta y envía tu respuesta antes que nadie.</p>
+          <a href="/team.html" class="role-cta" data-key="1">
+            Ingresar como equipo
+            <span class="arrow" data-icon="chevronRight"></span>
+          </a>
+        </article>
+
+        <article class="role rise" style="--i: 7;">
+          <div class="role-top">
+            <span class="role-icon" data-icon="screen"></span>
+            <kbd>2</kbd>
+          </div>
+          <span class="role-tag">Auditorio · Proyector</span>
+          <h3>Pantalla de Proyección</h3>
+          <p>Pregunta, cronómetro LED y podio en vivo para el público.</p>
+          <a href="/display.html" class="role-cta" data-key="2">
+            Lanzar pantalla
+            <span class="arrow" data-icon="chevronRight"></span>
+          </a>
+        </article>
+
+        <article class="role role--gold rise" style="--i: 8;">
+          <div class="role-top">
+            <span class="role-icon" data-icon="shield"></span>
+            <kbd>3</kbd>
+          </div>
+          <span class="role-tag">Juez · Control</span>
+          <h3>Panel de Moderador</h3>
+          <p>Rondas, cronómetro, evaluación de respuestas y puntuaciones.</p>
+          <a href="/admin.html" class="role-cta" data-key="3">
+            Abrir panel
+            <span class="arrow" data-icon="chevronRight"></span>
+          </a>
+        </article>
+      </div>
+    </section>
 
   </main>
 
+  <footer class="footer">
+    <div class="shell">
+      <div class="legend">
+        <span><i style="background: var(--accent-primary);"></i>Pregunta activa</span>
+        <span><i style="background: var(--success);"></i>Correcta</span>
+        <span><i style="background: var(--error);"></i>Incorrecta</span>
+        <span><i style="background: var(--podium);"></i>Podio</span>
+      </div>
+      <span>¿Quién quiere ser Ingeniero? · CEIS</span>
+    </div>
+  </footer>
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    (function () {
+      // Iconos SVG compartidos
       if (window.Icons) {
-        document.getElementById('hubScreenIcon').innerHTML = Icons.screen("w-6 h-6");
-        document.getElementById('hubPhoneIcon').innerHTML = Icons.smartphone("w-6 h-6");
-        document.getElementById('hubShieldIcon').innerHTML = Icons.shield("w-6 h-6");
-        document.getElementById('hubArrow1').innerHTML = Icons.chevronRight("w-4 h-4");
-        document.getElementById('hubArrow2').innerHTML = Icons.chevronRight("w-4 h-4");
-        document.getElementById('hubArrow3').innerHTML = Icons.chevronRight("w-4 h-4");
+        document.querySelectorAll('[data-icon]').forEach((el) => {
+          const fn = Icons[el.dataset.icon];
+          if (fn) el.innerHTML = fn('');
+        });
       }
-    });
+
+      // Cinco nodos de mesa alrededor del anillo
+      const nodes = document.getElementById('teamNodes');
+      for (let i = 0; i < 5; i++) {
+        const a = (-90 + i * 72) * Math.PI / 180;
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('class', 'team-node');
+        c.setAttribute('cx', (200 + 180 * Math.cos(a)).toFixed(1));
+        c.setAttribute('cy', (200 + 180 * Math.sin(a)).toFixed(1));
+        c.setAttribute('r', '9');
+        nodes.appendChild(c);
+      }
+
+      // Reloj en vivo
+      const clock = document.getElementById('clock');
+      const tick = () => { clock.textContent = new Date().toLocaleTimeString('es-CO', { hour12: false }); };
+      tick();
+      setInterval(tick, 1000);
+
+      // Estado real del servidor de tiempo real (misma resolución que config.js)
+      const pill = document.getElementById('statusPill');
+      const text = document.getElementById('statusText');
+      const setState = (state, label) => { pill.dataset.state = state; text.textContent = label; };
+
+      // Misma resolución de backend que config.js (sin su petición síncrona)
+      let backendBase = null;
+      const resolveBackend = async () => {
+        if (backendBase) return backendBase;
+        try {
+          const res = await fetch('/api/config', { cache: 'no-store' });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.backendUrl && data.backendUrl.trim()) backendBase = data.backendUrl.trim().replace(/\/$/, '');
+          }
+        } catch (e) {}
+        if (!backendBase) {
+          backendBase = location.hostname.endsWith('vercel.app') ? 'https://qqsi.147.5.103.87.sslip.io' : location.origin;
+        }
+        return backendBase;
+      };
+
+      // Ping ligero al endpoint de salud del backend (no abre sesiones de socket)
+      const check = async () => {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 4000);
+        try {
+          const base = await resolveBackend();
+          await fetch(base + '/api/config?ping=' + Date.now(), { mode: 'no-cors', cache: 'no-store', signal: ctrl.signal });
+          setState('online', 'Servidor en línea');
+        } catch (e) {
+          setState('offline', 'Sin conexión');
+        } finally {
+          clearTimeout(t);
+        }
+      };
+      check();
+      setInterval(check, 15000);
+
+      // Atajos 1/2/3
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        const link = document.querySelector(`[data-key="${e.key}"]`);
+        if (link) link.click();
+      });
+    })();
   </script>
 </body>
 </html>
