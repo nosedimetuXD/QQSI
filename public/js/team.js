@@ -473,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const cardEl = $('option-' + letter);
       const raw = hasOpts ? (q.options[idx] || '') : '';
       const clean = raw.replace(/^[A-D]\)\s*/i, '');
-      if (labelEl) labelEl.textContent = hasOpts ? clean : `Opción ${letter}`;
+      if (labelEl) renderMathContent(labelEl, hasOpts ? clean : `Opción ${letter}`);
       if (cardEl) {
         cardEl.style.display = (!hasOpts || idx < q.options.length) ? '' : 'none';
         cardEl.setAttribute('aria-label', hasOpts ? `Opción ${letter}: ${clean}` : `Opción ${letter}`);
@@ -532,11 +532,68 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${currentState.currentRoundIndex}-${currentState.currentQuestionIndex}`;
   }
 
+  function renderMathContent(targetElement, rawText) {
+    if (!targetElement) return;
+    if (rawText === undefined || rawText === null) {
+      if (window.renderMathInElement) {
+        try {
+          renderMathInElement(targetElement, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false },
+              { left: '\\(', right: '\\)', display: false },
+              { left: '\\[', right: '\\]', display: true }
+            ],
+            throwOnError: false
+          });
+        } catch (e) {}
+      }
+      return;
+    }
+
+    let text = String(rawText);
+
+    // Si el texto tiene comandos LaTeX sin delimitar, envolver automáticamente
+    if (!text.includes('$') && !text.includes('\\(') && !text.includes('\\[') &&
+        /\\(implies|frac|sqrt|int|begin|left|right|pm|cdot|alpha|beta|theta|pi|nabla|partial|times|approx|le|ge|neq|in|sum|lim|cases|infty)/.test(text)) {
+      text = `$$${text}$$`;
+    }
+
+    let html = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+
+    html = html.replace(/\$([^\$]+)\$/g, (m, math) => {
+      return '$' + math.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>') + '$';
+    }).replace(/\$\$([^\$]+)\$\$/g, (m, math) => {
+      return '$$' + math.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>') + '$$';
+    });
+
+    targetElement.innerHTML = html;
+
+    if (window.renderMathInElement) {
+      try {
+        renderMathInElement(targetElement, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
+          ],
+          throwOnError: false
+        });
+      } catch (e) {}
+    }
+  }
+
   function renderQuestionText() {
     const q = getQuestion();
     if (q && currentMode === 2) {
       if (questionBadge) questionBadge.textContent = q.title || `Pregunta ${(currentState.currentQuestionIndex || 0) + 1}`;
-      if (questionTitleText) questionTitleText.textContent = q.statement || 'Pregunta en curso';
+      if (questionTitleText) renderMathContent(questionTitleText, q.statement || 'Pregunta en curso');
       if (q.math && questionMath) {
         questionMath.style.display = 'block';
         try {
@@ -950,4 +1007,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize
   updateView();
+  window.addEventListener('load', () => updateView());
 });

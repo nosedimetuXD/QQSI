@@ -218,7 +218,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderMathContent(targetElement, rawText) {
     if (!targetElement) return;
-    targetElement.textContent = rawText || '';
+    if (rawText === undefined || rawText === null) {
+      if (window.renderMathInElement) {
+        try {
+          renderMathInElement(targetElement, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false },
+              { left: '\\(', right: '\\)', display: false },
+              { left: '\\[', right: '\\]', display: true }
+            ],
+            throwOnError: false
+          });
+        } catch (e) {}
+      }
+      return;
+    }
+
+    let text = String(rawText);
+
+    // Si el texto tiene comandos LaTeX sin delimitar, envolver automáticamente
+    if (!text.includes('$') && !text.includes('\\(') && !text.includes('\\[') &&
+        /\\(implies|frac|sqrt|int|begin|left|right|pm|cdot|alpha|beta|theta|pi|nabla|partial|times|approx|le|ge|neq|in|sum|lim|cases|infty)/.test(text)) {
+      text = `$$${text}$$`;
+    }
+
+    let html = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+
+    html = html.replace(/\$([^\$]+)\$/g, (m, math) => {
+      return '$' + math.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>') + '$';
+    }).replace(/\$\$([^\$]+)\$\$/g, (m, math) => {
+      return '$$' + math.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>') + '$$';
+    });
+
+    targetElement.innerHTML = html;
+
     if (window.renderMathInElement) {
       try {
         renderMathInElement(targetElement, {
@@ -292,6 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         `;
       }).join('');
+      renderMathContent(questionOptionsGrid, null);
     } else {
       questionOptionsGrid.style.display = 'none';
     }
@@ -477,4 +517,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     leaderboardList.innerHTML = html;
   }
+
+  window.addEventListener('load', () => updateDisplay());
 });

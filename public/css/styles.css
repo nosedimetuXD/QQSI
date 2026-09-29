@@ -1523,12 +1523,36 @@ svg {
 
 /* --- Matemáticas --- */
 .math-display {
-  font-size: 2.2rem;
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
   line-height: 1.4;
   color: #BFDBFE;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
 }
 
-.katex { font-size: 1.15em; color: #BFDBFE; }
+.katex {
+  font-size: 1.12em;
+  color: inherit;
+}
+
+.katex-display {
+  margin: 0.6em 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-width: 100% !important;
+  padding: 4px 0 !important;
+  text-align: center !important;
+}
+
+.katex-display > .katex {
+  color: #93c5fd !important;
+}
+
+.preview-math-box .katex {
+  font-size: 1.3em;
+  color: #67e8f9;
+}
 
 /* ==========================================================================
    RESPONSIVE
